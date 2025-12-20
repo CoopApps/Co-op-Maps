@@ -175,6 +175,85 @@
         .context-menu-item:last-child {
             border-bottom: none;
         }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border: 2px solid #7f8c8d;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 6px;
+            border: 2px inset #bdc3c7;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        .form-group small {
+            display: block;
+            margin-top: 3px;
+            font-size: 10px;
+            color: #7f8c8d;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 8px;
+            border: 2px outset #bdc3c7;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .modal-buttons .btn-primary {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        .modal-buttons .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
     </style>
 </head>
 <body>
@@ -226,6 +305,7 @@
                 <button onclick="CoopMaps.modules.canvas.zoomReset()"><span id="zoomText">100%</span></button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export.showExportDialog()">Export</button>
+                <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
                 <button onclick="CoopMaps.showHelp()">Help</button>
             </div>
 
@@ -244,6 +324,51 @@
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas.sendToBack(); CoopMaps.hideContextMenu();">Send to Back</div>
     </div>
 
+    <!-- Submit Map Modal -->
+    <div id="submitModal" class="modal">
+        <div class="modal-content">
+            <h2>Submit Map to Community Gallery</h2>
+            <form id="submitForm" onsubmit="CoopMaps.handleSubmit(event)">
+                <div class="form-group">
+                    <label>Map Title *</label>
+                    <input type="text" id="submitTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Your Name *</label>
+                    <input type="text" id="submitAuthor" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="submitEmail" required>
+                    <small>Used for approval notifications and editing</small>
+                </div>
+                <div class="form-group">
+                    <label>Organization (optional)</label>
+                    <input type="text" id="submitOrganization">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="submitDescription"></textarea>
+                    <small>Brief description of your map</small>
+                </div>
+                <div class="form-group">
+                    <label>Tags (comma-separated)</label>
+                    <input type="text" id="submitTags" placeholder="e.g., energy, UK, housing">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="submitPassword" required>
+                    <small>Create a password to edit your map later. Keep it safe!</small>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-primary">Submit for Review</button>
+                    <button type="button" class="btn-secondary" onclick="CoopMaps.closeSubmitDialog()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="public/js/api.js"></script>
     <script>
         window.CoopMaps = {
             version: '0.92',
@@ -352,6 +477,105 @@
                     '- Ortho: Switch connector style\n' +
                     '- Right-click items for options'
                 );
+            },
+
+            showSubmitDialog() {
+                // Pre-fill title if set
+                const titleInput = document.getElementById('submitTitle');
+                if (titleInput && this.state.data.diagramProperties.title !== 'New Diagram') {
+                    titleInput.value = this.state.data.diagramProperties.title;
+                }
+                document.getElementById('submitModal').classList.add('active');
+            },
+
+            closeSubmitDialog() {
+                document.getElementById('submitModal').classList.remove('active');
+                document.getElementById('submitForm').reset();
+            },
+
+            async handleSubmit(event) {
+                event.preventDefault();
+
+                // Validate we have something to submit
+                if (this.state.data.enterprises.length === 0) {
+                    alert('Error: Your map is empty. Please add some enterprises before submitting.');
+                    return;
+                }
+
+                // Get form values
+                const title = document.getElementById('submitTitle').value;
+                const author = document.getElementById('submitAuthor').value;
+                const email = document.getElementById('submitEmail').value;
+                const organization = document.getElementById('submitOrganization').value;
+                const description = document.getElementById('submitDescription').value;
+                const tagsInput = document.getElementById('submitTags').value;
+                const password = document.getElementById('submitPassword').value;
+
+                // Parse tags
+                const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+                // Generate thumbnail
+                const thumbnail = this.generateThumbnail();
+
+                // Prepare diagram data
+                const diagramData = {
+                    enterprises: this.state.data.enterprises,
+                    relationships: this.state.data.relationships,
+                    diagramProperties: this.state.data.diagramProperties
+                };
+
+                // Submit via API
+                try {
+                    const response = await CoopMapsAPI.submitMap({
+                        title,
+                        author,
+                        email,
+                        organization,
+                        description,
+                        tags,
+                        password,
+                        diagramData,
+                        thumbnail
+                    });
+
+                    alert('Success! Your map has been submitted for review.\n\nYou will receive an email when it is approved.\n\nMap ID: ' + response.mapId);
+                    this.closeSubmitDialog();
+                } catch (error) {
+                    alert('Error submitting map: ' + error.message);
+                }
+            },
+
+            generateThumbnail() {
+                // Generate a thumbnail from the canvas
+                const canvas = document.getElementById('canvas');
+                if (!canvas) return null;
+
+                try {
+                    // Create a smaller canvas for thumbnail
+                    const thumbCanvas = document.createElement('canvas');
+                    thumbCanvas.width = 400;
+                    thumbCanvas.height = 300;
+                    const ctx = thumbCanvas.getContext('2d');
+
+                    // Draw white background
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, thumbCanvas.width, thumbCanvas.height);
+
+                    // Scale and draw the main canvas
+                    const scale = Math.min(
+                        thumbCanvas.width / canvas.width,
+                        thumbCanvas.height / canvas.height
+                    );
+                    const offsetX = (thumbCanvas.width - canvas.width * scale) / 2;
+                    const offsetY = (thumbCanvas.height - canvas.height * scale) / 2;
+
+                    ctx.drawImage(canvas, offsetX, offsetY, canvas.width * scale, canvas.height * scale);
+
+                    return thumbCanvas.toDataURL('image/png');
+                } catch (error) {
+                    console.error('Error generating thumbnail:', error);
+                    return null;
+                }
             },
 
             renderSymbolButtons() {
