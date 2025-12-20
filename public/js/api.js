@@ -4,7 +4,7 @@
  */
 
 const CoopMapsAPI = {
-    baseURL: '/api',
+    baseURL: (typeof window.CoopMapsConfig !== 'undefined') ? window.CoopMapsConfig.API_BASE_URL : '/api',
 
     /**
      * Make API request
