@@ -1,361 +1,400 @@
-/**
- * Co-opMaps - Shapes Module
- * Defines enterprise shapes and rendering logic
- */
-
+// Module 1: Shapes Module
 (function() {
     'use strict';
 
-    const shapes = {
-        // Enterprise type definitions with their visual properties
-        enterpriseTypes: {
-            cooperative: {
-                label: 'Cooperative',
-                color: '#3498db',
-                icon: '🏢',
-                description: 'Member-owned and democratically controlled enterprise'
-            },
-            mutualAid: {
-                label: 'Mutual Aid',
-                color: '#2ecc71',
-                icon: '🤝',
-                description: 'Voluntary reciprocal exchange of resources and services'
-            },
-            publicSector: {
-                label: 'Public Sector',
-                color: '#9b59b6',
-                icon: '🏛️',
-                description: 'Government or public institution'
-            },
-            privateSector: {
-                label: 'Private Sector',
-                color: '#e67e22',
-                icon: '🏪',
-                description: 'Privately owned business'
-            },
-            civilSociety: {
-                label: 'Civil Society',
-                color: '#e74c3c',
-                icon: '🌍',
-                description: 'Non-profit or community organization'
-            },
-            household: {
-                label: 'Household',
-                color: '#f39c12',
-                icon: '🏠',
-                description: 'Family or household unit'
-            }
+    CoopMaps.registerModule('shapes', {
+        init() {
+            console.log('Shapes module initialized');
         },
 
-        // Relationship types for connectors
-        relationshipTypes: {
-            'G': { label: 'Goods/Services (G)', color: '#2c3e50', style: 'solid' },
-            'F': { label: 'Finance (F)', color: '#27ae60', style: 'dashed' },
-            'K': { label: 'Knowledge (K)', color: '#2980b9', style: 'dotted' },
-            'M': { label: 'Mixed (M)', color: '#8e44ad', style: 'solid' }
-        },
-
-        // Draw enterprise shape on canvas
-        drawEnterprise(ctx, enterprise, isSelected = false) {
-            const { x, y, width, height, type } = enterprise;
-            const typeInfo = this.enterpriseTypes[type] || this.enterpriseTypes.cooperative;
-
+        // Basic rectangle for cooperatives and excluded businesses
+        drawRectangle(ctx, x, y, width, height, options = {}) {
             ctx.save();
 
             // Shadow for depth
-            if (isSelected) {
-                ctx.shadowColor = 'rgba(52, 152, 219, 0.5)';
-                ctx.shadowBlur = 15;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
             }
 
-            // Background fill
-            const fillColor = enterprise.fill || typeInfo.color;
-            ctx.fillStyle = fillColor;
-            ctx.strokeStyle = enterprise.stroke || this.darkenColor(fillColor, 20);
-            ctx.lineWidth = isSelected ? 3 : 2;
+            ctx.beginPath();
+            ctx.rect(x, y, width, height);
 
-            // Draw based on shape type
-            const shape = enterprise.shape || 'rectangle';
-
-            if (shape === 'rectangle') {
-                // Rounded rectangle
-                const radius = 8;
-                ctx.beginPath();
-                ctx.moveTo(x + radius, y);
-                ctx.lineTo(x + width - radius, y);
-                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-                ctx.lineTo(x + width, y + height - radius);
-                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-                ctx.lineTo(x + radius, y + height);
-                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-                ctx.lineTo(x, y + radius);
-                ctx.quadraticCurveTo(x, y, x + radius, y);
-                ctx.closePath();
-            } else if (shape === 'circle') {
-                const centerX = x + width / 2;
-                const centerY = y + height / 2;
-                const radius = Math.min(width, height) / 2;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-                ctx.closePath();
-            } else if (shape === 'diamond') {
-                ctx.beginPath();
-                ctx.moveTo(x + width / 2, y);
-                ctx.lineTo(x + width, y + height / 2);
-                ctx.lineTo(x + width / 2, y + height);
-                ctx.lineTo(x, y + height / 2);
-                ctx.closePath();
-            }
-
-            ctx.fill();
-            ctx.stroke();
-
-            // Draw icon if enabled
-            if (enterprise.showIcon !== false) {
-                ctx.font = '24px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#fff';
-                const iconX = x + width / 2;
-                const iconY = y + 20;
-                ctx.fillText(typeInfo.icon, iconX, iconY);
-            }
-
-            // Draw enterprise name
-            ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#2c3e50';
-
-            const name = enterprise.name || 'Unnamed';
-            const textY = enterprise.showIcon !== false ? y + height / 2 + 5 : y + height / 2;
-
-            // Word wrap for long names
-            this.drawWrappedText(ctx, name, x + width / 2, textY, width - 20, 16);
-
-            // Draw roles if any
-            if (enterprise.roles && enterprise.roles.length > 0) {
-                ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillStyle = '#7f8c8d';
-                const rolesText = enterprise.roles.join(', ');
-                const rolesY = y + height - 15;
-                this.drawWrappedText(ctx, rolesText, x + width / 2, rolesY, width - 20, 14);
-            }
-
-            // Draw tier indicator if primary or secondary
-            if (enterprise.tier && enterprise.tier !== 'other') {
-                const tierColor = enterprise.tier === 'primary' ? '#f39c12' : '#95a5a6';
-                ctx.fillStyle = tierColor;
-                ctx.beginPath();
-                ctx.arc(x + width - 10, y + 10, 5, 0, Math.PI * 2);
+            // Fill with gradient
+            if (options.fill) {
+                const gradient = ctx.createLinearGradient(x, y, x, y + height);
+                const baseColor = options.fill === 'white' ? '#ffffff' : options.fill;
+                gradient.addColorStop(0, this.lightenColor(baseColor, 10));
+                gradient.addColorStop(1, baseColor);
+                ctx.fillStyle = gradient;
                 ctx.fill();
             }
 
-            // Draw generic set indicator
-            if (enterprise.isGenericSet) {
-                ctx.strokeStyle = '#e74c3c';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([5, 5]);
-                ctx.strokeRect(x - 5, y - 5, width + 10, height + 10);
-                ctx.setLineDash([]);
-            }
+            // Stroke
+            ctx.strokeStyle = options.stroke || '#2c3e50';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
 
-            // Selection handles
-            if (isSelected) {
-                this.drawSelectionHandles(ctx, enterprise);
+            // Inner highlight
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.rect(x + 2, y + 2, width - 4, 3);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fill();
             }
 
             ctx.restore();
         },
 
-        // Draw relationship connector
-        drawRelationship(ctx, relationship, enterprises, connectorStyle = 'orthogonal', isSelected = false) {
-            const startEnt = enterprises.find(e => e.id === relationship.startEnterpriseId);
-            const endEnt = enterprises.find(e => e.id === relationship.endEnterpriseId);
-
-            if (!startEnt || !endEnt) return;
-
+        // Rounded rectangle for NCM with left extension
+        drawRoundedRectangle(ctx, x, y, width, height, radius = 10, options = {}) {
             ctx.save();
 
-            const relType = this.relationshipTypes[relationship.type] || this.relationshipTypes['G'];
-            ctx.strokeStyle = relationship.color || relType.color;
-            ctx.lineWidth = isSelected ? 3 : 2;
-
-            // Set line style based on relationship type
-            if (relType.style === 'dashed') {
-                ctx.setLineDash([10, 5]);
-            } else if (relType.style === 'dotted') {
-                ctx.setLineDash([3, 3]);
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 3;
             }
 
-            // Calculate connection points (center of each enterprise)
-            const startX = startEnt.x + startEnt.width / 2;
-            const startY = startEnt.y + startEnt.height / 2;
-            const endX = endEnt.x + endEnt.width / 2;
-            const endY = endEnt.y + endEnt.height / 2;
-
-            // Draw based on connector style
-            if (connectorStyle === 'orthogonal') {
-                this.drawOrthogonalConnector(ctx, startX, startY, endX, endY);
-            } else {
-                this.drawDirectConnector(ctx, startX, startY, endX, endY);
-            }
-
-            // Draw arrowhead at end
-            this.drawArrowhead(ctx, endX, endY, startX, startY, connectorStyle);
-
-            // Draw relationship label
-            const midX = (startX + endX) / 2;
-            const midY = (startY + endY) / 2;
-
-            ctx.fillStyle = '#fff';
-            ctx.strokeStyle = '#2c3e50';
-            ctx.lineWidth = 3;
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            const label = relationship.type;
-            const metrics = ctx.measureText(label);
-            const padding = 6;
-
-            // Background for label
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(
-                midX - metrics.width / 2 - padding,
-                midY - 8,
-                metrics.width + padding * 2,
-                16
-            );
-
-            // Label text
-            ctx.fillStyle = relType.color;
-            ctx.fillText(label, midX, midY);
-
-            ctx.restore();
-        },
-
-        // Draw orthogonal (right-angle) connector
-        drawOrthogonalConnector(ctx, startX, startY, endX, endY) {
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-
-            const midX = (startX + endX) / 2;
-
-            ctx.lineTo(midX, startY);
-            ctx.lineTo(midX, endY);
-            ctx.lineTo(endX, endY);
-
-            ctx.stroke();
-        },
-
-        // Draw direct (straight) connector
-        drawDirectConnector(ctx, startX, startY, endX, endY) {
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(endX, endY);
-            ctx.stroke();
-        },
-
-        // Draw arrowhead
-        drawArrowhead(ctx, x, y, fromX, fromY, connectorStyle) {
-            const angle = Math.atan2(y - fromY, x - fromX);
-            const arrowLength = 12;
-            const arrowWidth = 8;
-
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
+            const leftExtension = height * 0.2;
 
             ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(-arrowLength, -arrowWidth / 2);
-            ctx.lineTo(-arrowLength, arrowWidth / 2);
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + width, y);
+            ctx.lineTo(x + width, y + height);
+            ctx.quadraticCurveTo(x + width/2, y + height + leftExtension/2, x, y + height + leftExtension);
+            ctx.lineTo(x, y);
             ctx.closePath();
+
+            if (options.fill) {
+                const gradient = ctx.createLinearGradient(x, y, x, y + height + leftExtension);
+                const baseColor = options.fill === 'white' ? '#ffffff' : options.fill;
+                gradient.addColorStop(0, this.lightenColor(baseColor, 15));
+                gradient.addColorStop(1, baseColor);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = options.stroke || '#34495e';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
+
+            // Highlight
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.moveTo(x + 3, y + 3);
+                ctx.lineTo(x + width - 3, y + 3);
+                ctx.lineTo(x + width - 3, y + 6);
+                ctx.lineTo(x + 3, y + 6);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+            }
+
+            ctx.restore();
+        },
+
+        // Pill shape for Social Enterprise
+        drawPill(ctx, x, y, width, height, options = {}) {
+            ctx.save();
+
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
+            }
+
+            const radius = height / 2;
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.arc(x + width - radius, y + radius, radius, -Math.PI/2, Math.PI/2);
+            ctx.lineTo(x + radius, y + height);
+            ctx.arc(x + radius, y + radius, radius, Math.PI/2, -Math.PI/2);
+            ctx.closePath();
+
+            // Yellow gradient
+            const gradient = ctx.createRadialGradient(x + width/2, y + height/2, 0, x + width/2, y + height/2, Math.max(width, height)/2);
+            gradient.addColorStop(0, '#fff59d');
+            gradient.addColorStop(0.7, '#ffeb3b');
+            gradient.addColorStop(1, '#fdd835');
+            ctx.fillStyle = gradient;
             ctx.fill();
 
+            ctx.strokeStyle = options.stroke || '#f9a825';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
+
+            // Glossy highlight
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.arc(x + radius, y + radius * 0.7, radius * 0.4, 0, Math.PI * 2);
+                const highlightGradient = ctx.createRadialGradient(x + radius, y + radius * 0.7, 0, x + radius, y + radius * 0.7, radius * 0.4);
+                highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+                highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = highlightGradient;
+                ctx.fill();
+            }
+
             ctx.restore();
         },
 
-        // Draw selection handles
-        drawSelectionHandles(ctx, enterprise) {
-            const { x, y, width, height } = enterprise;
-            const handleSize = 8;
+        // Ellipse for Private Enterprise
+        drawEllipse(ctx, x, y, width, height, options = {}) {
+            ctx.save();
 
-            ctx.fillStyle = '#3498db';
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-
-            const handles = [
-                { x: x, y: y },                           // Top-left
-                { x: x + width / 2, y: y },               // Top-center
-                { x: x + width, y: y },                   // Top-right
-                { x: x + width, y: y + height / 2 },      // Right-center
-                { x: x + width, y: y + height },          // Bottom-right
-                { x: x + width / 2, y: y + height },      // Bottom-center
-                { x: x, y: y + height },                  // Bottom-left
-                { x: x, y: y + height / 2 }               // Left-center
-            ];
-
-            handles.forEach(handle => {
-                ctx.fillRect(
-                    handle.x - handleSize / 2,
-                    handle.y - handleSize / 2,
-                    handleSize,
-                    handleSize
-                );
-                ctx.strokeRect(
-                    handle.x - handleSize / 2,
-                    handle.y - handleSize / 2,
-                    handleSize,
-                    handleSize
-                );
-            });
-        },
-
-        // Draw wrapped text
-        drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
-            const words = text.split(' ');
-            let line = '';
-            let yPos = y;
-
-            for (let i = 0; i < words.length; i++) {
-                const testLine = line + words[i] + ' ';
-                const metrics = ctx.measureText(testLine);
-
-                if (metrics.width > maxWidth && i > 0) {
-                    ctx.fillText(line.trim(), x, yPos);
-                    line = words[i] + ' ';
-                    yPos += lineHeight;
-                } else {
-                    line = testLine;
-                }
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 3;
             }
-            ctx.fillText(line.trim(), x, yPos);
+
+            ctx.beginPath();
+            ctx.ellipse(x + width/2, y + height/2, width/2, height/2, 0, 0, 2 * Math.PI);
+
+            if (options.fill) {
+                const gradient = ctx.createRadialGradient(x + width/2, y + height/3, 0, x + width/2, y + height/2, Math.max(width, height)/2);
+                const baseColor = options.fill === '#f0f0f0' ? '#f5f5f5' : options.fill;
+                gradient.addColorStop(0, this.lightenColor(baseColor, 20));
+                gradient.addColorStop(1, baseColor);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = options.stroke || '#546e7a';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
+
+            // Elliptical highlight
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.ellipse(x + width/2, y + height/3, width/3, height/5, 0, 0, 2 * Math.PI);
+                const highlightGradient = ctx.createRadialGradient(x + width/2, y + height/3, 0, x + width/2, y + height/3, Math.max(width/3, height/5));
+                highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+                highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = highlightGradient;
+                ctx.fill();
+            }
+
+            ctx.restore();
         },
 
-        // Utility: Darken a color
-        darkenColor(color, percent) {
+        // Diamond for State Enterprise
+        drawDiamond(ctx, x, y, width, height, options = {}) {
+            ctx.save();
+
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(x + width/2, y);
+            ctx.lineTo(x + width, y + height/2);
+            ctx.lineTo(x + width/2, y + height);
+            ctx.lineTo(x, y + height/2);
+            ctx.closePath();
+
+            if (options.fill) {
+                const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+                const baseColor = options.fill === '#f0f0f0' ? '#f8f8f8' : options.fill;
+                gradient.addColorStop(0, this.lightenColor(baseColor, 25));
+                gradient.addColorStop(0.5, baseColor);
+                gradient.addColorStop(1, this.darkenColor(baseColor, 10));
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = options.stroke || '#37474f';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
+
+            // Diamond facet highlight
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.moveTo(x + width/2, y + 5);
+                ctx.lineTo(x + width - 5, y + height/2);
+                ctx.lineTo(x + width/2, y + height/3);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fill();
+            }
+
+            ctx.restore();
+        },
+
+        // Participation role indicators (top edge)
+        drawParticipationIndicators(ctx, x, y, width, height, roles) {
+            const indicatorHeight = 10;
+            const indicatorY = y - indicatorHeight - 3;
+            const sectionWidth = width / 3;
+
+            const roleColors = {
+                producers: '#e74c3c',    // Red
+                users: '#3498db',        // Blue
+                investors: '#27ae60'     // Green
+            };
+
+            ctx.save();
+
+            const positions = ['producers', 'users', 'investors'];
+            positions.forEach((role, index) => {
+                const indicatorX = x + (index * sectionWidth);
+
+                // Border
+                ctx.strokeStyle = '#34495e';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(indicatorX, indicatorY, sectionWidth, indicatorHeight);
+
+                if (roles.includes(role)) {
+                    // Gradient fill for active roles
+                    const gradient = ctx.createLinearGradient(indicatorX, indicatorY, indicatorX, indicatorY + indicatorHeight);
+                    gradient.addColorStop(0, this.lightenColor(roleColors[role], 20));
+                    gradient.addColorStop(1, roleColors[role]);
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(indicatorX + 1, indicatorY + 1, sectionWidth - 2, indicatorHeight - 2);
+
+                    // Letter indicator
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 7px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(role[0].toUpperCase(), indicatorX + sectionWidth/2, indicatorY + indicatorHeight/2);
+                } else {
+                    // Empty section gradient
+                    const emptyGradient = ctx.createLinearGradient(indicatorX, indicatorY, indicatorX, indicatorY + indicatorHeight);
+                    emptyGradient.addColorStop(0, '#ecf0f1');
+                    emptyGradient.addColorStop(1, '#bdc3c7');
+                    ctx.fillStyle = emptyGradient;
+                    ctx.fillRect(indicatorX + 1, indicatorY + 1, sectionWidth - 2, indicatorHeight - 2);
+                }
+            });
+
+            ctx.restore();
+        },
+
+        // Tier indicators (left edge)
+        drawTierIndicators(ctx, x, y, width, height, tier, enterpriseType) {
+            const indicatorWidth = 10;
+            const indicatorX = x - indicatorWidth - 3;
+
+            let totalHeight = height;
+            if (enterpriseType === 'ncm') {
+                totalHeight = height * 1.2;
+            }
+
+            const sectionHeight = totalHeight / 3;
+
+            ctx.save();
+
+            const tiers = ['tertiary', 'secondary', 'primary'];
+            tiers.forEach((tierName, index) => {
+                const indicatorY = y + (index * sectionHeight);
+
+                // Border
+                ctx.strokeStyle = '#34495e';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(indicatorX, indicatorY, indicatorWidth, sectionHeight);
+
+                let isActive = false;
+                if (tier === tierName) {
+                    isActive = true;
+                } else if (tier === 'hybrid-primary-secondary' && (tierName === 'primary' || tierName === 'secondary')) {
+                    isActive = true;
+                } else if (tier === 'hybrid-secondary-tertiary' && (tierName === 'secondary' || tierName === 'tertiary')) {
+                    isActive = true;
+                } else if (tier === 'hybrid-primary-tertiary' && (tierName === 'primary' || tierName === 'tertiary')) {
+                    isActive = true;
+                } else if (tier === 'hybrid-all') {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    // Gradient fill
+                    const gradient = ctx.createLinearGradient(indicatorX, indicatorY, indicatorX + indicatorWidth, indicatorY);
+                    gradient.addColorStop(0, '#7f8c8d');
+                    gradient.addColorStop(1, '#34495e');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(indicatorX + 1, indicatorY + 1, indicatorWidth - 2, sectionHeight - 2);
+
+                    // Tier letter
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 7px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(tierName[0].toUpperCase(), indicatorX + indicatorWidth/2, indicatorY + sectionHeight/2);
+                } else {
+                    // Empty gradient
+                    const emptyGradient = ctx.createLinearGradient(indicatorX, indicatorY, indicatorX + indicatorWidth, indicatorY);
+                    emptyGradient.addColorStop(0, '#ecf0f1');
+                    emptyGradient.addColorStop(1, '#bdc3c7');
+                    ctx.fillStyle = emptyGradient;
+                    ctx.fillRect(indicatorX + 1, indicatorY + 1, indicatorWidth - 2, sectionHeight - 2);
+                }
+            });
+
+            ctx.restore();
+        },
+
+        // Stack effect for generic sets
+        drawStackEffect(ctx, drawFunction, x, y, width, height, options = {}) {
+            ctx.save();
+
+            // Multiple shadow layers
+            ctx.globalAlpha = 0.15;
+            drawFunction.call(this, ctx, x + 12, y + 12, width, height, {...options, noShadow: true, noHighlight: true});
+            ctx.globalAlpha = 0.25;
+            drawFunction.call(this, ctx, x + 8, y + 8, width, height, {...options, noShadow: true, noHighlight: true});
+            ctx.globalAlpha = 0.4;
+            drawFunction.call(this, ctx, x + 4, y + 4, width, height, {...options, noShadow: true, noHighlight: true});
+
+            ctx.restore();
+
+            // Front layer
+            drawFunction.call(this, ctx, x, y, width, height, options);
+        },
+
+        // Utility functions
+        lightenColor(color, percent) {
+            if (color === 'white' || color === '#ffffff') return color;
+
             const num = parseInt(color.replace('#', ''), 16);
             const amt = Math.round(2.55 * percent);
-            const R = (num >> 16) - amt;
-            const G = (num >> 8 & 0x00FF) - amt;
-            const B = (num & 0x0000FF) - amt;
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+
             return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
                 (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
                 (B < 255 ? B < 1 ? 0 : B : 255))
                 .toString(16).slice(1);
         },
 
-        init() {
-            console.log('Shapes module initialized');
-        }
-    };
+        darkenColor(color, percent) {
+            if (color === 'black' || color === '#000000') return color;
 
-    // Register module
-    if (window.CoopMaps) {
-        window.CoopMaps.registerModule('shapes', shapes);
-    }
+            const num = parseInt(color.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+
+            return '#' + (0x1000000 + (R > 0 ? R : 0) * 0x10000 +
+                (G > 0 ? G : 0) * 0x100 +
+                (B > 0 ? B : 0))
+                .toString(16).slice(1);
+        }
+    });
 })();
