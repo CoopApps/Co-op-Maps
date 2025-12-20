@@ -14,6 +14,8 @@
             --dark: #2c3e50;
             --gray: #7f8c8d;
             --light-gray: #ecf0f1;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -23,27 +25,100 @@
             overflow: hidden;
             height: 100vh;
         }
-        .app-container { display: flex; flex-direction: column; height: 100vh; }
+
+        /* Header */
         .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
             background: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
             color: white;
-            padding: 15px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 0 25px;
+            box-shadow: 0 4px 20px rgba(44, 62, 80, 0.3);
             z-index: 1000;
         }
-        .header h1 { font-size: 20px; font-weight: 600; }
+        .header h1 { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
         .header-actions { display: flex; gap: 10px; }
-        .main-content { display: flex; flex: 1; overflow: hidden; }
-        .left-sidebar {
-            width: 280px;
-            background: white;
-            border-right: 1px solid var(--light-gray);
-            overflow-y: auto;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+
+        /* Container */
+        .container { display: flex; height: 100vh; padding-top: 60px; overflow: hidden; }
+
+        /* Left Sidebar with Tabs */
+        .sidebar {
+            width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
         }
+
+        .sidebar-tabs {
+            display: flex;
+            background: white;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .sidebar-tab::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-tab.active {
+            color: var(--primary);
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .sidebar-tab.active::before {
+            transform: translateY(0);
+        }
+
+        .sidebar-tab:hover:not(.active) {
+            background: rgba(0, 0, 0, 0.03);
+            color: var(--dark);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            background: linear-gradient(to bottom, white 0%, #fafafa 100%);
+        }
+
+        .sidebar-content::-webkit-scrollbar { width: 8px; }
+        .sidebar-content::-webkit-scrollbar-track { background: #f1f1f1; }
+        .sidebar-content::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .sidebar-content::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+
+        /* Canvas Area */
         .canvas-area {
             flex: 1;
             position: relative;
@@ -53,20 +128,14 @@
             align-items: center;
             justify-content: center;
         }
+
         #canvas {
             cursor: crosshair;
             background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        .right-sidebar {
-            width: 320px;
-            background: white;
-            border-left: 1px solid var(--light-gray);
-            overflow-y: auto;
-            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
-        }
-        .sidebar-section { padding: 25px; border-bottom: 1px solid var(--light-gray); }
-        .sidebar-section h3 { font-size: 16px; margin-bottom: 15px; color: var(--dark); font-weight: 600; }
+
+        /* Buttons */
         .btn {
             padding: 10px 20px;
             border: none;
@@ -83,6 +152,8 @@
         .btn-primary:hover { transform: translateY(-2px); }
         .btn-secondary { background: var(--light-gray); color: var(--dark); }
         .btn-secondary:hover { background: #d5dbdb; }
+
+        /* Notification */
         .notification {
             position: fixed;
             top: 80px;
@@ -97,10 +168,45 @@
         .notification.success { background: var(--secondary); }
         .notification.error { background: var(--danger); }
         .notification.info { background: var(--primary); }
+
+        /* Symbol Key Sliding Panel styles */
+        .symbol-key-panel.visible {
+            right: 0 !important;
+        }
     </style>
 </head>
 <body>
-    <div id="app">Loading...</div>
+    <!-- Header -->
+    <div class="header">
+        <h1>🗺️ Co-opMaps <span style="font-size: 14px; opacity: 0.7;">v0.92</span></h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="CoopMaps.modules.symbolKey?.generateKey()">🔑 Symbol Key</button>
+            <button class="btn btn-secondary" onclick="CoopMaps.modules.manuals?.showManualDialog()">📖 Help</button>
+            <button class="btn btn-secondary" onclick="CoopMaps.modules.productInfo?.showInfoDialog()">ℹ️ About</button>
+            <button class="btn btn-primary" onclick="CoopMaps.modules.export?.showExportDialog()">📤 Export</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Sidebar with Tabs -->
+        <div class="sidebar">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="symbols">Symbols</button>
+                <button class="sidebar-tab" data-tab="properties">Properties</button>
+                <button class="sidebar-tab" data-tab="diagrams">Diagrams</button>
+                <button class="sidebar-tab" data-tab="manuals">Manuals</button>
+            </div>
+            <div class="sidebar-content" id="sidebar-content">
+                <!-- Tab content loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-area">
+            <canvas id="canvas"></canvas>
+        </div>
+    </div>
 
     <script>
         window.CoopMaps = {
@@ -122,14 +228,13 @@
                     selectedItem: null,
                     selectedItemType: null
                 },
-                ui: { zoom: 1, panX: 0, panY: 0 },
+                ui: { zoom: 1, panX: 0, panY: 0, activeTab: 'symbols' },
                 history: { states: [], currentIndex: -1 }
             },
 
             registerModule(name, module) {
                 this.modules[name] = module;
                 console.log(`✓ Module registered: ${name}`);
-                // DON'T call init() here - we'll do it manually after UI is ready
             },
 
             generateId() {
@@ -173,16 +278,30 @@
                 setTimeout(() => notification.remove(), 3000);
             },
 
+            updateSidebar() {
+                const content = document.getElementById('sidebar-content');
+                if (!content) return;
+
+                const tab = this.state.ui.activeTab;
+
+                if (tab === 'symbols' && this.modules.enterprises && this.modules.enterprises.render) {
+                    content.innerHTML = this.modules.enterprises.render();
+                } else if (tab === 'properties' && this.modules.properties && this.modules.properties.render) {
+                    content.innerHTML = this.modules.properties.render();
+                } else if (tab === 'diagrams' && this.modules.persistence && this.modules.persistence.render) {
+                    content.innerHTML = this.modules.persistence.render();
+                } else if (tab === 'manuals' && this.modules.manuals && this.modules.manuals.render) {
+                    content.innerHTML = this.modules.manuals.render();
+                }
+            },
+
             init() {
                 console.log('Co-opMaps v' + this.version + ' initializing...');
 
-                // 1. Build UI first
-                this.buildUI();
-
-                // 2. Save initial state BEFORE initializing modules
+                // 1. Save initial state BEFORE initializing modules
                 this.saveState();
 
-                // 3. NOW initialize modules (in correct order)
+                // 2. Initialize modules (in correct order)
                 const initOrder = ['shapes', 'canvas', 'enterprises', 'relationships', 'properties', 'export', 'symbolKey', 'persistence', 'manuals', 'productInfo'];
                 initOrder.forEach(name => {
                     if (this.modules[name] && this.modules[name].init) {
@@ -195,54 +314,21 @@
                     }
                 });
 
-                // 4. Render sidebars with content
-                this.renderSidebars();
+                // 3. Set up tab switching
+                document.querySelectorAll('.sidebar-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.state.ui.activeTab = e.currentTarget.dataset.tab;
+                        this.updateSidebar();
+                    });
+                });
+
+                // 4. Render initial sidebar content
+                this.updateSidebar();
 
                 console.log('✓ Co-opMaps ready!');
                 this.showNotification('Co-opMaps ready!', 'success');
-            },
-
-            buildUI() {
-                const app = document.getElementById('app');
-                app.className = 'app-container';
-                app.innerHTML = `
-                    <div class="header">
-                        <h1>🗺️ Co-opMaps v${this.version}</h1>
-                        <div class="header-actions">
-                            <button class="btn btn-secondary" onclick="CoopMaps.modules.manuals?.showManualDialog()">📖 Help</button>
-                            <button class="btn btn-secondary" onclick="CoopMaps.modules.productInfo?.showInfoDialog()">ℹ️ About</button>
-                            <button class="btn btn-primary" onclick="CoopMaps.modules.export?.showExportDialog()">📤 Export</button>
-                        </div>
-                    </div>
-                    <div class="main-content">
-                        <div class="left-sidebar">
-                            <div id="enterprises-panel" class="sidebar-section">
-                                <h3>Add Enterprises</h3>
-                            </div>
-                        </div>
-                        <div class="canvas-area">
-                            <canvas id="canvas"></canvas>
-                        </div>
-                        <div class="right-sidebar">
-                            <div id="properties-panel" class="sidebar-section">
-                                <h3>Properties</h3>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            },
-
-            renderSidebars() {
-                const enterprisesPanel = document.getElementById('enterprises-panel');
-                if (enterprisesPanel && this.modules.enterprises && this.modules.enterprises.render) {
-                    const content = this.modules.enterprises.render();
-                    enterprisesPanel.innerHTML = `<h3>Add Enterprises</h3>${content}`;
-                }
-
-                const propertiesPanel = document.getElementById('properties-panel');
-                if (propertiesPanel && this.modules.properties && this.modules.properties.render) {
-                    propertiesPanel.innerHTML = this.modules.properties.render();
-                }
             }
         };
 
@@ -265,7 +351,7 @@
         // Listen for diagram changes
         document.addEventListener('diagram-changed', () => {
             if (CoopMaps.modules.persistence) CoopMaps.modules.persistence.autoSave();
-            CoopMaps.renderSidebars();
+            CoopMaps.updateSidebar();
         });
     </script>
 
