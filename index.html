@@ -4,32 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Co-opMaps v0.92 - Cooperative Ecosystem Mapping Tool</title>
-
-    <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
     <style>
-        /* Modern CSS Variables */
         :root {
             --primary: #3498db;
             --primary-dark: #2980b9;
             --secondary: #2ecc71;
-            --secondary-dark: #27ae60;
             --danger: #e74c3c;
-            --danger-dark: #c0392b;
             --dark: #2c3e50;
             --gray: #7f8c8d;
             --light-gray: #ecf0f1;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -37,15 +23,7 @@
             overflow: hidden;
             height: 100vh;
         }
-
-        /* App Container */
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* Header */
+        .app-container { display: flex; flex-direction: column; height: 100vh; }
         .header {
             background: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
             color: white;
@@ -56,25 +34,9 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             z-index: 1000;
         }
-
-        .header h1 {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* Main Content Area */
-        .main-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Left Sidebar */
+        .header h1 { font-size: 20px; font-weight: 600; }
+        .header-actions { display: flex; gap: 10px; }
+        .main-content { display: flex; flex: 1; overflow: hidden; }
         .left-sidebar {
             width: 280px;
             background: white;
@@ -82,20 +44,20 @@
             overflow-y: auto;
             box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
         }
-
-        /* Canvas Area */
         .canvas-area {
             flex: 1;
             position: relative;
-            background: white;
+            background: #f8f9fa;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
         #canvas {
             cursor: crosshair;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-
-        /* Right Sidebar */
         .right-sidebar {
             width: 320px;
             background: white;
@@ -103,20 +65,8 @@
             overflow-y: auto;
             box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
         }
-
-        /* Sidebar Sections */
-        .sidebar-section {
-            padding: 25px;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .sidebar-section h3 {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: var(--dark);
-        }
-
-        /* Buttons */
+        .sidebar-section { padding: 25px; border-bottom: 1px solid var(--light-gray); }
+        .sidebar-section h3 { font-size: 16px; margin-bottom: 15px; color: var(--dark); font-weight: 600; }
         .btn {
             padding: 10px 20px;
             border: none;
@@ -124,88 +74,15 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
+            transition: all 0.3s;
         }
-
         .btn-primary {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--light-gray);
-            color: var(--dark);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
-            color: white;
-        }
-
-        /* Modal Backdrop */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-
-        /* Loading State */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            font-size: 18px;
-            color: var(--gray);
-        }
-
-        /* Notification Toast */
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-secondary { background: var(--light-gray); color: var(--dark); }
+        .btn-secondary:hover { background: #d5dbdb; }
         .notification {
             position: fixed;
             top: 80px;
@@ -215,49 +92,17 @@
             color: white;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             z-index: 3000;
-            animation: slideIn 0.3s ease;
             max-width: 400px;
         }
-
-        .notification.success {
-            background: var(--secondary);
-        }
-
-        .notification.error {
-            background: var(--danger);
-        }
-
-        .notification.info {
-            background: var(--primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .left-sidebar, .right-sidebar {
-                width: 250px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                flex-direction: column;
-            }
-
-            .left-sidebar, .right-sidebar {
-                width: 100%;
-                height: 200px;
-            }
-        }
+        .notification.success { background: var(--secondary); }
+        .notification.error { background: var(--danger); }
+        .notification.info { background: var(--primary); }
     </style>
 </head>
 <body>
-    <div id="app" class="loading">
-        Loading Co-opMaps...
-    </div>
+    <div id="app">Loading...</div>
 
-    <!-- Core Framework -->
     <script>
-        // Initialize CoopMaps global namespace
         window.CoopMaps = {
             version: '0.92',
             modules: {},
@@ -270,121 +115,95 @@
                         wdr: '',
                         canvasSize: 'A4',
                         connectorStyle: 'orthogonal',
-                        scope: {
-                            geographic: '',
-                            timePeriod: '',
-                            economicSectors: ''
-                        }
+                        scope: { geographic: '', timePeriod: '', economicSectors: '' }
                     },
                     enterprises: [],
                     relationships: [],
                     selectedItem: null,
                     selectedItemType: null
                 },
-                ui: {
-                    zoom: 1,
-                    panX: 0,
-                    panY: 0
-                },
-                history: {
-                    states: [],
-                    currentIndex: -1
-                }
+                ui: { zoom: 1, panX: 0, panY: 0 },
+                history: { states: [], currentIndex: -1 }
             },
 
-            // Register a module
             registerModule(name, module) {
                 this.modules[name] = module;
-                console.log(`Module registered: ${name}`);
-
-                // Initialize if init method exists
-                if (module.init && typeof module.init === 'function') {
-                    try {
-                        module.init();
-                    } catch (e) {
-                        console.error(`Error initializing module ${name}:`, e);
-                    }
-                }
+                console.log(`✓ Module registered: ${name}`);
+                // DON'T call init() here - we'll do it manually after UI is ready
             },
 
-            // Generate unique ID
             generateId() {
                 return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             },
 
-            // Save state for undo/redo
             saveState() {
                 const state = JSON.parse(JSON.stringify(this.state.data));
-
-                // Limit history to 50 states
                 if (this.state.history.states.length > 50) {
                     this.state.history.states.shift();
                     this.state.history.currentIndex--;
                 }
-
-                // Remove any states after current index (for redo)
                 this.state.history.states = this.state.history.states.slice(0, this.state.history.currentIndex + 1);
-
-                // Add new state
                 this.state.history.states.push(state);
                 this.state.history.currentIndex++;
             },
 
-            // Undo
             undo() {
                 if (this.state.history.currentIndex > 0) {
                     this.state.history.currentIndex--;
                     this.state.data = JSON.parse(JSON.stringify(this.state.history.states[this.state.history.currentIndex]));
-
-                    if (this.modules.canvas) {
-                        this.modules.canvas.render();
-                    }
-
+                    if (this.modules.canvas) this.modules.canvas.render();
                     this.showNotification('Undo successful', 'info');
                 }
             },
 
-            // Redo
             redo() {
                 if (this.state.history.currentIndex < this.state.history.states.length - 1) {
                     this.state.history.currentIndex++;
                     this.state.data = JSON.parse(JSON.stringify(this.state.history.states[this.state.history.currentIndex]));
-
-                    if (this.modules.canvas) {
-                        this.modules.canvas.render();
-                    }
-
+                    if (this.modules.canvas) this.modules.canvas.render();
                     this.showNotification('Redo successful', 'info');
                 }
             },
 
-            // Show notification
             showNotification(message, type = 'info') {
                 const notification = document.createElement('div');
                 notification.className = `notification ${type}`;
                 notification.textContent = message;
                 document.body.appendChild(notification);
-
-                setTimeout(() => {
-                    notification.style.animation = 'fadeOut 0.3s ease';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
+                setTimeout(() => notification.remove(), 3000);
             },
 
-            // Initialize the app
             init() {
                 console.log('Co-opMaps v' + this.version + ' initializing...');
-
-                // Build UI
+                
+                // 1. Build UI first
                 this.buildUI();
+                
+                // 2. NOW initialize modules (in correct order)
+                const initOrder = ['shapes', 'canvas', 'enterprises', 'relationships', 'properties', 'export', 'symbolKey', 'persistence', 'manuals', 'productInfo'];
+                initOrder.forEach(name => {
+                    if (this.modules[name] && this.modules[name].init) {
+                        try {
+                            console.log(`Initializing ${name}...`);
+                            this.modules[name].init();
+                        } catch (e) {
+                            console.error(`Error initializing ${name}:`, e);
+                        }
+                    }
+                });
 
-                // Save initial state
+                // 3. Save initial state
                 this.saveState();
 
-                console.log('Co-opMaps initialized successfully');
+                // 4. Load saved data
+                if (this.modules.persistence) {
+                    this.modules.persistence.loadFromLocalStorage();
+                }
+
+                console.log('✓ Co-opMaps ready!');
+                this.showNotification('Co-opMaps ready!', 'success');
             },
 
-            // Build the main UI
             buildUI() {
                 const app = document.getElementById('app');
                 app.className = 'app-container';
@@ -397,78 +216,62 @@
                             <button class="btn btn-primary" onclick="CoopMaps.modules.export?.showExportDialog()">📤 Export</button>
                         </div>
                     </div>
-
                     <div class="main-content">
                         <div class="left-sidebar">
-                            <div id="enterprises-panel" class="sidebar-section"></div>
+                            <div id="enterprises-panel" class="sidebar-section">
+                                <h3>Add Enterprises</h3>
+                            </div>
                         </div>
-
                         <div class="canvas-area">
                             <canvas id="canvas"></canvas>
                         </div>
-
                         <div class="right-sidebar">
-                            <div id="properties-panel" class="sidebar-section"></div>
+                            <div id="properties-panel" class="sidebar-section">
+                                <h3>Properties</h3>
+                            </div>
                         </div>
                     </div>
                 `;
-
-                // Render sidebar content
-                this.renderSidebars();
             },
 
-            // Render sidebar content
             renderSidebars() {
-                // Enterprises panel
                 const enterprisesPanel = document.getElementById('enterprises-panel');
-                if (enterprisesPanel && this.modules.enterprises) {
-                    enterprisesPanel.innerHTML = `
-                        <h3>Add Enterprises</h3>
-                        ${this.modules.enterprises.render ? this.modules.enterprises.render() : ''}
-                    `;
+                if (enterprisesPanel && this.modules.enterprises && this.modules.enterprises.render) {
+                    const content = this.modules.enterprises.render();
+                    enterprisesPanel.innerHTML = `<h3>Add Enterprises</h3>${content}`;
                 }
 
-                // Properties panel
                 const propertiesPanel = document.getElementById('properties-panel');
-                if (propertiesPanel && this.modules.properties) {
-                    propertiesPanel.innerHTML = this.modules.properties.render ? this.modules.properties.render() : '';
+                if (propertiesPanel && this.modules.properties && this.modules.properties.render) {
+                    propertiesPanel.innerHTML = this.modules.properties.render();
                 }
             }
         };
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Z = Undo
             if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 CoopMaps.undo();
             }
-
-            // Ctrl/Cmd + Shift + Z = Redo
             if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
                 e.preventDefault();
                 CoopMaps.redo();
             }
-
-            // Ctrl/Cmd + S = Save
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
-                if (CoopMaps.modules.persistence) {
-                    CoopMaps.modules.persistence.saveToLocalStorage();
-                }
+                if (CoopMaps.modules.persistence) CoopMaps.modules.persistence.saveToLocalStorage();
             }
         });
 
         // Listen for diagram changes
         document.addEventListener('diagram-changed', () => {
-            if (CoopMaps.modules.persistence) {
-                CoopMaps.modules.persistence.autoSave();
-            }
+            if (CoopMaps.modules.persistence) CoopMaps.modules.persistence.autoSave();
             CoopMaps.renderSidebars();
         });
     </script>
 
-    <!-- Load all modules in correct order -->
+    <!-- Load modules (they will register but NOT initialize yet) -->
     <script src="public/js/modules/shapes.js"></script>
     <script src="public/js/modules/canvas.js"></script>
     <script src="public/js/modules/enterprises.js"></script>
@@ -480,15 +283,10 @@
     <script src="public/js/modules/manuals.js"></script>
     <script src="public/js/modules/productInfo.js"></script>
 
-    <!-- Initialize app after all modules loaded -->
+    <!-- Initialize app AFTER all modules loaded -->
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            CoopMaps.init();
-
-            // Load saved data if available
-            if (CoopMaps.modules.persistence) {
-                CoopMaps.modules.persistence.loadFromLocalStorage();
-            }
+            setTimeout(() => CoopMaps.init(), 100);
         });
     </script>
 </body>
