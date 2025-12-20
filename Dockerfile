@@ -1,4 +1,5 @@
 # Multi-stage build for optimized production image
+# Build date: 2025-12-20
 
 # Stage 1: Dependencies
 FROM node:18-alpine AS dependencies
