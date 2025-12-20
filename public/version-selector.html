@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-opMaps - Choose Your Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .version-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .version-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .version-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .version-card.express {
+            border-top: 5px solid #4CAF50;
+        }
+
+        .version-card.deluxe {
+            border-top: 5px solid #2196F3;
+        }
+
+        .version-card .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .express .badge {
+            background: #4CAF50;
+        }
+
+        .deluxe .badge {
+            background: #2196F3;
+        }
+
+        .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .version-card h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .version-card .tagline {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .features {
+            text-align: left;
+            margin: 25px 0;
+        }
+
+        .features ul {
+            list-style: none;
+        }
+
+        .features li {
+            padding: 8px 0;
+            color: #555;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .deluxe .features li:before {
+            color: #2196F3;
+        }
+
+        .select-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .select-button:hover {
+            transform: scale(1.05);
+        }
+
+        .express .select-button {
+            background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%);
+        }
+
+        .deluxe .select-button {
+            background: linear-gradient(135deg, #42A5F5 0%, #1E88E5 100%);
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .version-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .version-card h2 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* Preferences section */
+        .preferences {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .preferences h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .preference-option {
+            margin: 10px 0;
+        }
+
+        .preference-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .preference-option input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Browser warning */
+        .browser-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ Co-opMaps</h1>
+            <p>Collaborative Cooperative Ecosystem Mapping</p>
+        </div>
+
+        <!-- Browser warning (shown if old browser detected) -->
+        <div id="browser-warning" class="browser-warning hidden">
+            ⚠️ Your browser may have limited support. Express version recommended.
+        </div>
+
+        <!-- User preferences -->
+        <div class="preferences">
+            <h3>⚙️ Preferences</h3>
+            <div class="preference-option">
+                <label>
+                    <input type="checkbox" id="remember-choice">
+                    Remember my choice for next time
+                </label>
+            </div>
+            <div class="preference-option">
+                <label>
+                    <input type="checkbox" id="offline-mode">
+                    Work offline (local storage only, no server sync)
+                </label>
+            </div>
+        </div>
+
+        <!-- Version selection cards -->
+        <div class="version-cards">
+            <!-- Express Version -->
+            <div class="version-card express" onclick="selectVersion('express')">
+                <div class="badge">FAST</div>
+                <div class="icon">⚡</div>
+                <h2>Express</h2>
+                <p class="tagline">Streamlined & Speedy</p>
+                <div class="features">
+                    <ul>
+                        <li>Simple, clean interface</li>
+                        <li>Core mapping features</li>
+                        <li>Faster loading times</li>
+                        <li>Better for older computers</li>
+                        <li>Works on slow connections</li>
+                        <li>Minimal resource usage</li>
+                    </ul>
+                </div>
+                <p style="color: #888; font-size: 0.9em; margin-top: 15px;">
+                    <strong>Best for:</strong> Quick maps, older systems, slow internet
+                </p>
+                <button class="select-button">Choose Express</button>
+            </div>
+
+            <!-- Deluxe Version -->
+            <div class="version-card deluxe" onclick="selectVersion('deluxe')">
+                <div class="badge">FULL</div>
+                <div class="icon">✨</div>
+                <h2>Deluxe</h2>
+                <p class="tagline">Full-Featured Experience</p>
+                <div class="features">
+                    <ul>
+                        <li>Complete feature set</li>
+                        <li>Advanced drawing tools</li>
+                        <li>Real-time collaboration</li>
+                        <li>Rich visual styling</li>
+                        <li>Symbol library & templates</li>
+                        <li>Advanced export options</li>
+                        <li>Product information database</li>
+                    </ul>
+                </div>
+                <p style="color: #888; font-size: 0.9em; margin-top: 15px;">
+                    <strong>Best for:</strong> Complex maps, modern systems, full features
+                </p>
+                <button class="select-button">Choose Deluxe</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                Maps created in either version are compatible with both.
+                <br>
+                You can switch versions anytime.
+                <br>
+                <a href="#" onclick="showComparison(); return false;">View detailed comparison</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Browser detection
+        (function() {
+            var isOldBrowser = false;
+
+            // Check for old browsers
+            if (!window.Promise || !window.fetch || !document.querySelector) {
+                isOldBrowser = true;
+            }
+
+            // Check IE
+            var ua = navigator.userAgent;
+            if (ua.indexOf('MSIE') !== -1 || ua.indexOf('Trident/') !== -1) {
+                isOldBrowser = true;
+            }
+
+            if (isOldBrowser) {
+                document.getElementById('browser-warning').classList.remove('hidden');
+            }
+        })();
+
+        // Check for saved preference
+        (function() {
+            try {
+                var savedVersion = localStorage.getItem('coopmaps_version');
+                var rememberChoice = localStorage.getItem('coopmaps_remember') === 'true';
+
+                if (savedVersion && rememberChoice) {
+                    // Auto-redirect if user wants their choice remembered
+                    selectVersion(savedVersion, true);
+                }
+
+                // Restore checkbox state
+                if (rememberChoice) {
+                    document.getElementById('remember-choice').checked = true;
+                }
+
+                var offlineMode = localStorage.getItem('coopmaps_offline') === 'true';
+                if (offlineMode) {
+                    document.getElementById('offline-mode').checked = true;
+                }
+            } catch (e) {
+                // localStorage not available
+            }
+        })();
+
+        function selectVersion(version, skipDelay) {
+            var rememberChoice = document.getElementById('remember-choice').checked;
+            var offlineMode = document.getElementById('offline-mode').checked;
+
+            // Save preferences
+            try {
+                if (rememberChoice) {
+                    localStorage.setItem('coopmaps_version', version);
+                    localStorage.setItem('coopmaps_remember', 'true');
+                } else {
+                    localStorage.removeItem('coopmaps_version');
+                    localStorage.setItem('coopmaps_remember', 'false');
+                }
+
+                localStorage.setItem('coopmaps_offline', offlineMode ? 'true' : 'false');
+            } catch (e) {
+                // localStorage not available
+            }
+
+            // Redirect to appropriate version
+            var url = version === 'express' ? 'express.html' : 'index.html';
+
+            if (offlineMode) {
+                url += '?offline=true';
+            }
+
+            if (skipDelay) {
+                window.location.href = url;
+            } else {
+                // Show loading state
+                var cards = document.querySelectorAll('.version-card');
+                for (var i = 0; i < cards.length; i++) {
+                    cards[i].style.opacity = '0.5';
+                    cards[i].style.pointerEvents = 'none';
+                }
+
+                setTimeout(function() {
+                    window.location.href = url;
+                }, 300);
+            }
+        }
+
+        function showComparison() {
+            var comparison =
+                'EXPRESS vs DELUXE\n\n' +
+                'EXPRESS VERSION:\n' +
+                '✓ Simple, streamlined interface\n' +
+                '✓ Core mapping features only\n' +
+                '✓ ~200KB download size\n' +
+                '✓ Works on IE11, old Chrome/Firefox\n' +
+                '✓ Good for 2G/3G connections\n' +
+                '✓ Basic export (PNG, PDF)\n' +
+                '✗ No real-time collaboration\n' +
+                '✗ Limited styling options\n' +
+                '✗ No symbol library\n\n' +
+                'DELUXE VERSION:\n' +
+                '✓ Full feature set\n' +
+                '✓ Real-time collaboration\n' +
+                '✓ Symbol library & templates\n' +
+                '✓ Advanced styling & drawing tools\n' +
+                '✓ Product information database\n' +
+                '✓ Export to PNG, PDF, SVG\n' +
+                '✓ Cloud sync & sharing\n' +
+                '⚠ ~500KB download size\n' +
+                '⚠ Requires modern browser (Chrome 80+, Firefox 75+)\n' +
+                '⚠ Better with 4G+ connection\n\n' +
+                'Maps are 100% compatible between versions!\n' +
+                'You can create in Express and open in Deluxe, or vice versa.';
+
+            alert(comparison);
+        }
+    </script>
+</body>
+</html>
