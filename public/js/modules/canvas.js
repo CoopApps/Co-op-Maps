@@ -1,553 +1,878 @@
 /**
  * Co-opMaps - Canvas Module
- * Handles canvas rendering, interaction, zooming, and panning
+ * Enhanced canvas with improved visuals, grid-free export support, and advanced auto-layout
  */
 
 (function() {
     'use strict';
 
-    const canvas = {
-        canvasElement: null,
+    // Enhanced Canvas Module with improved visuals and grid-free export support
+    CoopMaps.registerModule('canvas', {
+        canvas: null,
         ctx: null,
         isDragging: false,
-        isResizing: false,
-        isPanning: false,
-        dragStartX: 0,
-        dragStartY: 0,
-        draggedEnterprise: null,
-        resizeHandle: null,
-        panStartX: 0,
-        panStartY: 0,
-        canvasOffsetX: 0,
-        canvasOffsetY: 0,
+        draggedItem: null,
+        dragOffset: { x: 0, y: 0 },
+        mouseDownTime: 0,
+        clickStartX: 0,
+        clickStartY: 0,
+        potentialSelection: null,
+        isExporting: false, // Flag to disable grid during export
+        canvasSizes: {
+            // Landscape orientations at 96 DPI
+            'A4': { width: 1123, height: 794 }, // 297mm x 210mm landscape
+            'A3': { width: 1587, height: 1123 }  // 420mm x 297mm landscape
+        },
+        currentCanvasSize: 'A4', // Track current size
 
         init() {
-            console.log('Canvas module initializing...');
-            this.canvasElement = document.getElementById('canvas');
-            if (!this.canvasElement) {
-                console.error('Canvas element not found');
+            if (this.initialized) {
+                console.log('Canvas already initialized, skipping');
                 return;
             }
 
-            this.ctx = this.canvasElement.getContext('2d');
-            this.setupEventListeners();
+            console.log('Enhanced Canvas module initialized');
+            this.canvas = document.getElementById('canvas');
+            this.ctx = this.canvas.getContext('2d');
+
+            // Enable better rendering
+            this.ctx.imageSmoothingEnabled = true;
+            this.ctx.imageSmoothingQuality = 'high';
+
+            this.initialized = true;
+
+            // Set initial canvas size
             this.setCanvasSize('A4');
-            this.centerCanvas();
+
+            this.bindCanvasEvents();
+            this.setupDragAndDrop();
             this.render();
-            console.log('Canvas module initialized');
-        },
-
-        setupEventListeners() {
-            // Mouse events
-            this.canvasElement.addEventListener('mousedown', this.onMouseDown.bind(this));
-            this.canvasElement.addEventListener('mousemove', this.onMouseMove.bind(this));
-            this.canvasElement.addEventListener('mouseup', this.onMouseUp.bind(this));
-            this.canvasElement.addEventListener('contextmenu', this.onContextMenu.bind(this));
-
-            // Wheel zoom
-            this.canvasElement.addEventListener('wheel', this.onWheel.bind(this));
-
-            // Drop events
-            this.canvasElement.addEventListener('dragover', this.onDragOver.bind(this));
-            this.canvasElement.addEventListener('drop', this.onDrop.bind(this));
-
-            // Window resize
-            window.addEventListener('resize', this.centerCanvas.bind(this));
-
-            // Escape key to cancel operations
-            document.addEventListener('escape-pressed', () => {
-                this.cancelCurrentOperation();
-            });
         },
 
         setCanvasSize(size) {
-            const sizes = {
-                'A4': { width: 794, height: 1123 },  // A4 at 96 DPI
-                'A3': { width: 1123, height: 1587 }  // A3 at 96 DPI
-            };
+            const canvasSize = this.canvasSizes[size];
+            if (!canvasSize) return;
 
-            const dimensions = sizes[size] || sizes['A4'];
-            this.canvasElement.width = dimensions.width;
-            this.canvasElement.height = dimensions.height;
+            this.canvas.width = canvasSize.width;
+            this.canvas.height = canvasSize.height;
 
-            this.centerCanvas();
+            this.currentCanvasSize = size;
+            CoopMaps.state.ui.canvasSize = size;
+
+            // Update select dropdown if it exists
+            const select = document.getElementById('canvasSizeSelect');
+            if (select && select.value !== size) {
+                select.value = size;
+            }
+
+            // Re-center canvas
+            const container = document.querySelector('.canvas-container');
+            if (container) {
+                const containerRect = container.getBoundingClientRect();
+                this.canvas.style.left = Math.max(0, (containerRect.width - this.canvas.width) / 2) + 'px';
+                this.canvas.style.top = Math.max(0, (containerRect.height - this.canvas.height) / 2) + 'px';
+            }
+
             this.render();
-
-            if (window.CoopMaps) {
-                CoopMaps.showNotification(`Canvas size set to ${size}`, 'info');
-            }
         },
 
-        centerCanvas() {
-            const container = this.canvasElement.parentElement;
-            const containerRect = container.getBoundingClientRect();
+        setupDragAndDrop() {
+            let dropHandled = false;
 
-            const x = (containerRect.width - this.canvasElement.width) / 2;
-            const y = (containerRect.height - this.canvasElement.height) / 2;
-
-            this.canvasOffsetX = Math.max(0, x);
-            this.canvasOffsetY = Math.max(0, y);
-
-            this.canvasElement.style.left = this.canvasOffsetX + 'px';
-            this.canvasElement.style.top = this.canvasOffsetY + 'px';
-        },
-
-        render() {
-            if (!this.ctx) return;
-
-            const state = window.CoopMaps.state.data;
-            const connectorStyle = window.CoopMaps.state.ui.connectorStyle || 'orthogonal';
-
-            // Clear canvas
-            this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-
-            // Draw grid (optional)
-            // this.drawGrid();
-
-            // Draw all relationships first (so they appear below enterprises)
-            if (state.relationships && window.CoopMaps.modules.shapes) {
-                state.relationships.forEach(rel => {
-                    const isSelected = state.selectedItem &&
-                                     state.selectedItem.type === 'relationship' &&
-                                     state.selectedItem.id === rel.id;
-                    window.CoopMaps.modules.shapes.drawRelationship(
-                        this.ctx,
-                        rel,
-                        state.enterprises,
-                        connectorStyle,
-                        isSelected
-                    );
-                });
-            }
-
-            // Draw all enterprises
-            if (state.enterprises && window.CoopMaps.modules.shapes) {
-                state.enterprises.forEach(ent => {
-                    const isSelected = state.selectedItem &&
-                                     state.selectedItem.type === 'enterprise' &&
-                                     state.selectedItem.id === ent.id;
-                    window.CoopMaps.modules.shapes.drawEnterprise(this.ctx, ent, isSelected);
-                });
-            }
-
-            // Draw relationship creation preview if active
-            if (window.CoopMaps.modules.relationships &&
-                window.CoopMaps.modules.relationships.relationshipCreationActive &&
-                window.CoopMaps.modules.relationships.startEnterprise) {
-                window.CoopMaps.modules.relationships.drawCreationPreview(this.ctx);
-            }
-        },
-
-        drawGrid() {
-            const gridSize = 20;
-            this.ctx.strokeStyle = '#e0e0e0';
-            this.ctx.lineWidth = 0.5;
-
-            // Vertical lines
-            for (let x = 0; x <= this.canvasElement.width; x += gridSize) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(x, 0);
-                this.ctx.lineTo(x, this.canvasElement.height);
-                this.ctx.stroke();
-            }
-
-            // Horizontal lines
-            for (let y = 0; y <= this.canvasElement.height; y += gridSize) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(0, y);
-                this.ctx.lineTo(this.canvasElement.width, y);
-                this.ctx.stroke();
-            }
-        },
-
-        getMousePos(e) {
-            const rect = this.canvasElement.getBoundingClientRect();
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
-        },
-
-        getEnterpriseAt(x, y) {
-            const state = window.CoopMaps.state.data;
-            // Check in reverse order (top to bottom in z-index)
-            for (let i = state.enterprises.length - 1; i >= 0; i--) {
-                const ent = state.enterprises[i];
-                if (x >= ent.x && x <= ent.x + ent.width &&
-                    y >= ent.y && y <= ent.y + ent.height) {
-                    return ent;
-                }
-            }
-            return null;
-        },
-
-        getResizeHandle(enterprise, x, y) {
-            const handleSize = 8;
-            const handles = [
-                { name: 'nw', x: enterprise.x, y: enterprise.y },
-                { name: 'n', x: enterprise.x + enterprise.width / 2, y: enterprise.y },
-                { name: 'ne', x: enterprise.x + enterprise.width, y: enterprise.y },
-                { name: 'e', x: enterprise.x + enterprise.width, y: enterprise.y + enterprise.height / 2 },
-                { name: 'se', x: enterprise.x + enterprise.width, y: enterprise.y + enterprise.height },
-                { name: 's', x: enterprise.x + enterprise.width / 2, y: enterprise.y + enterprise.height },
-                { name: 'sw', x: enterprise.x, y: enterprise.y + enterprise.height },
-                { name: 'w', x: enterprise.x, y: enterprise.y + enterprise.height / 2 }
-            ];
-
-            for (const handle of handles) {
-                if (Math.abs(x - handle.x) <= handleSize / 2 &&
-                    Math.abs(y - handle.y) <= handleSize / 2) {
-                    return handle.name;
-                }
-            }
-            return null;
-        },
-
-        onMouseDown(e) {
-            const pos = this.getMousePos(e);
-            const state = window.CoopMaps.state.data;
-
-            // Check for relationship creation mode
-            if (window.CoopMaps.modules.relationships &&
-                window.CoopMaps.modules.relationships.relationshipCreationActive) {
-                window.CoopMaps.modules.relationships.handleCanvasClick(pos.x, pos.y);
-                return;
-            }
-
-            // Middle mouse button or space+drag for panning
-            if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
-                this.isPanning = true;
-                this.panStartX = e.clientX - this.canvasOffsetX;
-                this.panStartY = e.clientY - this.canvasOffsetY;
-                this.canvasElement.classList.add('grabbing');
+            // Enhanced drag visual feedback
+            this.canvas.addEventListener('dragenter', (e) => {
                 e.preventDefault();
-                return;
+                this.canvas.classList.add('drag-over');
+                this.showDropZone(e);
+            });
+
+            this.canvas.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+                this.updateDropZone(e);
+            });
+
+            this.canvas.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                this.canvas.classList.remove('drag-over');
+                this.hideDropZone();
+            });
+
+            this.canvas.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.canvas.classList.remove('drag-over');
+                this.hideDropZone();
+
+                if (dropHandled) {
+                    dropHandled = false;
+                    return false;
+                }
+                dropHandled = true;
+                setTimeout(() => { dropHandled = false; }, 100);
+
+                const enterpriseType = e.dataTransfer.getData('enterpriseType');
+                console.log('Canvas drop - enterprise type:', enterpriseType);
+
+                if (enterpriseType && CoopMaps.modules.enterprises) {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    // Add drop animation
+                    this.animateEnterpriseDrop(enterpriseType, x, y);
+                }
+
+                return false;
+            });
+        },
+
+        // Visual feedback for drag and drop
+        showDropZone(e) {
+            if (!this.dropIndicator) {
+                this.dropIndicator = document.createElement('div');
+                this.dropIndicator.style.cssText = `
+                    position: absolute;
+                    width: 120px;
+                    height: 72px;
+                    border: 3px dashed #3498db;
+                    border-radius: 8px;
+                    background: rgba(52, 152, 219, 0.1);
+                    pointer-events: none;
+                    transition: all 0.2s ease;
+                    z-index: 1000;
+                `;
+                this.canvas.parentElement.appendChild(this.dropIndicator);
             }
+            this.updateDropZone(e);
+        },
 
-            // Left click
-            if (e.button === 0) {
-                const enterprise = this.getEnterpriseAt(pos.x, pos.y);
+        updateDropZone(e) {
+            if (this.dropIndicator) {
+                const rect = this.canvas.getBoundingClientRect();
+                this.dropIndicator.style.left = (e.clientX - rect.left - 60) + 'px';
+                this.dropIndicator.style.top = (e.clientY - rect.top - 36) + 'px';
+            }
+        },
 
-                if (enterprise) {
-                    // Check if clicking on resize handle
-                    if (state.selectedItem &&
-                        state.selectedItem.type === 'enterprise' &&
-                        state.selectedItem.id === enterprise.id) {
-                        const handle = this.getResizeHandle(enterprise, pos.x, pos.y);
-                        if (handle) {
-                            this.isResizing = true;
-                            this.resizeHandle = handle;
-                            this.draggedEnterprise = enterprise;
-                            this.dragStartX = pos.x;
-                            this.dragStartY = pos.y;
-                            return;
-                        }
-                    }
+        hideDropZone() {
+            if (this.dropIndicator) {
+                this.dropIndicator.remove();
+                this.dropIndicator = null;
+            }
+        },
 
-                    // Start dragging
-                    this.isDragging = true;
-                    this.draggedEnterprise = enterprise;
-                    this.dragStartX = pos.x - enterprise.x;
-                    this.dragStartY = pos.y - enterprise.y;
+        animateEnterpriseDrop(enterpriseType, x, y) {
+            // Smooth drop animation
+            const startY = y - 50;
+            const endY = y;
+            const duration = 300;
+            const startTime = Date.now();
 
-                    // Select enterprise
-                    state.selectedItem = { type: 'enterprise', id: enterprise.id };
-                    window.CoopMaps.updateSidebar();
-                    this.render();
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+
+                const currentY = startY + (endY - startY) * easeProgress;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
                 } else {
-                    // Clicked on empty space - deselect
-                    state.selectedItem = null;
-                    window.CoopMaps.updateSidebar();
-                    this.render();
+                    CoopMaps.modules.enterprises.addEnterpriseAt(enterpriseType, x, currentY);
                 }
-            }
+            };
+
+            animate();
         },
 
-        onMouseMove(e) {
-            const pos = this.getMousePos(e);
+        bindCanvasEvents() {
+            const self = this;
 
-            // Panning
-            if (this.isPanning) {
-                this.canvasOffsetX = e.clientX - this.panStartX;
-                this.canvasOffsetY = e.clientY - this.panStartY;
-                this.canvasElement.style.left = this.canvasOffsetX + 'px';
-                this.canvasElement.style.top = this.canvasOffsetY + 'px';
-                return;
-            }
+            this.canvas.addEventListener('mousedown', (e) => {
+                self.mouseDownTime = Date.now();
+                const rect = self.canvas.getBoundingClientRect();
+                const scale = CoopMaps.state.ui.zoom;
+                const x = (e.clientX - rect.left) / scale;
+                const y = (e.clientY - rect.top) / scale;
 
-            // Dragging
-            if (this.isDragging && this.draggedEnterprise) {
-                this.draggedEnterprise.x = pos.x - this.dragStartX;
-                this.draggedEnterprise.y = pos.y - this.dragStartY;
+                self.clickStartX = x;
+                self.clickStartY = y;
 
-                // Keep enterprise within canvas bounds
-                this.draggedEnterprise.x = Math.max(0, Math.min(this.draggedEnterprise.x,
-                    this.canvasElement.width - this.draggedEnterprise.width));
-                this.draggedEnterprise.y = Math.max(0, Math.min(this.draggedEnterprise.y,
-                    this.canvasElement.height - this.draggedEnterprise.height));
+                const clickedItem = self.getItemAtPosition(x, y);
 
-                this.render();
-                return;
-            }
+                if (clickedItem) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-            // Resizing
-            if (this.isResizing && this.draggedEnterprise) {
-                const dx = pos.x - this.dragStartX;
-                const dy = pos.y - this.dragStartY;
-                const ent = this.draggedEnterprise;
-                const minSize = 60;
+                    self.potentialSelection = clickedItem;
 
-                // Handle different resize directions
-                switch (this.resizeHandle) {
-                    case 'se': // Bottom-right
-                        ent.width = Math.max(minSize, ent.width + dx);
-                        ent.height = Math.max(minSize, ent.height + dy);
-                        break;
-                    case 'nw': // Top-left
-                        ent.width = Math.max(minSize, ent.width - dx);
-                        ent.height = Math.max(minSize, ent.height - dy);
-                        ent.x += dx;
-                        ent.y += dy;
-                        break;
-                    case 'ne': // Top-right
-                        ent.width = Math.max(minSize, ent.width + dx);
-                        ent.height = Math.max(minSize, ent.height - dy);
-                        ent.y += dy;
-                        break;
-                    case 'sw': // Bottom-left
-                        ent.width = Math.max(minSize, ent.width - dx);
-                        ent.height = Math.max(minSize, ent.height + dy);
-                        ent.x += dx;
-                        break;
-                    case 'e': // Right
-                        ent.width = Math.max(minSize, ent.width + dx);
-                        break;
-                    case 'w': // Left
-                        ent.width = Math.max(minSize, ent.width - dx);
-                        ent.x += dx;
-                        break;
-                    case 'n': // Top
-                        ent.height = Math.max(minSize, ent.height - dy);
-                        ent.y += dy;
-                        break;
-                    case 's': // Bottom
-                        ent.height = Math.max(minSize, ent.height + dy);
-                        break;
-                }
-
-                this.dragStartX = pos.x;
-                this.dragStartY = pos.y;
-                this.render();
-                return;
-            }
-
-            // Update cursor based on what's under mouse
-            const enterprise = this.getEnterpriseAt(pos.x, pos.y);
-            if (enterprise) {
-                const state = window.CoopMaps.state.data;
-                if (state.selectedItem &&
-                    state.selectedItem.type === 'enterprise' &&
-                    state.selectedItem.id === enterprise.id) {
-                    const handle = this.getResizeHandle(enterprise, pos.x, pos.y);
-                    if (handle) {
-                        this.canvasElement.style.cursor = handle + '-resize';
+                    if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.isRelationshipMode) {
+                        CoopMaps.modules.relationships.handleEnterpriseClick(clickedItem);
+                        self.render();
                         return;
+                    } else {
+                        self.isDragging = false;
+                        self.draggedItem = clickedItem;
+                        self.dragOffset = {
+                            x: x - clickedItem.x,
+                            y: y - clickedItem.y
+                        };
+
+                        self.draggedItem.originalX = clickedItem.x;
+                        self.draggedItem.originalY = clickedItem.y;
+
+                        CoopMaps.state.data.selectedItem = clickedItem;
+                    }
+                } else {
+                    self.draggedItem = null;
+                    self.isDragging = false;
+                    CoopMaps.state.data.selectedItem = null;
+                    CoopMaps.updateSidebar();
+
+                    if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.isRelationshipMode) {
+                        CoopMaps.modules.relationships.relationshipStart = null;
+                        CoopMaps.modules.relationships.highlightedEnterprise = null;
+                        self.render();
                     }
                 }
-                this.canvasElement.style.cursor = 'move';
-            } else {
-                this.canvasElement.style.cursor = 'default';
-            }
+            });
 
-            // Relationship creation preview
-            if (window.CoopMaps.modules.relationships &&
-                window.CoopMaps.modules.relationships.relationshipCreationActive) {
-                window.CoopMaps.modules.relationships.updatePreview(pos.x, pos.y);
-                this.render();
-            }
-        },
+            this.canvas.addEventListener('contextmenu', (e) => {
+                e.preventDefault(); // Prevent default browser context menu
 
-        onMouseUp(e) {
-            if (this.isDragging || this.isResizing) {
-                window.CoopMaps.saveState();
-            }
+                // Check if relationships module handles it
+                if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.handleCanvasRightClick) {
+                    if (CoopMaps.modules.relationships.handleCanvasRightClick(e)) {
+                        return; // Relationship handled it
+                    }
+                }
 
-            this.isDragging = false;
-            this.isResizing = false;
-            this.isPanning = false;
-            this.draggedEnterprise = null;
-            this.resizeHandle = null;
-            this.canvasElement.classList.remove('grabbing');
-        },
+                // Handle right-click for enterprises
+                const rect = self.canvas.getBoundingClientRect();
+                const scale = CoopMaps.state.ui.zoom;
+                const x = (e.clientX - rect.left) / scale;
+                const y = (e.clientY - rect.top) / scale;
 
-        onContextMenu(e) {
-            e.preventDefault();
-            const pos = this.getMousePos(e);
-            const enterprise = this.getEnterpriseAt(pos.x, pos.y);
+                const clickedItem = self.getItemAtPosition(x, y);
 
-            if (enterprise) {
-                const state = window.CoopMaps.state.data;
-                state.selectedItem = { type: 'enterprise', id: enterprise.id };
-                this.render();
+                if (clickedItem) {
+                    CoopMaps.state.data.selectedItem = clickedItem;
+                    self.render();
 
-                // Show context menu
-                const menu = document.getElementById('contextMenu');
-                if (menu) {
+                    const menu = document.getElementById('contextMenu');
                     menu.style.display = 'block';
                     menu.style.left = e.clientX + 'px';
                     menu.style.top = e.clientY + 'px';
 
-                    // Hide menu when clicking elsewhere
-                    const hideMenu = () => {
-                        menu.style.display = 'none';
-                        document.removeEventListener('click', hideMenu);
-                    };
-                    setTimeout(() => document.addEventListener('click', hideMenu), 100);
+                    // Add entrance animation
+                    menu.style.opacity = '0';
+                    menu.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        menu.style.transition = 'all 0.2s ease';
+                        menu.style.opacity = '1';
+                        menu.style.transform = 'scale(1)';
+                    }, 10);
+                }
+            });
+
+            this.canvas.addEventListener('mousemove', (e) => {
+                const rect = self.canvas.getBoundingClientRect();
+                const scale = CoopMaps.state.ui.zoom;
+                const x = (e.clientX - rect.left) / scale;
+                const y = (e.clientY - rect.top) / scale;
+
+                if (self.draggedItem && !self.isDragging && (Date.now() - self.mouseDownTime > 100)) {
+                    const distance = Math.sqrt(Math.pow(x - self.draggedItem.x - self.dragOffset.x, 2) +
+                                             Math.pow(y - self.draggedItem.y - self.dragOffset.y, 2));
+                    if (distance > 5) {
+                        self.isDragging = true;
+                        self.canvas.style.cursor = 'move';
+                        console.log('Started dragging');
+                    }
+                }
+
+                if (self.isDragging && self.draggedItem) {
+                    self.draggedItem.x = x - self.dragOffset.x;
+                    self.draggedItem.y = y - self.dragOffset.y;
+                    self.render();
+                } else if (!self.draggedItem) {
+                    const hoverItem = self.getItemAtPosition(x, y);
+                    if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.isRelationshipMode) {
+                        self.canvas.style.cursor = hoverItem ? 'crosshair' : 'default';
+                    } else if (hoverItem) {
+                        self.canvas.style.cursor = 'pointer';
+                    } else {
+                        self.canvas.style.cursor = 'default';
+                    }
+                }
+            });
+
+            this.canvas.addEventListener('mouseup', (e) => {
+                const rect = self.canvas.getBoundingClientRect();
+                const scale = CoopMaps.state.ui.zoom;
+                const x = (e.clientX - rect.left) / scale;
+                const y = (e.clientY - rect.top) / scale;
+
+                const clickDistance = Math.sqrt(
+                    Math.pow(x - self.clickStartX, 2) +
+                    Math.pow(y - self.clickStartY, 2)
+                );
+
+                if (!self.isDragging && clickDistance < 5 && self.potentialSelection) {
+                    console.log('Click detected on:', self.potentialSelection.name);
+
+                    CoopMaps.state.data.selectedItem = self.potentialSelection;
+                    CoopMaps.state.ui.activeTab = 'properties';
+
+                    document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                    const propertiesTab = document.querySelector('[data-tab="properties"]');
+                    if (propertiesTab) {
+                        propertiesTab.classList.add('active');
+                    }
+
+                    const sidebarContent = document.getElementById('sidebar-content');
+                    if (sidebarContent && CoopMaps.modules.properties) {
+                        console.log('Updating properties panel for:', self.potentialSelection.name);
+                        sidebarContent.innerHTML = CoopMaps.modules.properties.render();
+                    }
+
+                    self.render();
+                }
+
+                // Save state if dragging occurred
+                if (self.isDragging && self.draggedItem) {
+                    CoopMaps.saveState();
+                }
+
+                self.isDragging = false;
+                self.draggedItem = null;
+                self.potentialSelection = null;
+                self.mouseDownTime = 0;
+                self.canvas.style.cursor = 'default';
+            });
+
+            this.canvas.addEventListener('mouseleave', () => {
+                self.isDragging = false;
+                self.draggedItem = null;
+                self.mouseDownTime = 0;
+                self.canvas.style.cursor = 'default';
+            });
+
+            // Enhanced zoom with smooth animation
+            this.canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                this.smoothZoom(delta, e.clientX, e.clientY);
+            });
+
+            // Hide context menu on click elsewhere
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('contextMenu');
+                if (!menu.contains(e.target)) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            // Keyboard events
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Delete' && CoopMaps.state.data.selectedItem) {
+                    self.deleteSelected();
+                }
+            });
+        },
+
+        getItemAtPosition(x, y) {
+            // Check in reverse order (top to bottom)
+            for (let i = CoopMaps.state.data.enterprises.length - 1; i >= 0; i--) {
+                const enterprise = CoopMaps.state.data.enterprises[i];
+                let effectiveHeight = enterprise.height;
+
+                if (enterprise.type === 'ncm') {
+                    effectiveHeight = enterprise.height * 1.2;
+                }
+
+                if (x >= enterprise.x && x <= enterprise.x + enterprise.width &&
+                    y >= enterprise.y && y <= enterprise.y + effectiveHeight) {
+                    return enterprise;
                 }
             }
+            return null;
         },
 
-        onWheel(e) {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? -0.1 : 0.1;
-            this.zoom(delta);
-        },
+        render(excludeGrid = false) {
+            // Store export state
+            this.isExporting = excludeGrid;
 
-        onDragOver(e) {
-            e.preventDefault();
-            this.canvasElement.classList.add('drag-over');
-        },
+            // Clear canvas with subtle gradient background
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        onDrop(e) {
-            e.preventDefault();
-            this.canvasElement.classList.remove('drag-over');
-
-            const enterpriseType = e.dataTransfer.getData('enterpriseType');
-            if (enterpriseType && window.CoopMaps.modules.enterprises) {
-                const pos = this.getMousePos(e);
-                window.CoopMaps.modules.enterprises.addEnterpriseToCanvas(enterpriseType, pos.x, pos.y);
+            // Enhanced background
+            if (!this.isExporting) {
+                const bgGradient = this.ctx.createRadialGradient(
+                    this.canvas.width / 2, this.canvas.height / 2, 0,
+                    this.canvas.width / 2, this.canvas.height / 2, this.canvas.width
+                );
+                bgGradient.addColorStop(0, '#fafafa');
+                bgGradient.addColorStop(1, '#f0f0f0');
+                this.ctx.fillStyle = bgGradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            } else {
+                // Clean white background for exports
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             }
+
+            // Apply zoom
+            this.ctx.save();
+            this.ctx.scale(CoopMaps.state.ui.zoom, CoopMaps.state.ui.zoom);
+
+            // Draw grid only if not exporting
+            if (!excludeGrid && !this.isExporting) {
+                this.drawEnhancedGrid();
+            }
+
+            // Draw diagram title - ONLY ONE TITLE at the top center
+            this.drawDiagramTitle();
+
+            // Draw relationships with better visuals
+            CoopMaps.state.data.relationships.forEach(rel => {
+                if (CoopMaps.modules.relationships) {
+                    CoopMaps.modules.relationships.drawRelationship(this.ctx, rel);
+                }
+            });
+
+            // Draw enterprises with enhanced visuals
+            CoopMaps.state.data.enterprises.forEach(enterprise => {
+                this.drawEnterprise(enterprise);
+            });
+
+            // Draw selection highlight
+            if (CoopMaps.state.data.selectedItem && !this.isExporting) {
+                this.drawSelectionHighlight(CoopMaps.state.data.selectedItem);
+            }
+
+            this.ctx.restore();
+
+            // Reset export state
+            this.isExporting = false;
         },
 
-        // Zoom functions
-        zoomIn() {
-            this.zoom(0.1);
+        drawEnhancedGrid() {
+            this.ctx.save();
+
+            const gridSize = 20;
+            const majorGridSize = 100;
+
+            // Minor grid lines
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.03)';
+            this.ctx.lineWidth = 0.5;
+
+            for (let x = 0; x < this.canvas.width; x += gridSize) {
+                if (x % majorGridSize !== 0) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+            }
+
+            for (let y = 0; y < this.canvas.height; y += gridSize) {
+                if (y % majorGridSize !== 0) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            // Major grid lines
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
+            this.ctx.lineWidth = 1;
+
+            for (let x = 0; x < this.canvas.width; x += majorGridSize) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, 0);
+                this.ctx.lineTo(x, this.canvas.height);
+                this.ctx.stroke();
+            }
+
+            for (let y = 0; y < this.canvas.height; y += majorGridSize) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, y);
+                this.ctx.lineTo(this.canvas.width, y);
+                this.ctx.stroke();
+            }
+
+            this.ctx.restore();
         },
 
-        zoomOut() {
-            this.zoom(-0.1);
+        drawDiagramTitle() {
+            const title = CoopMaps.state.data.diagramMetadata.title || 'Untitled Diagram';
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+
+            // Fixed position at the top center
+            const titleX = canvasSize.width / 2;
+            const titleY = 50;
+
+            // Enhanced title styling
+            this.ctx.save();
+
+            this.ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+
+            // Word wrap logic
+            const maxWidth = canvasSize.width - 200; // Leave 100px margin on each side
+            const words = title.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                const testLine = currentLine + ' ' + words[i];
+                const metrics = this.ctx.measureText(testLine);
+                if (metrics.width > maxWidth && currentLine) {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            lines.push(currentLine);
+
+            // Calculate background size based on number of lines
+            const lineHeight = 35;
+            const totalHeight = lines.length * lineHeight + 20;
+            const bgHeight = totalHeight;
+
+            // Find the widest line for background
+            let maxLineWidth = 0;
+            lines.forEach(line => {
+                const metrics = this.ctx.measureText(line);
+                maxLineWidth = Math.max(maxLineWidth, metrics.width);
+            });
+            const bgWidth = Math.min(maxLineWidth + 60, canvasSize.width - 100);
+
+            // Title background with gradient
+            const bgGradient = this.ctx.createLinearGradient(
+                titleX - bgWidth/2, titleY - bgHeight/2,
+                titleX - bgWidth/2, titleY + bgHeight/2
+            );
+            bgGradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+            bgGradient.addColorStop(1, 'rgba(250, 250, 250, 0.95)');
+
+            // Rounded rectangle for title background
+            this.drawRoundedRect(
+                titleX - bgWidth/2, titleY - bgHeight/2,
+                bgWidth, bgHeight, 8
+            );
+            this.ctx.fillStyle = bgGradient;
+            this.ctx.fill();
+
+            // Subtle border
+            this.ctx.strokeStyle = 'rgba(44, 62, 80, 0.1)';
+            this.ctx.lineWidth = 1;
+            this.ctx.stroke();
+
+            // Draw title text lines
+            this.ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+            this.ctx.shadowBlur = 2;
+            this.ctx.shadowOffsetY = 1;
+            this.ctx.fillStyle = '#2c3e50';
+
+            const startY = titleY - (lines.length - 1) * lineHeight / 2;
+            lines.forEach((line, index) => {
+                this.ctx.fillText(line, titleX, startY + index * lineHeight);
+            });
+
+            // Adjust position for date and author based on number of title lines
+            const subtitleY = titleY + bgHeight/2 + 20;
+
+            // Date subtitle
+            if (CoopMaps.state.data.diagramMetadata.date) {
+                this.ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                this.ctx.fillStyle = '#7f8c8d';
+                this.ctx.shadowColor = 'transparent';
+                this.ctx.fillText(CoopMaps.state.data.diagramMetadata.date, titleX, subtitleY);
+            }
+
+            // Author info if present
+            if (CoopMaps.state.data.diagramMetadata.author) {
+                this.ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                this.ctx.fillStyle = '#95a5a6';
+                this.ctx.fillText('by ' + CoopMaps.state.data.diagramMetadata.author, titleX, subtitleY + 15);
+            }
+
+            this.ctx.restore();
         },
 
-        zoomReset() {
-            window.CoopMaps.state.ui.zoom = 1;
-            this.canvasElement.style.transform = 'scale(1)';
-            const btn = document.getElementById('zoomResetBtn');
-            if (btn) btn.textContent = '100%';
+        drawRoundedRect(x, y, width, height, radius) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x + radius, y);
+            this.ctx.lineTo(x + width - radius, y);
+            this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            this.ctx.lineTo(x + width, y + height - radius);
+            this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            this.ctx.lineTo(x + radius, y + height);
+            this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            this.ctx.lineTo(x, y + radius);
+            this.ctx.quadraticCurveTo(x, y, x + radius, y);
+            this.ctx.closePath();
         },
 
-        zoom(delta) {
-            const state = window.CoopMaps.state.ui;
-            state.zoom = Math.max(0.25, Math.min(3, state.zoom + delta));
-            this.canvasElement.style.transform = `scale(${state.zoom})`;
+        drawSelectionHighlight(enterprise) {
+            this.ctx.save();
 
-            const btn = document.getElementById('zoomResetBtn');
-            if (btn) btn.textContent = Math.round(state.zoom * 100) + '%';
+            const padding = 15;
+            let highlightHeight = enterprise.height + padding * 2;
+            if (enterprise.type === 'ncm') {
+                highlightHeight = enterprise.height * 1.2 + padding * 2;
+            }
+
+            // Animated selection ring
+            const time = Date.now() / 1000;
+            const pulse = Math.sin(time * 3) * 0.2 + 0.8;
+
+            this.ctx.strokeStyle = `rgba(52, 152, 219, ${pulse})`;
+            this.ctx.lineWidth = 3;
+            this.ctx.setLineDash([8, 4]);
+            this.ctx.lineDashOffset = time * 10;
+
+            this.drawRoundedRect(
+                enterprise.x - padding,
+                enterprise.y - padding,
+                enterprise.width + padding * 2,
+                highlightHeight,
+                8
+            );
+            this.ctx.stroke();
+
+            // Corner handles
+            this.ctx.setLineDash([]);
+            this.ctx.fillStyle = '#3498db';
+            const handleSize = 6;
+            const handles = [
+                { x: enterprise.x - padding, y: enterprise.y - padding },
+                { x: enterprise.x + enterprise.width + padding, y: enterprise.y - padding },
+                { x: enterprise.x - padding, y: enterprise.y + highlightHeight - padding },
+                { x: enterprise.x + enterprise.width + padding, y: enterprise.y + highlightHeight - padding }
+            ];
+
+            handles.forEach(handle => {
+                this.ctx.fillRect(
+                    handle.x - handleSize/2,
+                    handle.y - handleSize/2,
+                    handleSize,
+                    handleSize
+                );
+            });
+
+            this.ctx.restore();
         },
 
-        // Editing functions
-        duplicateSelected() {
-            const state = window.CoopMaps.state.data;
-            if (state.selectedItem && state.selectedItem.type === 'enterprise') {
-                const original = state.enterprises.find(e => e.id === state.selectedItem.id);
-                if (original) {
-                    const duplicate = JSON.parse(JSON.stringify(original));
-                    duplicate.id = window.CoopMaps.generateId();
-                    duplicate.x += 20;
-                    duplicate.y += 20;
-                    duplicate.name = original.name + ' (Copy)';
-                    state.enterprises.push(duplicate);
+        drawEnterprise(enterprise) {
+            if (!enterprise || !enterprise.type) {
+                console.error('Invalid enterprise:', enterprise);
+                return;
+            }
 
-                    state.selectedItem = { type: 'enterprise', id: duplicate.id };
-                    window.CoopMaps.saveState();
+            const shapes = CoopMaps.modules.shapes;
+            if (!shapes) {
+                console.error('Shapes module not loaded');
+                return;
+            }
+
+            const isSelected = CoopMaps.state.data.selectedItem === enterprise;
+            const isHighlighted = CoopMaps.modules.relationships &&
+                                CoopMaps.modules.relationships.highlightedEnterprise === enterprise;
+
+            // Draw highlight for relationship mode
+            if (isHighlighted && !this.isExporting) {
+                this.ctx.save();
+                this.ctx.strokeStyle = '#3498db';
+                this.ctx.lineWidth = 4;
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.globalAlpha = 0.5;
+
+                let highlightHeight = enterprise.height + 30;
+                if (enterprise.type === 'ncm') {
+                    highlightHeight = enterprise.height * 1.2 + 30;
+                }
+
+                this.drawRoundedRect(
+                    enterprise.x - 15,
+                    enterprise.y - 15,
+                    enterprise.width + 30,
+                    highlightHeight,
+                    12
+                );
+                this.ctx.stroke();
+                this.ctx.restore();
+            }
+
+            // Enhanced draw options
+            const drawOptions = {
+                fill: enterprise.fill || 'white',
+                stroke: enterprise.stroke || '#2c3e50',
+                lineWidth: isSelected ? 3 : 2,
+                noShadow: this.isExporting,
+                noHighlight: this.isExporting
+            };
+
+            // Function to draw the base shape
+            const drawBaseShape = (ctx, x, y, width, height, options) => {
+                switch (enterprise.type) {
+                    case 'cooperative':
+                    case 'excluded':
+                        shapes.drawRectangle(ctx, x, y, width, height, options);
+                        break;
+                    case 'ncm':
+                        shapes.drawRoundedRectangle(ctx, x, y, width, height, 15, options);
+                        break;
+                    case 'social':
+                        shapes.drawPill(ctx, x, y, width, height, options);
+                        break;
+                    case 'private':
+                        shapes.drawEllipse(ctx, x, y, width, height, options);
+                        break;
+                    case 'state':
+                        shapes.drawDiamond(ctx, x, y, width, height, options);
+                        break;
+                }
+            };
+
+            // Draw stack effect if generic set
+            if (enterprise.isGenericSet) {
+                shapes.drawStackEffect(this.ctx, drawBaseShape, enterprise.x, enterprise.y, enterprise.width, enterprise.height, drawOptions);
+            } else {
+                drawBaseShape(this.ctx, enterprise.x, enterprise.y, enterprise.width, enterprise.height, drawOptions);
+            }
+
+            // Always draw indicators for cooperatives and NCMs (NOT for excluded businesses)
+            if ((enterprise.type === 'cooperative' || enterprise.type === 'ncm') && enterprise.type !== 'excluded') {
+                shapes.drawParticipationIndicators(
+                    this.ctx,
+                    enterprise.x,
+                    enterprise.y,
+                    enterprise.width,
+                    enterprise.height,
+                    enterprise.roles || []
+                );
+
+                shapes.drawTierIndicators(
+                    this.ctx,
+                    enterprise.x,
+                    enterprise.y,
+                    enterprise.width,
+                    enterprise.height,
+                    enterprise.tier || 'none',
+                    enterprise.type
+                );
+            }
+
+            // Enhanced label with better typography
+            this.ctx.save();
+            this.ctx.fillStyle = '#2c3e50';
+            this.ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+
+            let textX = enterprise.x + enterprise.width / 2;
+            let textY = enterprise.y + enterprise.height / 2;
+
+            // Wrap text if it's too long
+            const maxWidth = enterprise.width - 12;
+            const words = (enterprise.name || 'Enterprise').split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                const testLine = currentLine + ' ' + words[i];
+                const metrics = this.ctx.measureText(testLine);
+                if (metrics.width > maxWidth && currentLine) {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            lines.push(currentLine);
+
+            const lineHeight = 16;
+            const totalHeight = lines.length * lineHeight;
+            const startY = textY - totalHeight / 2 + lineHeight / 2;
+
+            // Text shadow for better readability
+            if (!this.isExporting) {
+                this.ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+                this.ctx.shadowBlur = 2;
+            }
+
+            lines.forEach((line, index) => {
+                this.ctx.fillText(line, textX, startY + index * lineHeight);
+            });
+
+            this.ctx.restore();
+        },
+
+        smoothZoom(factor, mouseX, mouseY) {
+            const targetZoom = CoopMaps.state.ui.zoom * factor;
+
+            if (targetZoom >= 0.1 && targetZoom <= 5) {
+                // Animate zoom
+                const startZoom = CoopMaps.state.ui.zoom;
+                const duration = 200;
+                const startTime = Date.now();
+
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+                    CoopMaps.state.ui.zoom = startZoom + (targetZoom - startZoom) * easeProgress;
                     this.render();
-                    window.CoopMaps.updateSidebar();
-                }
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+
+                animate();
             }
         },
 
-        deleteSelected() {
-            const state = window.CoopMaps.state.data;
-            if (!state.selectedItem) return;
-
-            if (state.selectedItem.type === 'enterprise') {
-                const index = state.enterprises.findIndex(e => e.id === state.selectedItem.id);
-                if (index !== -1) {
-                    state.enterprises.splice(index, 1);
-
-                    // Also delete relationships connected to this enterprise
-                    state.relationships = state.relationships.filter(r =>
-                        r.startEnterpriseId !== state.selectedItem.id &&
-                        r.endEnterpriseId !== state.selectedItem.id
-                    );
-                }
-            } else if (state.selectedItem.type === 'relationship') {
-                const index = state.relationships.findIndex(r => r.id === state.selectedItem.id);
-                if (index !== -1) {
-                    state.relationships.splice(index, 1);
-                }
-            }
-
-            state.selectedItem = null;
-            window.CoopMaps.saveState();
-            this.render();
-            window.CoopMaps.updateSidebar();
-        },
-
-        bringToFront() {
-            const state = window.CoopMaps.state.data;
-            if (state.selectedItem && state.selectedItem.type === 'enterprise') {
-                const index = state.enterprises.findIndex(e => e.id === state.selectedItem.id);
-                if (index !== -1) {
-                    const enterprise = state.enterprises.splice(index, 1)[0];
-                    state.enterprises.push(enterprise);
-                    window.CoopMaps.saveState();
-                    this.render();
-                }
-            }
-        },
-
-        sendToBack() {
-            const state = window.CoopMaps.state.data;
-            if (state.selectedItem && state.selectedItem.type === 'enterprise') {
-                const index = state.enterprises.findIndex(e => e.id === state.selectedItem.id);
-                if (index !== -1) {
-                    const enterprise = state.enterprises.splice(index, 1)[0];
-                    state.enterprises.unshift(enterprise);
-                    window.CoopMaps.saveState();
-                    this.render();
-                }
-            }
-        },
-
-        // Canvas operations
         clearCanvas() {
-            if (confirm('Are you sure you want to clear the canvas? This cannot be undone.')) {
-                const state = window.CoopMaps.state.data;
-                state.enterprises = [];
-                state.relationships = [];
-                state.selectedItem = null;
-                window.CoopMaps.saveState();
-                this.render();
-                window.CoopMaps.updateSidebar();
-                window.CoopMaps.showNotification('Canvas cleared', 'info');
+            if (confirm('Clear all enterprises and relationships? This action cannot be undone.')) {
+                // Save state for undo
+                CoopMaps.saveState();
+
+                // Animate clear
+                const fadeOut = () => {
+                    this.ctx.save();
+                    this.ctx.globalAlpha = 0.9;
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.ctx.restore();
+
+                    setTimeout(() => {
+                        CoopMaps.state.data.enterprises = [];
+                        CoopMaps.state.data.relationships = [];
+                        this.render();
+                    }, 100);
+                };
+
+                fadeOut();
             }
         },
 
         newDiagram() {
-            if (confirm('Create a new diagram? Any unsaved changes will be lost.')) {
-                this.clearCanvas();
-                const state = window.CoopMaps.state.data;
-                state.diagramMetadata = {
+            if (confirm('Create new diagram? This will clear the current diagram.')) {
+                CoopMaps.saveState();
+
+                CoopMaps.state.data.enterprises = [];
+                CoopMaps.state.data.relationships = [];
+                CoopMaps.state.data.selectedItem = null;
+                CoopMaps.state.data.diagramMetadata = {
                     title: 'Untitled Diagram',
                     author: '',
                     date: new Date().toISOString().split('T')[0],
@@ -559,59 +884,619 @@
                     },
                     period: 'present'
                 };
-                window.CoopMaps.updateSidebar();
+
+                // Reset persistence module
+                if (CoopMaps.modules.persistence) {
+                    CoopMaps.modules.persistence.currentDiagramId = null;
+                    CoopMaps.modules.persistence.isDirty = true;
+                    CoopMaps.modules.persistence.updateSaveIndicator();
+                }
+
+                this.render();
+                CoopMaps.updateSidebar();
             }
+        },
+
+        zoomIn() {
+            this.smoothZoom(1.2);
+        },
+
+        zoomOut() {
+            this.smoothZoom(0.8);
+        },
+
+        zoomReset() {
+            const startZoom = CoopMaps.state.ui.zoom;
+            const targetZoom = 1;
+            const duration = 300;
+            const startTime = Date.now();
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+                CoopMaps.state.ui.zoom = startZoom + (targetZoom - startZoom) * easeProgress;
+                this.render();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            };
+
+            animate();
         },
 
         autoLayout() {
-            const state = window.CoopMaps.state.data;
-            if (state.enterprises.length === 0) return;
+            const enterprises = CoopMaps.state.data.enterprises;
+            if (enterprises.length === 0) return;
 
-            // Simple grid layout
-            const cols = Math.ceil(Math.sqrt(state.enterprises.length));
-            const padding = 40;
-            const enterpriseWidth = 140;
-            const enterpriseHeight = 100;
+            // Save state for undo
+            CoopMaps.saveState();
 
-            state.enterprises.forEach((ent, index) => {
-                const col = index % cols;
-                const row = Math.floor(index / cols);
-                ent.x = padding + col * (enterpriseWidth + padding);
-                ent.y = padding + row * (enterpriseHeight + padding);
-                ent.width = enterpriseWidth;
-                ent.height = enterpriseHeight;
+            // Get current canvas size
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            const margin = 100;
+            const titleSpace = 120;
+
+            // Calculate available space
+            const availableWidth = canvasSize.width - (margin * 2);
+            const availableHeight = canvasSize.height - titleSpace - margin;
+            const centerX = canvasSize.width / 2;
+            const centerY = titleSpace + (availableHeight / 2);
+
+            // Store original positions
+            const originalState = enterprises.map(e => ({
+                x: e.x,
+                y: e.y,
+                width: e.width,
+                height: e.height
+            }));
+
+            // Initialize positions at current locations
+            const nodes = enterprises.map((e, i) => ({
+                id: e.id,
+                x: e.x + e.width / 2,
+                y: e.y + e.height / 2,
+                width: e.width,
+                height: e.height,
+                vx: 0,
+                vy: 0,
+                index: i,
+                connections: new Set() // Track connected nodes
+            }));
+
+            // Check if all nodes are at the same position
+            const avgX = nodes.reduce((sum, n) => sum + n.x, 0) / nodes.length;
+            const avgY = nodes.reduce((sum, n) => sum + n.y, 0) / nodes.length;
+            const allSamePosition = nodes.every(n => Math.abs(n.x - avgX) < 10 && Math.abs(n.y - avgY) < 10);
+
+            // Build relationship information
+            const links = [];
+            const relationshipCounts = new Map();
+            const linkPairs = new Set(); // Track unique node pairs that are connected
+
+            CoopMaps.state.data.relationships.forEach(rel => {
+                const sourceIndex = nodes.findIndex(n => n.id === rel.startId);
+                const targetIndex = nodes.findIndex(n => n.id === rel.endId);
+                if (sourceIndex !== -1 && targetIndex !== -1) {
+                    links.push({
+                        source: sourceIndex,
+                        target: targetIndex,
+                        id: rel.id
+                    });
+
+                    // Track connections
+                    nodes[sourceIndex].connections.add(targetIndex);
+                    nodes[targetIndex].connections.add(sourceIndex);
+
+                    // Count relationships between this pair
+                    const key = sourceIndex < targetIndex ? `${sourceIndex}-${targetIndex}` : `${targetIndex}-${sourceIndex}`;
+                    relationshipCounts.set(key, (relationshipCounts.get(key) || 0) + 1);
+                    linkPairs.add(key);
+                }
             });
 
-            window.CoopMaps.saveState();
-            this.render();
-            window.CoopMaps.showNotification('Auto layout applied', 'success');
-        },
+            // Initial layout if needed
+            if (allSamePosition || enterprises.length === 1) {
+                if (links.length > 0) {
+                    // Use force-directed pre-layout for connected graphs
+                    this.initialForceLayout(nodes, links, centerX, centerY, availableWidth, availableHeight);
+                } else if (enterprises.length <= 8) {
+                    // Circle arrangement for small unconnected groups
+                    const radius = Math.min(availableWidth, availableHeight) * 0.3;
+                    nodes.forEach((node, i) => {
+                        const angle = (i / nodes.length) * 2 * Math.PI - Math.PI/2;
+                        node.x = centerX + radius * Math.cos(angle);
+                        node.y = centerY + radius * Math.sin(angle);
+                    });
+                } else {
+                    // Grid arrangement for larger unconnected groups
+                    const cols = Math.ceil(Math.sqrt(nodes.length));
+                    const rows = Math.ceil(nodes.length / cols);
+                    const cellWidth = availableWidth / cols;
+                    const cellHeight = availableHeight / rows;
 
-        cancelCurrentOperation() {
-            this.isDragging = false;
-            this.isResizing = false;
-            this.isPanning = false;
-            this.draggedEnterprise = null;
-            this.canvasElement.classList.remove('grabbing');
-
-            if (window.CoopMaps.modules.relationships) {
-                window.CoopMaps.modules.relationships.cancelRelationshipCreation();
+                    nodes.forEach((node, i) => {
+                        const col = i % cols;
+                        const row = Math.floor(i / cols);
+                        node.x = margin + cellWidth * (col + 0.5);
+                        node.y = titleSpace + cellHeight * (row + 0.5);
+                    });
+                }
             }
 
-            this.render();
+            // Calculate forces with crossing minimization
+            const maxRelationshipCount = Math.max(...Array.from(relationshipCounts.values()), 1);
+            const BADGE_SPACING = 60;
+            const maxBadgeOffset = (maxRelationshipCount - 1) * BADGE_SPACING / 2;
+
+            // Adjusted parameters
+            const IDEAL_LINK_DISTANCE = 200 + maxBadgeOffset;
+            const REPULSION_STRENGTH = 60;
+            const ATTRACTION_STRENGTH = 0.15;
+            const CENTER_STRENGTH = 0.02;
+            const CROSSING_PENALTY = 30; // New parameter for crossing avoidance
+            const ITERATIONS = 150; // More iterations for better convergence
+            const DAMPING = 0.85;
+            const MIN_DISTANCE = 120 + maxBadgeOffset;
+
+            // Helper function to check if two line segments intersect
+            const linesIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
+                const det = (x2 - x1) * (y4 - y3) - (x4 - x3) * (y2 - y1);
+                if (Math.abs(det) < 0.001) return false; // Parallel lines
+
+                const t = ((x3 - x1) * (y4 - y3) - (x4 - x3) * (y3 - y1)) / det;
+                const u = -((x1 - x2) * (y3 - y1) - (y1 - y2) * (x3 - x1)) / det;
+
+                return t > 0.1 && t < 0.9 && u > 0.1 && u < 0.9; // Avoid endpoint intersections
+            };
+
+            // Run force simulation
+            for (let iter = 0; iter < ITERATIONS; iter++) {
+                // Reset forces
+                nodes.forEach(node => {
+                    node.fx = 0;
+                    node.fy = 0;
+                });
+
+                // Apply repulsion between all nodes
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const node1 = nodes[i];
+                        const node2 = nodes[j];
+
+                        let dx = node2.x - node1.x;
+                        let dy = node2.y - node1.y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 1) {
+                            dx = (Math.random() - 0.5) * 10;
+                            dy = (Math.random() - 0.5) * 10;
+                            distance = Math.sqrt(dx * dx + dy * dy);
+                        }
+
+                        // Account for badge space
+                        const pairKey = i < j ? `${i}-${j}` : `${j}-${i}`;
+                        const relCount = relationshipCounts.get(pairKey) || 0;
+                        const extraSpace = relCount > 1 ? (relCount - 1) * BADGE_SPACING : 0;
+                        const minDist = Math.max(
+                            MIN_DISTANCE + extraSpace,
+                            (node1.width + node2.width) / 2 + 60 + extraSpace,
+                            (node1.height + node2.height) / 2 + 60 + extraSpace
+                        );
+
+                        // Repulsion force
+                        if (distance < minDist * 2) {
+                            const force = REPULSION_STRENGTH * Math.pow(1 - distance / (minDist * 2), 2);
+                            const fx = (dx / distance) * force;
+                            const fy = (dy / distance) * force;
+
+                            node1.fx -= fx;
+                            node1.fy -= fy;
+                            node2.fx += fx;
+                            node2.fy += fy;
+                        }
+                    }
+                }
+
+                // Apply attraction along links
+                links.forEach(link => {
+                    const source = nodes[link.source];
+                    const target = nodes[link.target];
+
+                    const dx = target.x - source.x;
+                    const dy = target.y - source.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+
+                    // Adjust ideal distance based on number of relationships
+                    const pairKey = link.source < link.target ? `${link.source}-${link.target}` : `${link.target}-${link.source}`;
+                    const relCount = relationshipCounts.get(pairKey) || 1;
+                    const idealDist = IDEAL_LINK_DISTANCE + (relCount > 1 ? (relCount - 1) * BADGE_SPACING * 0.5 : 0);
+
+                    const force = ATTRACTION_STRENGTH * (distance - idealDist) / distance;
+                    const fx = dx * force;
+                    const fy = dy * force;
+
+                    source.fx += fx;
+                    source.fy += fy;
+                    target.fx -= fx;
+                    target.fy -= fy;
+                });
+
+                // Apply crossing minimization forces
+                for (let i = 0; i < links.length; i++) {
+                    for (let j = i + 1; j < links.length; j++) {
+                        const link1 = links[i];
+                        const link2 = links[j];
+
+                        // Skip if links share a node
+                        if (link1.source === link2.source || link1.source === link2.target ||
+                            link1.target === link2.source || link1.target === link2.target) {
+                            continue;
+                        }
+
+                        const n1 = nodes[link1.source];
+                        const n2 = nodes[link1.target];
+                        const n3 = nodes[link2.source];
+                        const n4 = nodes[link2.target];
+
+                        // Check if lines intersect
+                        if (linesIntersect(n1.x, n1.y, n2.x, n2.y, n3.x, n3.y, n4.x, n4.y)) {
+                            // Apply force to uncross the lines
+                            // Move nodes perpendicular to their connections
+                            const dx1 = n2.x - n1.x;
+                            const dy1 = n2.y - n1.y;
+                            const dx2 = n4.x - n3.x;
+                            const dy2 = n4.y - n3.y;
+
+                            // Perpendicular directions
+                            const perp1x = -dy1 / Math.sqrt(dx1 * dx1 + dy1 * dy1);
+                            const perp1y = dx1 / Math.sqrt(dx1 * dx1 + dy1 * dy1);
+                            const perp2x = -dy2 / Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                            const perp2y = dx2 / Math.sqrt(dx2 * dx2 + dy2 * dy2);
+
+                            // Determine which direction to push
+                            const cross = (n2.x - n1.x) * (n3.y - n1.y) - (n2.y - n1.y) * (n3.x - n1.x);
+                            const sign = cross > 0 ? 1 : -1;
+
+                            // Apply crossing penalty force
+                            const force = CROSSING_PENALTY * (1 - iter / ITERATIONS); // Decrease over time
+
+                            n1.fx += sign * perp1x * force * 0.25;
+                            n1.fy += sign * perp1y * force * 0.25;
+                            n2.fx += sign * perp1x * force * 0.25;
+                            n2.fy += sign * perp1y * force * 0.25;
+                            n3.fx -= sign * perp2x * force * 0.25;
+                            n3.fy -= sign * perp2y * force * 0.25;
+                            n4.fx -= sign * perp2x * force * 0.25;
+                            n4.fy -= sign * perp2y * force * 0.25;
+                        }
+                    }
+                }
+
+                // Apply gentle centering force
+                nodes.forEach(node => {
+                    const dx = centerX - node.x;
+                    const dy = centerY - node.y;
+                    node.fx += dx * CENTER_STRENGTH;
+                    node.fy += dy * CENTER_STRENGTH;
+                });
+
+                // Update velocities and positions
+                nodes.forEach(node => {
+                    // Update velocity with damping
+                    node.vx = (node.vx + node.fx) * DAMPING;
+                    node.vy = (node.vy + node.fy) * DAMPING;
+
+                    // Limit maximum velocity
+                    const maxVelocity = 5;
+                    const velocity = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
+                    if (velocity > maxVelocity) {
+                        node.vx = (node.vx / velocity) * maxVelocity;
+                        node.vy = (node.vy / velocity) * maxVelocity;
+                    }
+
+                    // Update position
+                    node.x += node.vx;
+                    node.y += node.vy;
+
+                    // Keep within bounds
+                    const halfWidth = node.width / 2;
+                    const halfHeight = node.height / 2;
+                    node.x = Math.max(margin + halfWidth, Math.min(canvasSize.width - margin - halfWidth, node.x));
+                    node.y = Math.max(titleSpace + halfHeight, Math.min(canvasSize.height - margin - halfHeight, node.y));
+                });
+
+                // Early termination if velocities are small
+                const totalVelocity = nodes.reduce((sum, node) =>
+                    sum + Math.abs(node.vx) + Math.abs(node.vy), 0);
+                if (totalVelocity < 0.1 && iter > 30) break;
+            }
+
+            // Apply final positions
+            const finalPositions = nodes.map(node => ({
+                x: node.x - node.width / 2,
+                y: node.y - node.height / 2
+            }));
+
+            // Calculate bounding box of the final layout (including badges and curve offsets)
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+            // First, include all enterprises
+            finalPositions.forEach((pos, i) => {
+                const enterprise = enterprises[i];
+                minX = Math.min(minX, pos.x - 20); // Extra padding for indicators
+                minY = Math.min(minY, pos.y - 20);
+                maxX = Math.max(maxX, pos.x + enterprise.width + 20);
+                maxY = Math.max(maxY, pos.y + enterprise.height + 20);
+            });
+
+            // Account for relationship badges and curves
+            CoopMaps.state.data.relationships.forEach((rel, idx) => {
+                const startNode = nodes.find(n => n.id === rel.startId);
+                const endNode = nodes.find(n => n.id === rel.endId);
+                if (!startNode || !endNode) return;
+
+                // Get the relationship count for this pair
+                const id1 = rel.startId < rel.endId ? rel.startId : rel.endId;
+                const id2 = rel.startId < rel.endId ? rel.endId : rel.startId;
+                const normalizedPair = `${id1}-${id2}`;
+                const allRelsBetween = CoopMaps.state.data.relationships.filter(r => {
+                    const rid1 = r.startId < r.endId ? r.startId : r.endId;
+                    const rid2 = r.startId < r.endId ? r.endId : r.startId;
+                    return `${rid1}-${rid2}` === normalizedPair;
+                });
+
+                if (allRelsBetween.length > 1) {
+                    // Calculate curve offset for this relationship
+                    const relIndex = allRelsBetween.findIndex(r => r.id === rel.id);
+                    const totalRels = allRelsBetween.length;
+                    const spacingPerRel = BADGE_SPACING;
+                    const totalWidth = (totalRels - 1) * spacingPerRel;
+                    const offsetFromCenter = (relIndex * spacingPerRel) - (totalWidth / 2);
+
+                    // Estimate curve bounds
+                    const midX = (startNode.x + endNode.x) / 2;
+                    const midY = (startNode.y + endNode.y) / 2;
+                    const dx = endNode.x - startNode.x;
+                    const dy = endNode.y - startNode.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    const perpX = -dy / distance;
+                    const perpY = dx / distance;
+
+                    const baseScale = Math.max(1, 300 / distance);
+                    const lengthScale = distance > 300 ? Math.sqrt(distance / 300) : 1;
+                    const curveOffset = offsetFromCenter * baseScale * lengthScale;
+
+                    const controlX = midX + (perpX * curveOffset);
+                    const controlY = midY + (perpY * curveOffset);
+
+                    // Expand bounds to include control point + badge radius
+                    minX = Math.min(minX, controlX - 30);
+                    minY = Math.min(minY, controlY - 30);
+                    maxX = Math.max(maxX, controlX + 30);
+                    maxY = Math.max(maxY, controlY + 30);
+                }
+            });
+
+            // Calculate the optimal zoom level
+            const layoutWidth = maxX - minX;
+            const layoutHeight = maxY - minY;
+
+            // Target to fit within canvas with some padding
+            const targetPadding = 60;
+            const targetWidth = canvasSize.width - targetPadding * 2;
+            const targetHeight = canvasSize.height - targetPadding * 2;
+
+            // Calculate zoom needed to fit
+            const zoomX = targetWidth / layoutWidth;
+            const zoomY = targetHeight / layoutHeight;
+            let targetZoom = Math.min(zoomX, zoomY, 1); // Don't zoom in past 100%
+
+            // Clamp zoom to reasonable bounds
+            targetZoom = Math.max(0.1, Math.min(targetZoom, 1));
+
+            // Store original zoom
+            const originalZoom = CoopMaps.state.ui.zoom;
+
+            // Calculate movement distance
+            let maxMovement = 0;
+            enterprises.forEach((e, i) => {
+                const dx = finalPositions[i].x - e.x;
+                const dy = finalPositions[i].y - e.y;
+                const movement = Math.sqrt(dx * dx + dy * dy);
+                maxMovement = Math.max(maxMovement, movement);
+            });
+
+            // Animate both position and zoom changes
+            const needsZoomChange = Math.abs(targetZoom - originalZoom) > 0.01;
+
+            if (maxMovement > 10 || needsZoomChange) {
+                const duration = 800; // Slightly longer for zoom animation
+                const startTime = Date.now();
+
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+                    // Animate positions
+                    enterprises.forEach((enterprise, index) => {
+                        enterprise.x = originalState[index].x +
+                            (finalPositions[index].x - originalState[index].x) * easeProgress;
+                        enterprise.y = originalState[index].y +
+                            (finalPositions[index].y - originalState[index].y) * easeProgress;
+                    });
+
+                    // Animate zoom
+                    if (needsZoomChange) {
+                        CoopMaps.state.ui.zoom = originalZoom + (targetZoom - originalZoom) * easeProgress;
+
+                        // Update zoom display if it exists
+                        const zoomBtn = document.getElementById('zoomResetBtn');
+                        if (zoomBtn) {
+                            const zoomPercent = Math.round(CoopMaps.state.ui.zoom * 100);
+                            zoomBtn.textContent = `${zoomPercent}%`;
+                        }
+                    }
+
+                    this.render();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        CoopMaps.showNotification('Layout optimized and zoomed to fit', 'success');
+                    }
+                };
+
+                animate();
+            } else {
+                enterprises.forEach((enterprise, index) => {
+                    enterprise.x = finalPositions[index].x;
+                    enterprise.y = finalPositions[index].y;
+                });
+                this.render();
+                CoopMaps.showNotification('Layout is already optimized', 'info');
+            }
+        },
+
+        // Helper method for initial force layout
+        initialForceLayout(nodes, links, centerX, centerY, width, height) {
+            // Quick force-directed pre-layout to get a good starting position
+            const iterations = 50;
+            const k = Math.sqrt((width * height) / nodes.length) * 0.5;
+
+            for (let iter = 0; iter < iterations; iter++) {
+                // Repulsive forces
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const dx = nodes[j].x - nodes[i].x;
+                        const dy = nodes[j].y - nodes[i].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        const force = k * k / dist;
+
+                        nodes[i].x -= (dx / dist) * force;
+                        nodes[i].y -= (dy / dist) * force;
+                        nodes[j].x += (dx / dist) * force;
+                        nodes[j].y += (dy / dist) * force;
+                    }
+                }
+
+                // Attractive forces along edges
+                links.forEach(link => {
+                    const dx = nodes[link.target].x - nodes[link.source].x;
+                    const dy = nodes[link.target].y - nodes[link.source].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    const force = dist * dist / k * 0.1;
+
+                    nodes[link.source].x += (dx / dist) * force;
+                    nodes[link.source].y += (dy / dist) * force;
+                    nodes[link.target].x -= (dx / dist) * force;
+                    nodes[link.target].y -= (dy / dist) * force;
+                });
+
+                // Center the layout
+                const avgX = nodes.reduce((sum, n) => sum + n.x, 0) / nodes.length;
+                const avgY = nodes.reduce((sum, n) => sum + n.y, 0) / nodes.length;
+                const offsetX = centerX - avgX;
+                const offsetY = centerY - avgY;
+
+                nodes.forEach(node => {
+                    node.x += offsetX * 0.1;
+                    node.y += offsetY * 0.1;
+                });
+            }
+        },
+
+        deleteSelected() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected) {
+                CoopMaps.saveState();
+
+                // Fade out animation
+                const fadeAndDelete = () => {
+                    const index = CoopMaps.state.data.enterprises.indexOf(selected);
+                    if (index > -1) {
+                        CoopMaps.state.data.enterprises.splice(index, 1);
+                        CoopMaps.state.data.selectedItem = null;
+
+                        // Remove connected relationships
+                        CoopMaps.state.data.relationships = CoopMaps.state.data.relationships.filter(
+                            rel => rel.startId !== selected.id && rel.endId !== selected.id
+                        );
+
+                        this.render();
+                        CoopMaps.updateSidebar();
+                    }
+                };
+
+                fadeAndDelete();
+                document.getElementById('contextMenu').style.display = 'none';
+            }
+        },
+
+        duplicateSelected() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected) {
+                CoopMaps.saveState();
+
+                const duplicate = {
+                    ...selected,
+                    id: CoopMaps.generateId(),
+                    x: selected.x + 50,
+                    y: selected.y + 50
+                };
+
+                CoopMaps.state.data.enterprises.push(duplicate);
+                CoopMaps.state.data.selectedItem = duplicate;
+                this.render();
+
+                document.getElementById('contextMenu').style.display = 'none';
+            }
+        },
+
+        bringToFront() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected) {
+                CoopMaps.saveState();
+
+                const index = CoopMaps.state.data.enterprises.indexOf(selected);
+                if (index > -1) {
+                    CoopMaps.state.data.enterprises.splice(index, 1);
+                    CoopMaps.state.data.enterprises.push(selected);
+                    this.render();
+                }
+
+                document.getElementById('contextMenu').style.display = 'none';
+            }
+        },
+
+        sendToBack() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected) {
+                CoopMaps.saveState();
+
+                const index = CoopMaps.state.data.enterprises.indexOf(selected);
+                if (index > -1) {
+                    CoopMaps.state.data.enterprises.splice(index, 1);
+                    CoopMaps.state.data.enterprises.unshift(selected);
+                    this.render();
+                }
+
+                document.getElementById('contextMenu').style.display = 'none';
+            }
         },
 
         undo() {
-            window.CoopMaps.undo();
+            CoopMaps.undo();
         },
 
         redo() {
-            window.CoopMaps.redo();
+            CoopMaps.redo();
         }
-    };
+    });
 
-    // Register module
-    if (window.CoopMaps) {
-        window.CoopMaps.registerModule('canvas', canvas);
-    }
+    console.log('canvas.module.js loaded successfully');
 })();
