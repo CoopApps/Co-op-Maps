@@ -284,8 +284,17 @@
 
                 const tab = this.state.ui.activeTab;
 
-                if (tab === 'symbols' && this.modules.enterprises && this.modules.enterprises.render) {
-                    content.innerHTML = this.modules.enterprises.render();
+                if (tab === 'symbols' && this.modules.enterprises && this.modules.enterprises.renderSymbolGallery) {
+                    content.innerHTML = this.modules.enterprises.renderSymbolGallery();
+                    // Draw previews after DOM is updated
+                    setTimeout(() => {
+                        if (this.modules.enterprises.drawPreviews) {
+                            this.modules.enterprises.drawPreviews();
+                        }
+                        if (this.modules.enterprises.bindDragEvents) {
+                            this.modules.enterprises.bindDragEvents();
+                        }
+                    }, 0);
                 } else if (tab === 'properties' && this.modules.properties && this.modules.properties.render) {
                     content.innerHTML = this.modules.properties.render();
                 } else if (tab === 'diagrams' && this.modules.persistence && this.modules.persistence.render) {
