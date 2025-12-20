@@ -427,8 +427,8 @@
             this.ctx.save();
             this.ctx.scale(CoopMaps.state.ui.zoom, CoopMaps.state.ui.zoom);
 
-            // Draw grid only if not exporting
-            if (!excludeGrid && !this.isExporting) {
+            // Draw grid only if not exporting and grid is enabled
+            if (!excludeGrid && !this.isExporting && CoopMaps.state.ui.showGrid) {
                 this.drawEnhancedGrid();
             }
 

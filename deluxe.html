@@ -289,6 +289,29 @@
                 <button onclick="CoopMaps.modules.canvas?.newDiagram()">New</button>
                 <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear</button>
                 <div class="separator"></div>
+                <select id="canvasSizeSelector" onchange="CoopMaps.changeCanvasSize(this.value)" style="
+                    padding: 4px 8px;
+                    background: white;
+                    color: var(--dark);
+                    border: 1px solid var(--light-gray);
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 11px;
+                    font-weight: 500;
+                ">
+                    <option value="A4">A4</option>
+                    <option value="A3">A3</option>
+                </select>
+                <button id="gridToggleBtn" onclick="CoopMaps.toggleGrid()" title="Toggle Grid">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                        <rect x="2" y="2" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="12" y="2" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="2" y="12" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="12" y="12" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                    <span>Grid</span>
+                </button>
+                <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto</button>
                 <button onclick="CoopMaps.toggleConnectorStyle()">
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
@@ -307,6 +330,7 @@
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
                 <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Key</button>
+                <button onclick="CoopMaps.showKeyboardShortcuts()">Shortcuts</button>
                 <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
                 <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms</button>
             </div>
@@ -347,7 +371,7 @@
                     selectedItem: null,
                     selectedItemType: null
                 },
-                ui: { zoom: 1, panX: 0, panY: 0, activeTab: 'symbols' },
+                ui: { zoom: 1, panX: 0, panY: 0, activeTab: 'symbols', showGrid: true },
                 history: { states: [], currentIndex: -1 }
             },
 
@@ -425,6 +449,110 @@
                 setTimeout(() => notification.remove(), 3000);
             },
 
+            toggleGrid() {
+                this.state.ui.showGrid = !this.state.ui.showGrid;
+                const btn = document.getElementById('gridToggleBtn');
+                if (btn) {
+                    if (this.state.ui.showGrid) {
+                        btn.style.background = '';
+                        btn.style.color = '';
+                    } else {
+                        btn.style.background = 'var(--light-gray)';
+                        btn.style.color = 'var(--gray)';
+                    }
+                }
+                if (this.modules.canvas) this.modules.canvas.render();
+                this.showNotification(`Grid ${this.state.ui.showGrid ? 'shown' : 'hidden'}`, 'info');
+            },
+
+            changeCanvasSize(size) {
+                this.state.data.diagramProperties.canvasSize = size;
+                if (this.modules.canvas) {
+                    this.modules.canvas.updateCanvasSize();
+                    this.modules.canvas.render();
+                }
+                this.showNotification(`Canvas size changed to ${size}`, 'success');
+                this.saveState();
+            },
+
+            showKeyboardShortcuts() {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 5000;
+                `;
+
+                modal.innerHTML = `
+                    <div style="
+                        background: white;
+                        border-radius: 12px;
+                        padding: 30px;
+                        max-width: 600px;
+                        width: 90%;
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                    ">
+                        <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 24px;">
+                            ⌨️ Keyboard Shortcuts
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Undo</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Ctrl+Z</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Redo</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Ctrl+Shift+Z</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Save</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Ctrl+S</kbd>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Relationship Mode</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">R</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Exit Mode</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">ESC</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Delete Selected</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Delete</kbd>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="
+                            width: 100%;
+                            padding: 12px;
+                            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 14px;
+                        ">Close</button>
+                    </div>
+                `;
+
+                modal.onclick = (e) => {
+                    if (e.target === modal) modal.remove();
+                };
+
+                document.body.appendChild(modal);
+            },
+
             updateSidebar() {
                 const content = document.getElementById('sidebar-content');
                 if (!content) return;
@@ -483,9 +611,15 @@
                 // 4. Render initial sidebar content
                 this.updateSidebar();
 
+                // 5. Sync canvas size selector with current state
+                const sizeSelector = document.getElementById('canvasSizeSelector');
+                if (sizeSelector) {
+                    sizeSelector.value = this.state.data.diagramProperties.canvasSize || 'A4';
+                }
+
                 console.log('✓ Co-opMaps ready!');
                 this.showNotification('Co-opMaps ready!', 'success');
-                
+
                 // Hide context menu on click outside
                 document.addEventListener('click', () => this.hideContextMenu());
             }
