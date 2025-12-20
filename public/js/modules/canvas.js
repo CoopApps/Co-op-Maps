@@ -346,16 +346,23 @@
                     CoopMaps.state.data.selectedItem = self.potentialSelection;
                     CoopMaps.state.ui.activeTab = 'properties';
 
-                    document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
-                    const propertiesTab = document.querySelector('[data-tab="properties"]');
-                    if (propertiesTab) {
-                        propertiesTab.classList.add('active');
-                    }
+                    // Update sidebar - check for both Deluxe and Express versions
+                    if (CoopMaps.updateSidebar) {
+                        // Express version has updateSidebar function
+                        CoopMaps.updateSidebar();
+                    } else {
+                        // Deluxe version has sidebar-content and tabs
+                        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                        const propertiesTab = document.querySelector('[data-tab="properties"]');
+                        if (propertiesTab) {
+                            propertiesTab.classList.add('active');
+                        }
 
-                    const sidebarContent = document.getElementById('sidebar-content');
-                    if (sidebarContent && CoopMaps.modules.properties) {
-                        console.log('Updating properties panel for:', self.potentialSelection.name);
-                        sidebarContent.innerHTML = CoopMaps.modules.properties.render();
+                        const sidebarContent = document.getElementById('sidebar-content');
+                        if (sidebarContent && CoopMaps.modules.properties) {
+                            console.log('Updating properties panel for:', self.potentialSelection.name);
+                            sidebarContent.innerHTML = CoopMaps.modules.properties.render();
+                        }
                     }
 
                     self.render();
