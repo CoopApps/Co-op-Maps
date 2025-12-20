@@ -37,13 +37,48 @@
             color: white;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
+            gap: 8px;
+            padding: 0 15px;
             box-shadow: 0 4px 20px rgba(44, 62, 80, 0.3);
             z-index: 1000;
         }
-        .header h1 { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
-        .header-actions { display: flex; gap: 10px; }
+        .header h1 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+        .header button {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .header button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .header button.primary {
+            background: var(--primary);
+            border-color: var(--primary-dark);
+        }
+        .header button.primary:hover {
+            background: var(--primary-dark);
+        }
+        .header .separator {
+            width: 1px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.2);
+        }
 
         /* Container */
         .container { display: flex; height: 100vh; padding-top: 60px; overflow: hidden; }
@@ -118,60 +153,6 @@
         .sidebar-content::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
         .sidebar-content::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
 
-        /* Main Area */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Toolbar */
-        .toolbar {
-            height: 56px;
-            background: linear-gradient(to right, white 0%, #fafafa 100%);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0 20px;
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            z-index: 5;
-        }
-
-        .toolbar button {
-            padding: 8px 16px;
-            background: white;
-            color: var(--dark);
-            border: 2px solid var(--light-gray);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .toolbar button:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
-        }
-
-        .toolbar button:active {
-            transform: translateY(0);
-        }
-
-        .toolbar .separator {
-            width: 1px;
-            height: 32px;
-            background: linear-gradient(to bottom, transparent, var(--light-gray), transparent);
-            margin: 0 4px;
-        }
-
         /* Canvas Area */
         .canvas-area {
             flex: 1;
@@ -232,7 +213,33 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>🗺️ Co-opMaps <span style="font-size: 14px; opacity: 0.7;">v0.92</span></h1>
+        <h1>Co-opMaps</h1>
+        <button onclick="CoopMaps.undo()">↶ Undo</button>
+        <button onclick="CoopMaps.redo()">↷ Redo</button>
+        <div class="separator"></div>
+        <button onclick="CoopMaps.modules.canvas?.newDiagram()">New</button>
+        <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear</button>
+        <div class="separator"></div>
+        <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto Layout</button>
+        <button onclick="CoopMaps.toggleConnectorStyle()">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <path id="connectorStylePath" d="M3 3 L10 3 L10 10 L17 10" stroke="currentColor" stroke-width="2" fill="none"/>
+                <circle cx="3" cy="3" r="2" fill="currentColor"/>
+                <circle cx="17" cy="10" r="2" fill="currentColor"/>
+            </svg>
+            <span id="connectorStyleText">Orthogonal</span>
+        </button>
+        <div class="separator"></div>
+        <button class="primary" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Create Relationship</button>
+        <div class="separator"></div>
+        <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
+        <button onclick="CoopMaps.modules.canvas?.zoomOut()">-</button>
+        <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
+        <div class="separator"></div>
+        <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
+        <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Symbol Key</button>
+        <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
+        <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms & Info</button>
     </div>
 
     <!-- Main Container -->
@@ -251,65 +258,8 @@
         </div>
 
         <!-- Canvas Area -->
-        <div class="main">
-            <div class="toolbar" id="toolbar">
-                <button id="undoBtn" title="Undo (Ctrl+Z)" onclick="CoopMaps.undo()">
-                    ↶ Undo
-                </button>
-                <button id="redoBtn" title="Redo (Ctrl+Y)" onclick="CoopMaps.redo()">
-                    ↷ Redo
-                </button>
-                <div class="separator"></div>
-                <button id="newBtn" title="New Diagram" onclick="CoopMaps.modules.canvas?.newDiagram()">
-                    New
-                </button>
-                <button id="clearBtn" title="Clear Canvas" onclick="CoopMaps.modules.canvas?.clearCanvas()">
-                    Clear
-                </button>
-                <div class="separator"></div>
-                <button id="autoLayoutBtn" title="Auto Layout" onclick="CoopMaps.modules.canvas?.autoLayout()">
-                    Auto Layout
-                </button>
-                <button id="connectorStyleBtn" title="Toggle Connector Style" onclick="CoopMaps.toggleConnectorStyle()">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path id="connectorStylePath" d="M3 3 L10 3 L10 10 L17 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <circle cx="3" cy="3" r="2" fill="currentColor"/>
-                        <circle cx="17" cy="10" r="2" fill="currentColor"/>
-                    </svg>
-                    <span id="connectorStyleText">Orthogonal</span>
-                </button>
-                <div class="separator"></div>
-                <button id="relationshipModeBtn" style="background: var(--primary); color: white;" title="Create Relationships (R)" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">
-                    Create Relationship
-                </button>
-                <div class="separator"></div>
-                <button id="zoomInBtn" title="Zoom In" onclick="CoopMaps.modules.canvas?.zoomIn()">
-                    +
-                </button>
-                <button id="zoomOutBtn" title="Zoom Out" onclick="CoopMaps.modules.canvas?.zoomOut()">
-                    -
-                </button>
-                <button id="zoomResetBtn" title="Reset Zoom" onclick="CoopMaps.modules.canvas?.zoomReset()">
-                    <span id="zoomLevel">100%</span>
-                </button>
-                <div class="separator"></div>
-                <button id="exportBtn" title="Export Diagram" onclick="CoopMaps.modules.export?.showExportDialog()">
-                    Export
-                </button>
-                <button id="symbolKeyBtn" title="Symbol Key" onclick="CoopMaps.modules.symbolKey?.generateKey()">
-                    Symbol Key
-                </button>
-                <button id="manualBtn" title="User Manual" onclick="CoopMaps.modules.manuals?.showManualDialog()">
-                    Manual
-                </button>
-                <button id="productInfoBtn" title="Product Information" onclick="CoopMaps.modules.productInfo?.showInfoDialog()">
-                    Terms & Info
-                </button>
-            </div>
-
-            <div class="canvas-area">
-                <canvas id="canvas"></canvas>
-            </div>
+        <div class="canvas-area">
+            <canvas id="canvas"></canvas>
         </div>
     </div>
 
