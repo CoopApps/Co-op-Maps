@@ -9,231 +9,454 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
-            background: #f0f0f0;
+            background: #e0e0e0;
             color: #000;
+            overflow: hidden;
+            height: 100vh;
         }
+
+        /* Header */
         .header {
-            background: #000080;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #2c3e50;
             color: white;
-            padding: 10px;
-            border-bottom: 2px solid #c0c0c0;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            padding: 0 10px;
+            border-bottom: 2px solid #34495e;
+            z-index: 1000;
         }
-        .header h1 { font-size: 16px; }
-        .header-buttons { display: flex; gap: 5px; }
-        .container { display: flex; height: calc(100vh - 50px); }
+        .header h1 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* Container */
+        .container {
+            display: flex;
+            height: 100vh;
+            padding-top: 40px;
+        }
+
+        /* Sidebar */
         .sidebar {
-            width: 250px;
-            background: #c0c0c0;
-            border-right: 2px solid #808080;
+            width: 280px;
+            background: #bdc3c7;
+            border-right: 2px solid #95a5a6;
+            display: flex;
+            flex-direction: column;
             overflow-y: auto;
         }
         .sidebar-section {
-            border-bottom: 2px solid #808080;
-            padding: 10px;
+            padding: 15px;
+            border-bottom: 2px solid #95a5a6;
         }
-        .sidebar-section h3 { font-size: 14px; margin-bottom: 5px; }
+        .sidebar-section h3 {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        /* Main area */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ecf0f1;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            height: 40px;
+            background: #95a5a6;
+            border-bottom: 2px solid #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 10px;
+        }
+        .toolbar button,
+        .toolbar select {
+            padding: 4px 8px;
+            background: #bdc3c7;
+            color: #2c3e50;
+            border: 1px solid #7f8c8d;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .toolbar button:active {
+            background: #95a5a6;
+        }
+        .toolbar .separator {
+            width: 1px;
+            height: 25px;
+            background: #7f8c8d;
+            margin: 0 3px;
+        }
+
+        /* Canvas Area */
         .canvas-area {
             flex: 1;
-            background: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #d5d8dc;
+            overflow: hidden;
         }
-        #canvas { border: 1px solid #000; background: white; }
+        #canvas {
+            background: white;
+            border: 2px solid #34495e;
+            cursor: crosshair;
+        }
+
+        /* Buttons */
         .btn {
-            padding: 5px 10px;
-            border: 2px outset #c0c0c0;
-            background: #c0c0c0;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            background: #ecf0f1;
+            border: 2px outset #bdc3c7;
             cursor: pointer;
             font-size: 12px;
+            text-align: left;
         }
-        .btn:active { border-style: inset; }
-        input[type="text"], select {
-            border: 2px inset #c0c0c0;
-            padding: 3px;
+        .btn:active {
+            border-style: inset;
+            background: #bdc3c7;
+        }
+        .btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        .btn.selected {
+            background: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        /* Home button */
+        .home-btn {
+            padding: 4px 10px;
+            background: #34495e;
+            color: white;
+            border: 1px solid #2c3e50;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .home-btn:active {
+            background: #2c3e50;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: #ecf0f1;
+            border: 2px solid #7f8c8d;
+            display: none;
+            z-index: 2000;
+        }
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
             font-size: 12px;
+            border-bottom: 1px solid #bdc3c7;
+        }
+        .context-menu-item:hover {
+            background: #bdc3c7;
+        }
+        .context-menu-item:last-child {
+            border-bottom: none;
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
-        <button class="btn" onclick="window.location.href='index.html'" style="margin-right: 10px;">← Home</button>
+        <button class="home-btn" onclick="window.location.href='index.html'">← Home</button>
         <h1>Co-opMaps v0.92 - Express Edition</h1>
-        <div class="header-buttons">
-            <button class="btn" onclick="CoopMaps.showSymbolKey()">Symbol Key</button>
-            <button class="btn" onclick="CoopMaps.showHelp()">Help</button>
-            <button class="btn" onclick="CoopMaps.showAbout()">About</button>
-            <button class="btn" onclick="CoopMaps.exportDiagram()">Export</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>Enterprise Types</h3>
+                <div id="symbolButtons"></div>
+            </div>
+            <div class="sidebar-section">
+                <h3>Properties</h3>
+                <div id="propertiesPanel">
+                    <p style="font-size: 11px; color: #7f8c8d;">Select an item to edit properties</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Area -->
+        <div class="main">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button onclick="CoopMaps.undo()">Undo</button>
+                <button onclick="CoopMaps.redo()">Redo</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas.newDiagram()">New</button>
+                <button onclick="CoopMaps.modules.canvas.clearCanvas()">Clear</button>
+                <div class="separator"></div>
+                <select id="canvasSizeSelect" onchange="CoopMaps.changeCanvasSize(this.value)">
+                    <option value="A4">A4</option>
+                    <option value="A3">A3</option>
+                </select>
+                <button id="gridBtn" onclick="CoopMaps.toggleGrid()">Grid: On</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas.autoLayout()">Auto Layout</button>
+                <button id="orthoBtn" onclick="CoopMaps.toggleOrtho()">Ortho</button>
+                <div class="separator"></div>
+                <button id="relBtn" onclick="CoopMaps.modules.relationships.toggleRelationshipMode()">Relationship</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas.zoomIn()">Zoom+</button>
+                <button onclick="CoopMaps.modules.canvas.zoomOut()">Zoom-</button>
+                <button onclick="CoopMaps.modules.canvas.zoomReset()"><span id="zoomText">100%</span></button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.export.showExportDialog()">Export</button>
+                <button onclick="CoopMaps.showHelp()">Help</button>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <canvas id="canvas"></canvas>
+            </div>
         </div>
     </div>
 
-    <div class="container">
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <h3>Add Enterprise</h3>
-                <button class="btn" onclick="CoopMaps.addEnterprise('cooperative')">Co-operative</button><br><br>
-                <button class="btn" onclick="CoopMaps.addEnterprise('ncm')">NCM</button><br><br>
-                <button class="btn" onclick="CoopMaps.addEnterprise('social')">Social Ent.</button><br><br>
-                <button class="btn" onclick="CoopMaps.addEnterprise('private')">Private Ent.</button><br><br>
-                <button class="btn" onclick="CoopMaps.addEnterprise('state')">State Ent.</button><br><br>
-                <button class="btn" onclick="CoopMaps.addEnterprise('excluded')">Excluded</button>
-            </div>
-            <div class="sidebar-section">
-                <h3>Tools</h3>
-                <button class="btn" onclick="CoopMaps.startRelationship()">Add Relationship</button><br><br>
-                <button class="btn" onclick="CoopMaps.saveToFile()">Save</button><br><br>
-                <button class="btn" onclick="CoopMaps.loadFromFile()">Load</button>
-            </div>
-        </div>
-
-        <div class="canvas-area">
-            <canvas id="canvas" width="800" height="600"></canvas>
-        </div>
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas.duplicateSelected(); CoopMaps.hideContextMenu();">Duplicate</div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas.deleteSelected(); CoopMaps.hideContextMenu();">Delete</div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas.bringToFront(); CoopMaps.hideContextMenu();">Bring to Front</div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas.sendToBack(); CoopMaps.hideContextMenu();">Send to Back</div>
     </div>
 
     <script>
         window.CoopMaps = {
             version: '0.92',
+            modules: {},
+            selectedSymbolType: null,
             state: {
-                enterprises: [],
-                relationships: [],
-                nextId: 1
+                data: {
+                    diagramProperties: {
+                        title: 'New Diagram',
+                        author: '',
+                        date: new Date().toISOString().split('T')[0],
+                        wdr: '',
+                        canvasSize: 'A4',
+                        connectorStyle: 'orthogonal',
+                        scope: { geographic: '', timePeriod: '', economicSectors: '' }
+                    },
+                    enterprises: [],
+                    relationships: [],
+                    selectedItem: null,
+                    selectedItemType: null
+                },
+                ui: { zoom: 1, panX: 0, panY: 0, showGrid: true },
+                history: { states: [], currentIndex: -1 }
             },
 
-            init() {
-                this.canvas = document.getElementById('canvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.render();
+            registerModule(name, module) {
+                this.modules[name] = module;
+                console.log('Module registered: ' + name);
             },
 
-            addEnterprise(type) {
-                const enterprise = {
-                    id: this.state.nextId++,
-                    type: type,
-                    name: type,
-                    x: 100 + Math.random() * 200,
-                    y: 100 + Math.random() * 200,
-                    width: 100,
-                    height: 60
-                };
-                this.state.enterprises.push(enterprise);
-                this.render();
+            generateId() {
+                return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             },
 
-            startRelationship() {
-                alert('Click two enterprises to create a relationship');
-                // Simplified - full implementation would track clicks
+            saveState() {
+                const state = JSON.parse(JSON.stringify(this.state.data));
+                if (this.state.history.states.length > 50) {
+                    this.state.history.states.shift();
+                    this.state.history.currentIndex--;
+                }
+                this.state.history.states = this.state.history.states.slice(0, this.state.history.currentIndex + 1);
+                this.state.history.states.push(state);
+                this.state.history.currentIndex++;
             },
 
-            render() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-                // Draw enterprises
-                this.state.enterprises.forEach(ent => {
-                    this.ctx.strokeStyle = '#000';
-                    this.ctx.fillStyle = '#fff';
-                    this.ctx.fillRect(ent.x, ent.y, ent.width, ent.height);
-                    this.ctx.strokeRect(ent.x, ent.y, ent.width, ent.height);
-
-                    this.ctx.fillStyle = '#000';
-                    this.ctx.font = '12px Arial';
-                    this.ctx.textAlign = 'center';
-                    this.ctx.fillText(ent.name, ent.x + ent.width/2, ent.y + ent.height/2);
-                });
+            undo() {
+                if (this.state.history.currentIndex > 0) {
+                    this.state.history.currentIndex--;
+                    this.state.data = JSON.parse(JSON.stringify(this.state.history.states[this.state.history.currentIndex]));
+                    if (this.modules.canvas) this.modules.canvas.render();
+                    alert('Undo successful');
+                }
             },
 
-            saveToFile() {
-                const data = JSON.stringify(this.state);
-                const blob = new Blob([data], {type: 'application/json'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'coopmaps-diagram.json';
-                a.click();
+            redo() {
+                if (this.state.history.currentIndex < this.state.history.states.length - 1) {
+                    this.state.history.currentIndex++;
+                    this.state.data = JSON.parse(JSON.stringify(this.state.history.states[this.state.history.currentIndex]));
+                    if (this.modules.canvas) this.modules.canvas.render();
+                    alert('Redo successful');
+                }
             },
 
-            loadFromFile() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        this.state = JSON.parse(event.target.result);
-                        this.render();
-                    };
-                    reader.readAsText(file);
-                };
-                input.click();
+            toggleGrid() {
+                this.state.ui.showGrid = !this.state.ui.showGrid;
+                const btn = document.getElementById('gridBtn');
+                if (btn) btn.textContent = 'Grid: ' + (this.state.ui.showGrid ? 'On' : 'Off');
+                if (this.modules.canvas) this.modules.canvas.render();
             },
 
-            showSymbolKey() {
-                const symbols = [
-                    'Co-operative: White rectangle',
-                    'NCM: White rounded rectangle',
-                    'Social Enterprise: Yellow pill shape',
-                    'Private Enterprise: Gray oval',
-                    'State Enterprise: Gray diamond',
-                    'Excluded: White rectangle with X'
-                ];
-                alert('SYMBOL KEY\n\n' + symbols.join('\n'));
+            toggleOrtho() {
+                const current = this.state.data.diagramProperties.connectorStyle;
+                const newStyle = current === 'orthogonal' ? 'direct' : 'orthogonal';
+                this.state.data.diagramProperties.connectorStyle = newStyle;
+                const btn = document.getElementById('orthoBtn');
+                if (btn) btn.textContent = newStyle === 'orthogonal' ? 'Ortho' : 'Direct';
+                if (this.modules.canvas) this.modules.canvas.render();
+            },
+
+            changeCanvasSize(size) {
+                this.state.data.diagramProperties.canvasSize = size;
+                if (this.modules.canvas) {
+                    this.modules.canvas.updateCanvasSize();
+                    this.modules.canvas.render();
+                }
+                this.saveState();
+            },
+
+            hideContextMenu() {
+                const menu = document.getElementById('contextMenu');
+                if (menu) menu.style.display = 'none';
             },
 
             showHelp() {
-                const help =
+                alert(
                     'CO-OPMAPS EXPRESS HELP\n\n' +
                     'Adding Enterprises:\n' +
-                    '- Click enterprise buttons in left sidebar\n' +
-                    '- Enterprises appear randomly on canvas\n\n' +
+                    '- Click symbol button to select\n' +
+                    '- Click canvas to place\n\n' +
                     'Relationships:\n' +
-                    '- Click "Add Relationship" button\n' +
+                    '- Click Relationship button\n' +
                     '- Click two enterprises to connect\n\n' +
-                    'Saving/Loading:\n' +
-                    '- Save: Downloads JSON file\n' +
-                    '- Load: Upload saved JSON file\n\n' +
-                    'Exporting:\n' +
-                    '- Export button creates PNG image';
-                alert(help);
-            },
-
-            showAbout() {
-                const about =
-                    'CO-OPMAPS v0.92\n' +
-                    'Express Edition\n\n' +
-                    'Cooperative Ecosystem Mapping Tool\n\n' +
-                    'This is the Express version with:\n' +
-                    '- Simple, fast interface\n' +
-                    '- All core features\n' +
-                    '- Compatibility with Deluxe version\n\n' +
-                    'Switch to Deluxe for enhanced UI';
-                alert(about);
-            },
-
-            exportDiagram() {
-                const choice = confirm(
-                    'Export Options:\n\n' +
-                    'OK = Export as PNG image\n' +
-                    'Cancel = Export as JSON data'
+                    'Tools:\n' +
+                    '- Auto Layout: Organize diagram\n' +
+                    '- Grid toggle: Show/hide grid\n' +
+                    '- Ortho: Switch connector style\n' +
+                    '- Right-click items for options'
                 );
+            },
 
-                if (choice) {
-                    // Export as PNG
-                    const link = document.createElement('a');
-                    link.download = 'coopmaps-diagram.png';
-                    link.href = this.canvas.toDataURL('image/png');
-                    link.click();
-                } else {
-                    // Export as JSON
-                    this.saveToFile();
-                }
+            renderSymbolButtons() {
+                const container = document.getElementById('symbolButtons');
+                if (!container) return;
+
+                const types = [
+                    {id: 'cooperative', name: 'Co-operative'},
+                    {id: 'ncm', name: 'NCM'},
+                    {id: 'social', name: 'Social Enterprise'},
+                    {id: 'private', name: 'Private Enterprise'},
+                    {id: 'public', name: 'Public Enterprise'},
+                    {id: 'state', name: 'State Enterprise'},
+                    {id: 'partnership', name: 'Partnership'},
+                    {id: 'charity', name: 'Charity'},
+                    {id: 'community', name: 'Community Org'},
+                    {id: 'excluded', name: 'Excluded'}
+                ];
+
+                container.innerHTML = types.map(type =>
+                    '<button class="btn symbol-btn" data-type="' + type.id + '" onclick="CoopMaps.selectSymbol(\'' + type.id + '\')">' +
+                    type.name + '</button>'
+                ).join('');
+            },
+
+            selectSymbol(type) {
+                this.selectedSymbolType = type;
+
+                // Update button states
+                document.querySelectorAll('.symbol-btn').forEach(btn => {
+                    if (btn.getAttribute('data-type') === type) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                });
+            },
+
+            init() {
+                console.log('Co-opMaps Express v' + this.version + ' initializing...');
+
+                // Save initial state
+                this.saveState();
+
+                // Initialize modules
+                const initOrder = ['shapes', 'canvas', 'enterprises', 'relationships', 'properties', 'export', 'symbolKey', 'persistence', 'manuals', 'productInfo'];
+                initOrder.forEach(name => {
+                    if (this.modules[name] && this.modules[name].init) {
+                        try {
+                            this.modules[name].init();
+                        } catch (e) {
+                            console.error('Error initializing ' + name + ':', e);
+                        }
+                    }
+                });
+
+                // Render symbol buttons
+                this.renderSymbolButtons();
+
+                // Sync canvas size
+                const sizeSelect = document.getElementById('canvasSizeSelect');
+                if (sizeSelect) sizeSelect.value = this.state.data.diagramProperties.canvasSize;
+
+                // Hide context menu on click
+                document.addEventListener('click', function() { CoopMaps.hideContextMenu(); });
+
+                console.log('Express Edition ready!');
             }
         };
 
-        window.addEventListener('DOMContentLoaded', () => CoopMaps.init());
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                CoopMaps.undo();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+                e.preventDefault();
+                CoopMaps.redo();
+            }
+        });
+
+        // Listen for diagram changes
+        document.addEventListener('diagram-changed', function() {
+            if (CoopMaps.modules.persistence) CoopMaps.modules.persistence.autoSave();
+        });
+    </script>
+
+    <!-- Load modules -->
+    <script src="public/js/modules/shapes.js"></script>
+    <script src="public/js/modules/canvas.js"></script>
+    <script src="public/js/modules/enterprises.js"></script>
+    <script src="public/js/modules/relationships.js"></script>
+    <script src="public/js/modules/properties.js"></script>
+    <script src="public/js/modules/export.js"></script>
+    <script src="public/js/modules/symbolKey.js"></script>
+    <script src="public/js/modules/persistence.js"></script>
+    <script src="public/js/modules/manuals.js"></script>
+    <script src="public/js/modules/productInfo.js"></script>
+
+    <!-- Initialize after modules load -->
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() { CoopMaps.init(); }, 100);
+        });
     </script>
 </body>
 </html>

@@ -199,6 +199,24 @@
                 self.clickStartX = x;
                 self.clickStartY = y;
 
+                // Check if Express mode symbol is selected for placement
+                if (CoopMaps.selectedSymbolType) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Place the selected symbol at click location
+                    if (CoopMaps.modules.enterprises && CoopMaps.modules.enterprises.addEnterprise) {
+                        CoopMaps.modules.enterprises.addEnterprise(CoopMaps.selectedSymbolType, x, y);
+                    }
+
+                    // Clear selection
+                    CoopMaps.selectedSymbolType = null;
+                    const symbolBtns = document.querySelectorAll('.symbol-btn');
+                    symbolBtns.forEach(btn => btn.classList.remove('selected'));
+
+                    return;
+                }
+
                 const clickedItem = self.getItemAtPosition(x, y);
 
                 if (clickedItem) {
@@ -298,7 +316,10 @@
                     self.render();
                 } else if (!self.draggedItem) {
                     const hoverItem = self.getItemAtPosition(x, y);
-                    if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.isRelationshipMode) {
+                    // Check if Express mode symbol is selected
+                    if (CoopMaps.selectedSymbolType) {
+                        self.canvas.style.cursor = 'crosshair';
+                    } else if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.isRelationshipMode) {
                         self.canvas.style.cursor = hoverItem ? 'crosshair' : 'default';
                     } else if (hoverItem) {
                         self.canvas.style.cursor = 'pointer';
