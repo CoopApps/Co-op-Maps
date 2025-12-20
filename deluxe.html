@@ -53,24 +53,24 @@
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 0 15px;
+            gap: 4px;
+            padding: 0 10px;
             box-shadow: var(--shadow-sm);
             z-index: 5;
         }
         .toolbar button {
-            padding: 6px 12px;
+            padding: 4px 8px;
             background: white;
             color: var(--dark);
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             white-space: nowrap;
         }
         .toolbar button:hover {
@@ -89,7 +89,7 @@
             width: 1px;
             height: 30px;
             background: linear-gradient(to bottom, transparent, var(--light-gray), transparent);
-            margin: 0 4px;
+            margin: 0 2px;
         }
         
         /* Context Menu */
@@ -289,26 +289,26 @@
                 <button onclick="CoopMaps.modules.canvas?.newDiagram()">New</button>
                 <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear</button>
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto Layout</button>
+                <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto</button>
                 <button onclick="CoopMaps.toggleConnectorStyle()">
-                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
                         <path id="connectorStylePath" d="M3 3 L10 3 L10 10 L17 10" stroke="currentColor" stroke-width="2" fill="none"/>
                         <circle cx="3" cy="3" r="2" fill="currentColor"/>
                         <circle cx="17" cy="10" r="2" fill="currentColor"/>
                     </svg>
-                    <span id="connectorStyleText">Orthogonal</span>
+                    <span id="connectorStyleText">Ortho</span>
                 </button>
                 <div class="separator"></div>
-                <button class="primary" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Create Relationship</button>
+                <button class="primary" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Relationship</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
                 <button onclick="CoopMaps.modules.canvas?.zoomOut()">-</button>
                 <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
-                <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Symbol Key</button>
+                <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Key</button>
                 <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
-                <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms & Info</button>
+                <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms</button>
             </div>
             
             <!-- Canvas Area -->
@@ -399,7 +399,7 @@
                 const pathElement = document.getElementById('connectorStylePath');
                 if (textSpan && pathElement) {
                     if (newStyle === 'orthogonal') {
-                        textSpan.textContent = 'Orthogonal';
+                        textSpan.textContent = 'Ortho';
                         pathElement.setAttribute('d', 'M3 3 L10 3 L10 10 L17 10');
                     } else {
                         textSpan.textContent = 'Direct';
