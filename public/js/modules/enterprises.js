@@ -303,15 +303,34 @@
                     e.dataTransfer.effectAllowed = 'copy';
                     e.dataTransfer.setData('enterpriseType', item.dataset.type);
 
-                    // Create custom drag image
-                    dragGhost = item.cloneNode(true);
+                    // Create custom drag image - just the shape, no text
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 100;
+                    canvas.height = 60;
+                    const ctx = canvas.getContext('2d');
+
+                    // Draw the enterprise shape centered
+                    const tempEnt = {
+                        type: item.dataset.type,
+                        x: 50,
+                        y: 30,
+                        width: 80,
+                        height: 50
+                    };
+
+                    if (CoopMaps.modules.shapes && CoopMaps.modules.shapes.drawEnterprise) {
+                        CoopMaps.modules.shapes.drawEnterprise(ctx, tempEnt, false, 1);
+                    }
+
+                    // Wrap canvas in a container
+                    dragGhost = document.createElement('div');
                     dragGhost.style.position = 'absolute';
                     dragGhost.style.top = '-1000px';
                     dragGhost.style.opacity = '0.8';
-                    dragGhost.style.transform = 'scale(0.9)';
-                    dragGhost.style.pointerEvents = 'none';
+                    dragGhost.appendChild(canvas);
                     document.body.appendChild(dragGhost);
-                    e.dataTransfer.setDragImage(dragGhost, e.offsetX, e.offsetY);
+
+                    e.dataTransfer.setDragImage(dragGhost, 50, 30);
 
                     item.classList.add('dragging');
                     item.style.opacity = '0.5';
