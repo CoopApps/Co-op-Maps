@@ -1,16 +1,22 @@
 # Co-opMaps UI Versions
 
-Co-opMaps offers two user interface versions to accommodate different user needs, system capabilities, and network conditions.
+Co-opMaps offers two user interface styles to accommodate different browser capabilities and user preferences.
 
 ## Overview
 
-| Feature | Express | Deluxe |
+**IMPORTANT: Both versions have ALL the same features!**
+
+The difference is only in the UI presentation style:
+
+| Aspect | Express | Deluxe |
 |---------|---------|--------|
-| **File Size** | ~200KB | ~500KB |
-| **Load Time (3G)** | ~2-3 seconds | ~5-8 seconds |
+| **Features** | ✅ ALL FEATURES | ✅ ALL FEATURES |
+| **UI Style** | Classic/old-fashioned | Modern/sleek |
 | **Browser Support** | IE11+, Chrome 49+, Firefox 52+ | Chrome 80+, Firefox 75+, Safari 13+ |
-| **RAM Usage** | ~50-100MB | ~100-200MB |
-| **Target Users** | Quick maps, older systems, slow internet | Complex maps, collaboration, full features |
+| **Technology** | HTML tables, ES5, simple CSS | CSS Grid/Flexbox, ES6, animations |
+| **Load Time (3G)** | ~3-4 seconds | ~5-8 seconds |
+| **Visual Style** | Windows 95/2000 aesthetic | Modern web app aesthetic |
+| **Target Users** | Older systems, older browsers | Modern systems, modern browsers |
 
 ---
 
@@ -28,71 +34,70 @@ Users choose their version on first visit via `/version-selector.html`:
 ## Express UI
 
 ### Philosophy
-**"Do less, do it well"** - Focused on core mapping with minimal UI chrome.
+**"Classic and Compatible"** - All features, presented with an old-school UI that works everywhere.
 
-### Features Included
+### All Features Included (Same as Deluxe!)
 
-✅ **Core Mapping:**
+✅ **Complete Mapping:**
 - Add enterprises (all 6 types)
 - Create relationships (all types)
 - Drag and resize enterprises
-- Basic enterprise properties (name, type, roles, tier)
+- Full enterprise properties (name, type, roles, tier, custom fields)
+- Real-time collaboration
+- Symbol key/legend editor
+- Product information database
+- Templates library
+- Manuals and help
 
-✅ **Basic Tools:**
-- Pan and zoom
-- Select and delete
-- Copy and paste
-- Undo/redo (10 levels)
+✅ **Full Styling:**
+- Custom colors per enterprise
+- Gradients, borders, fills
+- Both orthogonal AND direct connectors
+- Custom enterprise shapes
+- Canvas backgrounds
 
-✅ **File Operations:**
-- New diagram
-- Save to localStorage
-- Load from localStorage
-- Export to PNG
-- Export to PDF
-- Import/export JSON
+✅ **Complete Export:**
+- PNG export
+- PDF export
+- SVG export
+- High-resolution options
 
-✅ **Minimal Styling:**
-- Fixed color scheme (cooperative = blue, private = gray, etc.)
-- Standard enterprise sizes
-- Orthogonal connectors only
+✅ **Cloud Features:**
+- User accounts
+- Cloud storage and sync
+- Share diagrams (public/private)
+- Version history
 
-### Features NOT Included
+### UI Style (Express)
 
-❌ Real-time collaboration
-❌ Symbol key/legend editor
-❌ Advanced styling (gradients, custom colors)
-❌ Product information database
-❌ Templates
-❌ Manual/help pages
-❌ Symbol library
-❌ Direct connectors (only orthogonal)
-❌ Custom enterprise shapes
-❌ SVG export (PNG and PDF only)
-❌ Cloud sync (localStorage only in offline mode)
-
-### UI Layout (Express)
+**Visual Aesthetic: Windows 95/2000 Classic**
 
 ```
-┌─────────────────────────────────────────┐
-│ Co-opMaps Express     [Save] [Export] │  ← Simple toolbar
-├─────────────────────────────────────────┤
-│                                         │
-│                                         │
-│        CANVAS (full screen)             │
-│                                         │
-│                                         │
-│                                         │
-└─────────────────────────────────────────┘
- [+Coop] [+Private] [+Social] [+NCM]...    ← Bottom toolbar
+┌─────────────────────────────────────────────────────┐
+│ File  Edit  View  Tools  Help                      │ ← Classic menu bar
+├────┬────────────────────────────────┬───────────────┤
+│ 🔨 │                                │ Properties    │
+│ ✏️ │                                ├───────────────┤
+│ ⚡ │         CANVAS                 │ Name:         │
+│ 📁 │                                │ [_________]   │
+│    │                                │               │
+│    │                                │ Type:         │
+│    │                                │ [Dropdown ▼]  │
+├────┴────────────────────────────────┴───────────────┤
+│ Symbol Key               | Collaborators: 3 online │
+└─────────────────────────────────────────────────────┘
 ```
 
-**Key UI Decisions:**
-- No sidebars
-- Minimal buttons (icon + tooltip only)
-- Context menu for enterprise properties
-- Keyboard shortcuts prominent
-- Single-click actions where possible
+**UI Characteristics:**
+- **Menus**: Classic File/Edit/View dropdown menus (not hamburger menus)
+- **Buttons**: 3D beveled buttons with text labels
+- **Panels**: Bordered boxes with titled headers
+- **Colors**: System colors (grays, blue highlights)
+- **Fonts**: Arial, Verdana, system fonts
+- **Layout**: HTML tables, not CSS Grid/Flexbox
+- **Inputs**: Standard form inputs (no custom styling)
+- **No animations**: Instant transitions, no fades/slides
+- **Scrollbars**: Browser default scrollbars (not custom)
 
 ### File Structure
 
@@ -114,84 +119,71 @@ public/
 ## Deluxe UI
 
 ### Philosophy
-**"Everything you need"** - Full-featured professional mapping tool.
+**"Modern and Beautiful"** - All features, presented with a contemporary UI.
 
-### Features Included
+### All Features Included (Same as Express!)
 
-✅ **All Express features PLUS:**
-
-✅ **Advanced Mapping:**
-- Direct connectors (in addition to orthogonal)
-- Custom enterprise shapes
-- Enterprise z-index control
-- Segmentation markers on relationships
-- Generic sets
-
-✅ **Rich Styling:**
-- Custom colors per enterprise
-- Gradient fills
-- Border styles
-- Font customization
-- Canvas background options
-
-✅ **Collaboration:**
-- Real-time multi-user editing (WebSocket)
-- User presence indicators
-- Cursor tracking
-- Conflict resolution
-- Chat/comments
-
-✅ **Organization:**
+✅ **Complete Mapping:**
+- Add enterprises (all 6 types)
+- Create relationships (all types)
+- Drag and resize enterprises
+- Full enterprise properties
+- Real-time collaboration
 - Symbol key/legend editor
 - Product information database
 - Templates library
-- Diagram versioning
-- Tagging and categories
+- Manuals and help
 
-✅ **Advanced Export:**
+✅ **Full Styling:**
+- Custom colors per enterprise
+- Gradients, borders, fills
+- Both orthogonal AND direct connectors
+- Custom enterprise shapes
+- Canvas backgrounds
+
+✅ **Complete Export:**
+- PNG export
+- PDF export
 - SVG export
-- High-resolution PNG
-- Professional PDF with metadata
-- Batch export
-
-✅ **Documentation:**
-- Interactive manual
-- Tooltips and help
-- Video tutorials
-- Example diagrams
+- High-resolution options
 
 ✅ **Cloud Features:**
 - User accounts
-- Cloud storage
+- Cloud storage and sync
 - Share diagrams (public/private)
-- Fork/duplicate diagrams
-- Search public diagrams
+- Version history
 
-### UI Layout (Deluxe)
+### UI Style (Deluxe)
+
+**Visual Aesthetic: Modern Web App (2020s)**
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ File Edit View Tools Help    [User] [Share] [Save] │ ← Full menubar
+│  ≡  Co-opMaps         👤 Jane  🔔  ⚙️  💾 Saved    │ ← Minimal header
 ├──────┬────────────────────────────────┬─────────────┤
+│  ⊕  │                                │ Properties  │
+│  ↔  │                                ├─────────────┤
+│  ✏  │         CANVAS                 │ Name        │
+│  📋  │                                │ ───────────│
 │      │                                │             │
-│ Tool │                                │  Properties │
-│ bar  │         CANVAS                 │  Panel      │
-│      │                                │             │
-│ [+]  │                                │ Name: ___   │
-│ [→]  │                                │ Type: ___   │
-│ [✏]  │                                │ Roles: ___  │
-│      │                                │             │
+│      │                                │ Type        │
+│      │                                │ ▼ Dropdown  │
 ├──────┴────────────────────────────────┴─────────────┤
-│ Symbol Key | Products | Collaborators (3 online)   │ ← Bottom panels
+│ 🔑 Symbol Key    📦 Products    👥 Online (3)      │
 └─────────────────────────────────────────────────────┘
 ```
 
-**Key UI Decisions:**
-- Panels can be collapsed
-- Keyboard shortcuts + menu access
-- Right-click context menus
-- Drag-and-drop from symbol library
-- Live preview of changes
+**UI Characteristics:**
+- **Menus**: Hamburger menu (≡), icons, minimal text
+- **Buttons**: Flat design with hover effects
+- **Panels**: Card-based, subtle shadows, rounded corners
+- **Colors**: Brand colors, gradients, custom themes
+- **Fonts**: Google Fonts (Roboto, Inter), web fonts
+- **Layout**: CSS Grid, Flexbox, responsive
+- **Inputs**: Custom styled (rounded, shadows, focus states)
+- **Animations**: Smooth transitions, fades, slides
+- **Scrollbars**: Custom styled thin scrollbars
+- **Icons**: SVG icons, icon fonts
 
 ### File Structure
 
@@ -551,13 +543,21 @@ Even more than Deluxe:
 
 | Aspect | Express | Deluxe |
 |--------|---------|--------|
-| **Target** | Quick maps, old systems | Full features, collaboration |
-| **Size** | ~200KB | ~500KB |
-| **Features** | Core only | Everything |
-| **Browser** | IE11+ | Modern only |
-| **Network** | 2G+ | 4G+ |
-| **Offline** | Always | Optional (PWA) |
-| **Learning Curve** | 5 minutes | 30 minutes |
+| **Features** | ✅ ALL FEATURES | ✅ ALL FEATURES |
+| **UI Style** | Classic/old-fashioned | Modern/sleek |
+| **Visual Design** | Windows 95/2000 aesthetic | 2020s web app aesthetic |
+| **Technology** | ES5, HTML tables, simple CSS | ES6, CSS Grid, animations |
+| **Browser Support** | IE11+, Chrome 49+, Firefox 52+ | Chrome 80+, Firefox 75+, Safari 13+ |
+| **Load Time (3G)** | ~3-4 seconds | ~5-8 seconds |
+| **File Size** | ~300-400KB | ~500-600KB |
+| **Target Users** | Older computers, older browsers | Modern computers, modern browsers |
+| **Accessibility** | High (works everywhere) | Medium (modern browsers only) |
+| **Learning Curve** | Familiar to older users | Familiar to modern users |
 | **Price** | Free | Free (future: premium tier) |
 
-**Both versions share the same map format and are fully compatible!**
+**Key Points:**
+- ✅ Both versions have **identical functionality**
+- ✅ Both versions share the same map format and are fully compatible
+- ✅ Choice is purely about **visual style** and **browser compatibility**
+- ✅ Maps created in one can be opened and edited in the other
+- ✅ Users can switch between versions anytime
