@@ -236,7 +236,7 @@
 
             setTimeout(() => {
                 const canvas = document.getElementById('canvas');
-                const metadata = CoopMaps.state.data.diagramMetadata;
+                const metadata = CoopMaps.state.data.diagramProperties;
 
                 // Export at exact canvas size
                 const link = document.createElement('a');
@@ -273,7 +273,7 @@
 
             setTimeout(() => {
                 const canvas = document.getElementById('canvas');
-                const metadata = CoopMaps.state.data.diagramMetadata;
+                const metadata = CoopMaps.state.data.diagramProperties;
 
                 // Create SVG container matching canvas size
                 let svg = `<?xml version="1.0" encoding="UTF-8"?>
@@ -381,7 +381,7 @@
             setTimeout(() => {
                 const { jsPDF } = window.jspdf;
                 const canvas = document.getElementById('canvas');
-                const metadata = CoopMaps.state.data.diagramMetadata;
+                const metadata = CoopMaps.state.data.diagramProperties;
                 const canvasSize = CoopMaps.state.ui.canvasSize || 'A4';
 
                 // Create PDF in landscape orientation matching canvas size

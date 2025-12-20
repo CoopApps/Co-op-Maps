@@ -21,7 +21,7 @@
         },
 
         renderDiagramProperties() {
-            const metadata = CoopMaps.state.data.diagramMetadata;
+            const metadata = CoopMaps.state.data.diagramProperties;
             const stats = CoopMaps.modules.enterprises ? CoopMaps.modules.enterprises.getStatistics() : null;
 
             return `
@@ -961,7 +961,7 @@
 
         updateDiagramProperty(property, value) {
             CoopMaps.saveState();
-            CoopMaps.state.data.diagramMetadata[property] = value;
+            CoopMaps.state.data.diagramProperties[property] = value;
 
             // Mark as dirty
             document.dispatchEvent(new CustomEvent('diagram-changed'));
@@ -975,15 +975,15 @@
             CoopMaps.saveState();
 
             // Ensure scope object exists
-            if (!CoopMaps.state.data.diagramMetadata.scope) {
-                CoopMaps.state.data.diagramMetadata.scope = {
+            if (!CoopMaps.state.data.diagramProperties.scope) {
+                CoopMaps.state.data.diagramProperties.scope = {
                     geographic: 'local',
                     economic: '',
                     userDefined: ''
                 };
             }
 
-            CoopMaps.state.data.diagramMetadata.scope[property] = value;
+            CoopMaps.state.data.diagramProperties.scope[property] = value;
 
             // Mark as dirty
             document.dispatchEvent(new CustomEvent('diagram-changed'));

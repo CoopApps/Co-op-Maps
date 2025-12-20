@@ -590,18 +590,18 @@
             const subtitleY = titleY + bgHeight/2 + 20;
 
             // Date subtitle
-            if (CoopMaps.state.data.diagramMetadata.date) {
+            if (CoopMaps.state.data.diagramProperties.date) {
                 this.ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
                 this.ctx.fillStyle = '#7f8c8d';
                 this.ctx.shadowColor = 'transparent';
-                this.ctx.fillText(CoopMaps.state.data.diagramMetadata.date, titleX, subtitleY);
+                this.ctx.fillText(CoopMaps.state.data.diagramProperties.date, titleX, subtitleY);
             }
 
             // Author info if present
-            if (CoopMaps.state.data.diagramMetadata.author) {
+            if (CoopMaps.state.data.diagramProperties.author) {
                 this.ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
                 this.ctx.fillStyle = '#95a5a6';
-                this.ctx.fillText('by ' + CoopMaps.state.data.diagramMetadata.author, titleX, subtitleY + 15);
+                this.ctx.fillText('by ' + CoopMaps.state.data.diagramProperties.author, titleX, subtitleY + 15);
             }
 
             this.ctx.restore();
@@ -873,7 +873,7 @@
                 CoopMaps.state.data.enterprises = [];
                 CoopMaps.state.data.relationships = [];
                 CoopMaps.state.data.selectedItem = null;
-                CoopMaps.state.data.diagramMetadata = {
+                CoopMaps.state.data.diagramProperties = {
                     title: 'Untitled Diagram',
                     author: '',
                     date: new Date().toISOString().split('T')[0],

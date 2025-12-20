@@ -93,7 +93,7 @@
             const thumbnail = this.generateThumbnail();
 
             diagrams[this.currentDiagramId] = {
-                name: CoopMaps.state.data.diagramMetadata.title || 'Untitled Diagram',
+                name: CoopMaps.state.data.diagramProperties.title || 'Untitled Diagram',
                 lastModified: new Date().toISOString(),
                 enterpriseCount: CoopMaps.state.data.enterprises.length,
                 relationshipCount: CoopMaps.state.data.relationships.length,
@@ -101,7 +101,7 @@
                 data: {
                     enterprises: CoopMaps.state.data.enterprises,
                     relationships: CoopMaps.state.data.relationships,
-                    metadata: CoopMaps.state.data.diagramMetadata,
+                    metadata: CoopMaps.state.data.diagramProperties,
                     // Save UI preferences including connector style
                     uiPreferences: {
                         connectorStyle: CoopMaps.state.ui.connectorStyle || 'orthogonal',
@@ -125,7 +125,7 @@
 
         saveAsNewDiagram() {
             const name = prompt('Enter a name for this diagram:',
-                CoopMaps.state.data.diagramMetadata.title || 'My Diagram');
+                CoopMaps.state.data.diagramProperties.title || 'My Diagram');
 
             if (!name) return;
 
@@ -143,7 +143,7 @@
                     enterprises: CoopMaps.state.data.enterprises,
                     relationships: CoopMaps.state.data.relationships,
                     metadata: {
-                        ...CoopMaps.state.data.diagramMetadata,
+                        ...CoopMaps.state.data.diagramProperties,
                         title: name
                     },
                     // Save UI preferences
@@ -157,7 +157,7 @@
 
             if (this.saveDiagrams(diagrams)) {
                 this.currentDiagramId = id;
-                CoopMaps.state.data.diagramMetadata.title = name;
+                CoopMaps.state.data.diagramProperties.title = name;
                 this.lastSaveTime = new Date().toISOString();
                 this.isDirty = false;
                 this.updateSaveIndicator();
@@ -187,7 +187,7 @@
             // Load diagram data
             CoopMaps.state.data.enterprises = diagram.data.enterprises || [];
             CoopMaps.state.data.relationships = diagram.data.relationships || [];
-            CoopMaps.state.data.diagramMetadata = diagram.data.metadata || {
+            CoopMaps.state.data.diagramProperties = diagram.data.metadata || {
                 title: diagram.name,
                 author: '',
                 date: new Date().toISOString().split('T')[0],
@@ -474,7 +474,7 @@
         getCurrentDiagramInfo() {
             return {
                 id: this.currentDiagramId,
-                name: CoopMaps.state.data.diagramMetadata.title || 'Untitled Diagram',
+                name: CoopMaps.state.data.diagramProperties.title || 'Untitled Diagram',
                 enterpriseCount: CoopMaps.state.data.enterprises.length,
                 relationshipCount: CoopMaps.state.data.relationships.length
             };

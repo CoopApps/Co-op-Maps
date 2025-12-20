@@ -226,7 +226,7 @@
             const content = document.getElementById('symbolKeyContent');
             if (!content) return;
 
-            const diagramTitle = CoopMaps.state.data.diagramMetadata.title || 'Co-operative Diagram';
+            const diagramTitle = CoopMaps.state.data.diagramProperties.title || 'Co-operative Diagram';
             const stats = this.getUsageStatistics();
 
             let html = `
@@ -1063,7 +1063,7 @@
             pdf.text('Co-opMaps Symbol Key', pdf.internal.pageSize.getWidth() / 2, 40, { align: 'center' });
 
             // Add diagram info
-            const metadata = CoopMaps.state.data.diagramMetadata;
+            const metadata = CoopMaps.state.data.diagramProperties;
             pdf.setFontSize(14);
             pdf.setTextColor(44, 62, 80);
             pdf.text(`Diagram: ${metadata.title || 'Untitled'}`, 40, 70);
