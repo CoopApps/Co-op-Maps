@@ -49,11 +49,11 @@
                 top: 70px;
                 left: 50%;
                 transform: translateX(-50%);
-                background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
                 color: white;
                 padding: 12px 24px;
                 border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+                box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
                 font-weight: 600;
                 z-index: 10000;
                 display: none;
@@ -62,8 +62,7 @@
             indicator.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 18px;">🔗</span>
-                    <span>Relationship Mode Active</span>
-                    <span style="opacity: 0.8; font-size: 12px; margin-left: 8px;">Press ESC to exit</span>
+                    <span>Relationship Mode Active - Click two enterprises to connect (ESC to exit mode)</span>
                 </div>
             `;
             document.body.appendChild(indicator);
@@ -98,9 +97,9 @@
             const btn = document.getElementById('relationshipModeBtn');
             if (btn) {
                 if (this.relationshipCreationActive) {
-                    btn.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+                    btn.style.background = 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)';
                     btn.style.color = 'white';
-                    btn.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
+                    btn.style.boxShadow = '0 4px 12px rgba(46, 204, 113, 0.3)';
                 } else {
                     btn.style.background = '';
                     btn.style.color = '';
