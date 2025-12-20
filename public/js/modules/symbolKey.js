@@ -33,8 +33,15 @@
 
         generateKey() {
             console.log('Generating symbol key panel');
-            this.showPanel();
-            this.populateSymbolKey();
+            const panel = document.getElementById('symbolKeyPanel');
+
+            // Toggle: if panel is visible, hide it; otherwise, show it
+            if (panel && panel.classList.contains('visible')) {
+                this.hidePanel();
+            } else {
+                this.showPanel();
+                this.populateSymbolKey();
+            }
         },
 
         showPanel() {
