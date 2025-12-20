@@ -625,7 +625,57 @@
                 }
             },
 
-            init() {
+            async loadMapFromUrl() {
+                // Check for map ID in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const mapId = urlParams.get('map');
+
+                if (!mapId) return false;
+
+                try {
+                    console.log('Loading map:', mapId);
+                    const response = await CoopMapsAPI.getMap(mapId);
+
+                    if (response && response.map) {
+                        const mapData = response.map;
+
+                        // Load diagram data
+                        if (mapData.diagram_data) {
+                            this.state.data = {
+                                ...this.state.data,
+                                enterprises: mapData.diagram_data.enterprises || [],
+                                relationships: mapData.diagram_data.relationships || [],
+                                diagramProperties: {
+                                    ...this.state.data.diagramProperties,
+                                    ...mapData.diagram_data.diagramProperties
+                                }
+                            };
+
+                            // Save to history
+                            this.saveState();
+
+                            // Render
+                            if (this.modules.canvas) this.modules.canvas.render();
+
+                            // Update title in header
+                            const header = document.querySelector('.header h1');
+                            if (header) {
+                                header.textContent = 'Co-opMaps Express - ' + mapData.title;
+                            }
+
+                            console.log('Map loaded successfully');
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading map:', error);
+                    alert('Error loading map: ' + error.message);
+                }
+
+                return false;
+            },
+
+            async init() {
                 console.log('Co-opMaps Express v' + this.version + ' initializing...');
 
                 // Save initial state
@@ -652,6 +702,9 @@
 
                 // Hide context menu on click
                 document.addEventListener('click', function() { CoopMaps.hideContextMenu(); });
+
+                // Load map from URL if specified
+                await this.loadMapFromUrl();
 
                 console.log('Express Edition ready!');
             }
