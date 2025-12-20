@@ -32,28 +32,38 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 60px;
+            height: 50px;
             background: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
             color: white;
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 0 15px;
+            padding: 0 25px;
             box-shadow: 0 4px 20px rgba(44, 62, 80, 0.3);
             z-index: 1000;
         }
         .header h1 {
-            font-size: 16px;
+            font-size: 20px;
             font-weight: 600;
-            margin-right: 8px;
-            white-space: nowrap;
         }
-        .header button {
+        
+        /* Toolbar */
+        .toolbar {
+            height: 50px;
+            background: linear-gradient(to right, white 0%, #fafafa 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 15px;
+            box-shadow: var(--shadow-sm);
+            z-index: 5;
+        }
+        .toolbar button {
             padding: 6px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
             font-weight: 500;
@@ -63,25 +73,63 @@
             gap: 4px;
             white-space: nowrap;
         }
-        .header button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.4);
+        .toolbar button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
         }
-        .header button.primary {
+        .toolbar button.primary {
             background: var(--primary);
-            border-color: var(--primary-dark);
+            border-color: var(--primary);
+            color: white;
         }
-        .header button.primary:hover {
+        .toolbar button.primary:hover {
             background: var(--primary-dark);
         }
-        .header .separator {
+        .toolbar .separator {
             width: 1px;
-            height: 28px;
-            background: rgba(255, 255, 255, 0.2);
+            height: 30px;
+            background: linear-gradient(to bottom, transparent, var(--light-gray), transparent);
+            margin: 0 4px;
+        }
+        
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            padding: 6px 0;
+            z-index: 2000;
+            display: none;
+            min-width: 160px;
+        }
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--dark);
+            transition: all 0.1s;
+        }
+        .context-menu-item:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .context-menu-divider {
+            height: 1px;
+            background: var(--light-gray);
+            margin: 4px 0;
         }
 
         /* Container */
-        .container { display: flex; height: 100vh; padding-top: 60px; overflow: hidden; }
+        .container { display: flex; height: 100vh; padding-top: 50px; overflow: hidden; }
+        
+        /* Main area */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
         /* Left Sidebar with Tabs */
         .sidebar {
@@ -214,32 +262,6 @@
     <!-- Header -->
     <div class="header">
         <h1>Co-opMaps</h1>
-        <button onclick="CoopMaps.undo()">↶ Undo</button>
-        <button onclick="CoopMaps.redo()">↷ Redo</button>
-        <div class="separator"></div>
-        <button onclick="CoopMaps.modules.canvas?.newDiagram()">New</button>
-        <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear</button>
-        <div class="separator"></div>
-        <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto Layout</button>
-        <button onclick="CoopMaps.toggleConnectorStyle()">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                <path id="connectorStylePath" d="M3 3 L10 3 L10 10 L17 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                <circle cx="3" cy="3" r="2" fill="currentColor"/>
-                <circle cx="17" cy="10" r="2" fill="currentColor"/>
-            </svg>
-            <span id="connectorStyleText">Orthogonal</span>
-        </button>
-        <div class="separator"></div>
-        <button class="primary" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Create Relationship</button>
-        <div class="separator"></div>
-        <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
-        <button onclick="CoopMaps.modules.canvas?.zoomOut()">-</button>
-        <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
-        <div class="separator"></div>
-        <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
-        <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Symbol Key</button>
-        <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
-        <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms & Info</button>
     </div>
 
     <!-- Main Container -->
@@ -257,10 +279,52 @@
             </div>
         </div>
 
-        <!-- Canvas Area -->
-        <div class="canvas-area">
-            <canvas id="canvas"></canvas>
+        <!-- Main Area -->
+        <div class="main">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button onclick="CoopMaps.undo()">↶ Undo</button>
+                <button onclick="CoopMaps.redo()">↷ Redo</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.newDiagram()">New</button>
+                <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto Layout</button>
+                <button onclick="CoopMaps.toggleConnectorStyle()">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                        <path id="connectorStylePath" d="M3 3 L10 3 L10 10 L17 10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <circle cx="3" cy="3" r="2" fill="currentColor"/>
+                        <circle cx="17" cy="10" r="2" fill="currentColor"/>
+                    </svg>
+                    <span id="connectorStyleText">Orthogonal</span>
+                </button>
+                <div class="separator"></div>
+                <button class="primary" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Create Relationship</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
+                <button onclick="CoopMaps.modules.canvas?.zoomOut()">-</button>
+                <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
+                <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Symbol Key</button>
+                <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
+                <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms & Info</button>
+            </div>
+            
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <canvas id="canvas"></canvas>
+            </div>
         </div>
+        
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.duplicateSelected(); CoopMaps.hideContextMenu();">Duplicate</div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.deleteSelected(); CoopMaps.hideContextMenu();">Delete</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.bringToFront(); CoopMaps.hideContextMenu();">Bring to Front</div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.sendToBack(); CoopMaps.hideContextMenu();">Send to Back</div>
+    </div>
     </div>
 
     <script>
@@ -348,6 +412,11 @@
                 this.showNotification(`Connector style: ${newStyle}`, 'info');
             },
 
+            hideContextMenu() {
+                const menu = document.getElementById('contextMenu');
+                if (menu) menu.style.display = 'none';
+            },
+
             showNotification(message, type = 'info') {
                 const notification = document.createElement('div');
                 notification.className = `notification ${type}`;
@@ -416,6 +485,9 @@
 
                 console.log('✓ Co-opMaps ready!');
                 this.showNotification('Co-opMaps ready!', 'success');
+                
+                // Hide context menu on click outside
+                document.addEventListener('click', () => this.hideContextMenu());
             }
         };
 
