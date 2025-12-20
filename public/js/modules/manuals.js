@@ -1,327 +1,872 @@
 /**
  * Co-opMaps - Manuals Module
- * Provides user manuals and help documentation
+ * User documentation and help system with modal dialog and comprehensive content
  */
 
 (function() {
     'use strict';
 
-    const manuals = {
+    // Manuals Module - User documentation and help system
+    CoopMaps.registerModule('manuals', {
+        currentSection: 'getting-started',
+        isDialogOpen: false,
+
         init() {
             console.log('Manuals module initialized');
         },
 
+        showManualDialog() {
+            if (this.isDialogOpen) return;
+
+            this.isDialogOpen = true;
+
+            // Create modal dialog
+            const modal = document.createElement('div');
+            modal.id = 'manualModal';
+            modal.className = 'modal';
+            modal.style.cssText = `
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 2000;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(5px);
+                animation: fadeIn 0.3s ease;
+            `;
+
+            modal.innerHTML = `
+                <div class="modal-content" style="
+                    background: white;
+                    border-radius: 16px;
+                    padding: 0;
+                    max-width: 900px;
+                    width: 90%;
+                    max-height: 90vh;
+                    overflow: hidden;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                    animation: slideIn 0.3s ease;
+                    display: flex;
+                    flex-direction: column;
+                ">
+                    <!-- Header -->
+                    <div style="
+                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                        padding: 30px;
+                        color: white;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        flex-shrink: 0;
+                    ">
+                        <div>
+                            <h2 style="
+                                font-size: 28px;
+                                margin: 0 0 8px 0;
+                                font-weight: 600;
+                            ">User Manual</h2>
+                            <p style="
+                                margin: 0;
+                                opacity: 0.9;
+                                font-size: 15px;
+                            ">Learn how to use Co-opMaps effectively</p>
+                        </div>
+                        <button onclick="CoopMaps.modules.manuals.closeManualDialog()" style="
+                            background: rgba(255, 255, 255, 0.2);
+                            border: none;
+                            width: 44px;
+                            height: 44px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            color: white;
+                            font-size: 28px;
+                        "
+                        onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='scale(1.1)';"
+                        onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'; this.style.transform='scale(1)';">
+                            ×
+                        </button>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div style="
+                        flex: 1;
+                        display: flex;
+                        overflow: hidden;
+                    ">
+                        <!-- Sidebar Navigation -->
+                        <div style="
+                            width: 200px;
+                            background: #f8f9fa;
+                            padding: 20px 0;
+                            overflow-y: auto;
+                            flex-shrink: 0;
+                            border-right: 1px solid #e9ecef;
+                        ">
+                            ${this.renderManualNavigation()}
+                        </div>
+
+                        <!-- Content -->
+                        <div id="manualContent" style="
+                            flex: 1;
+                            padding: 40px;
+                            overflow-y: auto;
+                            background: white;
+                        ">
+                            ${this.renderSectionContent(this.currentSection)}
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="
+                        padding: 20px 30px;
+                        background: #f8f9fa;
+                        border-top: 1px solid #e9ecef;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        flex-shrink: 0;
+                    ">
+                        <div style="
+                            font-size: 13px;
+                            color: #7f8c8d;
+                        ">
+                            Co-opMaps v${CoopMaps.version} User Manual
+                        </div>
+                        <button onclick="CoopMaps.modules.manuals.printManual()" style="
+                            padding: 10px 20px;
+                            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            font-weight: 600;
+                            transition: all 0.2s ease;
+                            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+                        "
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(52, 152, 219, 0.3)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(52, 152, 219, 0.2)';">
+                            Print Manual
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Add styles
+            this.addManualStyles();
+
+            // Handle escape key
+            this.escapeHandler = (e) => {
+                if (e.key === 'Escape') {
+                    this.closeManualDialog();
+                }
+            };
+            document.addEventListener('keydown', this.escapeHandler);
+
+            // Handle click outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeManualDialog();
+                }
+            });
+        },
+
+        closeManualDialog() {
+            const modal = document.getElementById('manualModal');
+            if (modal) {
+                modal.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    modal.remove();
+                    this.isDialogOpen = false;
+                }, 300);
+            }
+
+            // Remove escape handler
+            if (this.escapeHandler) {
+                document.removeEventListener('keydown', this.escapeHandler);
+                this.escapeHandler = null;
+            }
+        },
+
+        renderManualNavigation() {
+            const sections = [
+                { id: 'getting-started', label: 'Getting Started', icon: '🚀' },
+                { id: 'enterprises', label: 'Enterprises', icon: '🏢' },
+                { id: 'relationships', label: 'Relationships', icon: '🔗' },
+                { id: 'diagrams', label: 'Diagrams', icon: '📊' },
+                { id: 'shortcuts', label: 'Shortcuts', icon: '⌨️' },
+                { id: 'tips', label: 'Tips & Tricks', icon: '💡' }
+            ];
+
+            return sections.map(section => `
+                <div class="manual-nav-item ${this.currentSection === section.id ? 'active' : ''}"
+                     onclick="CoopMaps.modules.manuals.switchSection('${section.id}')"
+                     style="
+                        padding: 12px 24px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        color: ${this.currentSection === section.id ? '#3498db' : '#7f8c8d'};
+                        background: ${this.currentSection === section.id ? 'white' : 'transparent'};
+                        border-left: 4px solid ${this.currentSection === section.id ? '#3498db' : 'transparent'};
+                        font-weight: ${this.currentSection === section.id ? '600' : '500'};
+                     "
+                     onmouseover="if('${this.currentSection}' !== '${section.id}') { this.style.background='#ecf0f1'; this.style.color='#2c3e50'; }"
+                     onmouseout="if('${this.currentSection}' !== '${section.id}') { this.style.background='transparent'; this.style.color='#7f8c8d'; }">
+                    <span style="font-size: 20px;">${section.icon}</span>
+                    <span>${section.label}</span>
+                </div>
+            `).join('');
+        },
+
         render() {
+            const section = this.currentSection;
+
             return `
-                <div class="manuals-panel">
-                    <h3 style="margin-bottom: 20px; color: var(--dark); font-size: 18px;">
-                        User Manual
-                    </h3>
-                    <p style="margin-bottom: 24px; color: var(--gray); font-size: 14px;">
-                        Learn how to use Co-opMaps to create cooperative ecosystem maps.
-                    </p>
+                <div style="animation: fadeIn 0.3s ease;">
+                    <!-- Manual Navigation -->
+                    <div style="
+                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                        padding: 20px;
+                        margin: -25px -25px 25px -25px;
+                        border-radius: 0 0 16px 16px;
+                        color: white;
+                        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+                    ">
+                        <h3 style="
+                            font-size: 20px;
+                            margin: 0 0 8px 0;
+                            font-weight: 600;
+                        ">User Manual</h3>
+                        <p style="
+                            margin: 0;
+                            opacity: 0.9;
+                            font-size: 14px;
+                        ">Learn how to use Co-opMaps effectively</p>
+                    </div>
 
-                    <div style="display: grid; gap: 12px;">
-                        <button class="manual-section-btn" onclick="CoopMaps.modules.manuals.showSection('getting-started')">
-                            <div style="font-size: 24px; margin-bottom: 8px;">🚀</div>
-                            <div style="font-weight: 600;">Getting Started</div>
-                            <div style="font-size: 12px; color: var(--gray);">Basic introduction and first steps</div>
-                        </button>
+                    <!-- Section Tabs -->
+                    <div style="
+                        display: flex;
+                        gap: 8px;
+                        margin-bottom: 20px;
+                        flex-wrap: wrap;
+                    ">
+                        ${this.renderSectionTab('getting-started', 'Getting Started')}
+                        ${this.renderSectionTab('enterprises', 'Enterprises')}
+                        ${this.renderSectionTab('relationships', 'Relationships')}
+                        ${this.renderSectionTab('diagrams', 'Diagrams')}
+                        ${this.renderSectionTab('shortcuts', 'Shortcuts')}
+                        ${this.renderSectionTab('tips', 'Tips & Tricks')}
+                    </div>
 
-                        <button class="manual-section-btn" onclick="CoopMaps.modules.manuals.showSection('enterprises')">
-                            <div style="font-size: 24px; margin-bottom: 8px;">🏢</div>
-                            <div style="font-weight: 600;">Adding Enterprises</div>
-                            <div style="font-size: 12px; color: var(--gray);">How to add and configure enterprise symbols</div>
-                        </button>
+                    <!-- Content Area -->
+                    <div style="
+                        background: white;
+                        padding: 25px;
+                        border-radius: 12px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                        border: 1px solid #e9ecef;
+                        max-height: 60vh;
+                        overflow-y: auto;
+                    ">
+                        ${this.renderSectionContent(section)}
+                    </div>
 
-                        <button class="manual-section-btn" onclick="CoopMaps.modules.manuals.showSection('relationships')">
-                            <div style="font-size: 24px; margin-bottom: 8px;">🔗</div>
-                            <div style="font-weight: 600;">Creating Relationships</div>
-                            <div style="font-size: 12px; color: var(--gray);">Drawing connectors between enterprises</div>
-                        </button>
-
-                        <button class="manual-section-btn" onclick="CoopMaps.modules.manuals.showSection('styling')">
-                            <div style="font-size: 24px; margin-bottom: 8px;">🎨</div>
-                            <div style="font-weight: 600;">Styling & Appearance</div>
-                            <div style="font-size: 12px; color: var(--gray);">Customize colors, shapes, and layout</div>
-                        </button>
-
-                        <button class="manual-section-btn" onclick="CoopMaps.modules.manuals.showSection('export')">
-                            <div style="font-size: 24px; margin-bottom: 8px;">💾</div>
-                            <div style="font-weight: 600;">Exporting & Sharing</div>
-                            <div style="font-size: 12px; color: var(--gray);">Export to PNG, PDF, SVG, and JSON</div>
-                        </button>
-
-                        <button class="manual-section-btn" onclick="CoopMaps.modules.manuals.showSection('shortcuts')">
-                            <div style="font-size: 24px; margin-bottom: 8px;">⌨️</div>
-                            <div style="font-weight: 600;">Keyboard Shortcuts</div>
-                            <div style="font-size: 12px; color: var(--gray);">Speed up your workflow</div>
+                    <!-- Quick Help -->
+                    <div style="
+                        margin-top: 20px;
+                        padding: 20px;
+                        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        border-radius: 12px;
+                        border: 1px solid #e9ecef;
+                    ">
+                        <h4 style="
+                            font-size: 16px;
+                            color: #2c3e50;
+                            margin: 0 0 12px 0;
+                            font-weight: 600;
+                        ">Need More Help?</h4>
+                        <p style="
+                            font-size: 13px;
+                            color: #7f8c8d;
+                            margin: 0 0 12px 0;
+                            line-height: 1.6;
+                        ">
+                            This manual covers the basics of using Co-opMaps.
+                            For additional support or to report issues, please visit our support page.
+                        </p>
+                        <button onclick="CoopMaps.modules.manuals.showManualDialog()" style="
+                            padding: 10px 20px;
+                            background: white;
+                            color: #3498db;
+                            border: 2px solid #3498db;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            font-weight: 600;
+                            transition: all 0.2s ease;
+                        "
+                        onmouseover="this.style.background='#3498db'; this.style.color='white';"
+                        onmouseout="this.style.background='white'; this.style.color='#3498db';">
+                            Open Full Manual
                         </button>
                     </div>
                 </div>
 
                 <style>
-                    .manual-section-btn {
-                        padding: 16px;
-                        text-align: center;
-                        background: white;
-                        border: 2px solid var(--light-gray);
-                        border-radius: 12px;
-                        cursor: pointer;
-                        transition: var(--transition-fast);
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
                     }
 
-                    .manual-section-btn:hover {
-                        border-color: var(--primary);
-                        transform: translateY(-2px);
-                        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+                    .manual-content h4 {
+                        color: #2c3e50;
+                        margin: 20px 0 12px 0;
+                        font-size: 16px;
+                        font-weight: 600;
+                    }
+
+                    .manual-content p {
+                        color: #546e7a;
+                        line-height: 1.6;
+                        margin-bottom: 12px;
+                    }
+
+                    .manual-content ul {
+                        margin: 0 0 16px 20px;
+                        color: #546e7a;
+                    }
+
+                    .manual-content li {
+                        margin-bottom: 8px;
+                        line-height: 1.5;
+                    }
+
+                    .manual-content code {
+                        background: #f8f9fa;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-family: monospace;
+                        font-size: 13px;
+                        color: #e74c3c;
                     }
                 </style>
             `;
         },
 
-        showManualDialog() {
-            this.showSection('getting-started');
-        },
-
-        showSection(sectionId) {
-            const content = this.getSectionContent(sectionId);
-
-            const html = `
-                <div class="modal" id="manualModal" style="display: flex;">
-                    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
-                        ${content}
-                        <button class="btn-primary" onclick="document.getElementById('manualModal').remove()">
-                            Close
-                        </button>
-                    </div>
-                </div>
+        renderSectionTab(id, label) {
+            const isActive = this.currentSection === id;
+            return `
+                <button
+                    onclick="CoopMaps.modules.manuals.switchSection('${id}')"
+                    style="
+                        padding: 8px 16px;
+                        background: ${isActive ? 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)' : 'white'};
+                        color: ${isActive ? 'white' : '#7f8c8d'};
+                        border: 2px solid ${isActive ? '#3498db' : '#e9ecef'};
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 13px;
+                        font-weight: ${isActive ? '600' : '500'};
+                        transition: all 0.2s ease;
+                    "
+                    onmouseover="if(!${isActive}) { this.style.borderColor='#3498db'; this.style.background='#f8f9fa'; }"
+                    onmouseout="if(!${isActive}) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
+                    ${label}
+                </button>
             `;
-
-            // Remove existing modal if any
-            const existing = document.getElementById('manualModal');
-            if (existing) existing.remove();
-
-            document.body.insertAdjacentHTML('beforeend', html);
         },
 
-        getSectionContent(sectionId) {
-            const sections = {
-                'getting-started': `
-                    <h2 style="margin-bottom: 20px;">🚀 Getting Started</h2>
+        switchSection(section) {
+            this.currentSection = section;
 
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">What is Co-opMaps?</h3>
-                    <p style="margin-bottom: 16px; line-height: 1.6;">
-                        Co-opMaps is a tool for mapping cooperative ecosystems. It helps you visualize the
-                        relationships between cooperatives, mutual aid organizations, public sector entities,
-                        and other economic actors in your region or sector.
-                    </p>
+            // Update in sidebar view
+            const content = document.getElementById('sidebar-content');
+            if (content && CoopMaps.state.ui.activeTab === 'manuals') {
+                content.innerHTML = this.render();
+            }
 
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Quick Start</h3>
-                    <ol style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li><strong>Add enterprises:</strong> Drag symbols from the left sidebar onto the canvas</li>
-                        <li><strong>Create relationships:</strong> Click "Create Relationship" button, then click two enterprises</li>
-                        <li><strong>Customize:</strong> Select any item to edit its properties in the Properties tab</li>
-                        <li><strong>Save:</strong> Go to Diagrams tab and click "Save Current"</li>
-                        <li><strong>Export:</strong> Click Export button to download as PNG, PDF, or SVG</li>
-                    </ol>
+            // Update in modal view
+            const manualContent = document.getElementById('manualContent');
+            if (manualContent) {
+                manualContent.innerHTML = this.renderSectionContent(section);
 
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Navigation</h3>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li><strong>Pan:</strong> Hold Shift and drag on the canvas</li>
-                        <li><strong>Zoom:</strong> Use mouse wheel or zoom buttons in toolbar</li>
-                        <li><strong>Select:</strong> Click on any enterprise or relationship</li>
-                        <li><strong>Move:</strong> Drag enterprises to reposition them</li>
-                        <li><strong>Resize:</strong> Drag the handles on selected enterprises</li>
-                    </ul>
-                `,
+                // Update navigation
+                document.querySelectorAll('.manual-nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                const activeItem = document.querySelector(`.manual-nav-item[onclick*="${section}"]`);
+                if (activeItem) {
+                    activeItem.classList.add('active');
+                }
+            }
+        },
 
-                'enterprises': `
-                    <h2 style="margin-bottom: 20px;">🏢 Adding Enterprises</h2>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Enterprise Types</h3>
-                    <p style="margin-bottom: 16px;">Co-opMaps supports six types of enterprises:</p>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li><strong>Cooperative:</strong> Member-owned and democratically controlled enterprise</li>
-                        <li><strong>Mutual Aid:</strong> Voluntary reciprocal exchange of resources and services</li>
-                        <li><strong>Public Sector:</strong> Government or public institution</li>
-                        <li><strong>Private Sector:</strong> Privately owned business</li>
-                        <li><strong>Civil Society:</strong> Non-profit or community organization</li>
-                        <li><strong>Household:</strong> Family or household unit</li>
-                    </ul>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Adding an Enterprise</h3>
-                    <ol style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li>Go to the <strong>Symbols</strong> tab in the sidebar</li>
-                        <li>Find the enterprise type you want to add</li>
-                        <li>Drag the symbol onto the canvas</li>
-                        <li>Drop it where you want it to appear</li>
-                    </ol>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Editing Properties</h3>
-                    <ol style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li>Click on an enterprise to select it</li>
-                        <li>Go to the <strong>Properties</strong> tab</li>
-                        <li>Edit the name, type, roles, tier, and appearance</li>
-                        <li>Changes are saved automatically</li>
-                    </ol>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Roles & Tiers</h3>
-                    <p style="margin-bottom: 16px;">
-                        <strong>Roles:</strong> Define what function the enterprise performs (producer, processor, supplier, etc.)
-                    </p>
-                    <p style="margin-bottom: 16px;">
-                        <strong>Tiers:</strong> Indicate importance (Primary, Secondary, Other). Primary and secondary
-                        enterprises show a colored dot indicator.
-                    </p>
-                `,
-
-                'relationships': `
-                    <h2 style="margin-bottom: 20px;">🔗 Creating Relationships</h2>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Relationship Types</h3>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li><strong>G - Goods/Services:</strong> Exchange of products or services</li>
-                        <li><strong>F - Finance:</strong> Financial transactions or funding</li>
-                        <li><strong>K - Knowledge:</strong> Information, training, or knowledge sharing</li>
-                        <li><strong>M - Mixed:</strong> Multiple types of exchange</li>
-                    </ul>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Creating a Relationship</h3>
-                    <ol style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li>Click the <strong>"Create Relationship"</strong> button (or press <kbd>R</kbd>)</li>
-                        <li>Click on the first enterprise (start point)</li>
-                        <li>Click on the second enterprise (end point)</li>
-                        <li>Select the relationship type from the dialog</li>
-                        <li>Press ESC to cancel at any time</li>
-                    </ol>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Connector Styles</h3>
-                    <p style="margin-bottom: 16px;">
-                        Use the connector style button to toggle between:
-                    </p>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li><strong>Orthogonal:</strong> Right-angle connectors (easier to follow)</li>
-                        <li><strong>Direct:</strong> Straight line connectors (more compact)</li>
-                    </ul>
-                `,
-
-                'styling': `
-                    <h2 style="margin-bottom: 20px;">🎨 Styling & Appearance</h2>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Customizing Enterprises</h3>
-                    <p style="margin-bottom: 16px;">Select an enterprise and use the Properties panel to customize:</p>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li><strong>Fill Color:</strong> Background color of the enterprise box</li>
-                        <li><strong>Border Color:</strong> Outline color</li>
-                        <li><strong>Shape:</strong> Rectangle, Circle, or Diamond</li>
-                        <li><strong>Show Icon:</strong> Toggle the emoji icon display</li>
-                    </ul>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Layout Tools</h3>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li><strong>Auto Layout:</strong> Automatically arrange enterprises in a grid</li>
-                        <li><strong>Bring to Front:</strong> Move selected enterprise on top of others</li>
-                        <li><strong>Send to Back:</strong> Move selected enterprise behind others</li>
-                    </ul>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Canvas Size</h3>
-                    <p style="margin-bottom: 16px;">
-                        Choose between A4 or A3 canvas size from the dropdown in the toolbar.
-                    </p>
-                `,
-
-                'export': `
-                    <h2 style="margin-bottom: 20px;">💾 Exporting & Sharing</h2>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Export Formats</h3>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li><strong>PNG:</strong> High-quality image for presentations and documents</li>
-                        <li><strong>PDF:</strong> Professional document with metadata</li>
-                        <li><strong>SVG:</strong> Vector format for editing in design tools</li>
-                        <li><strong>JSON:</strong> Raw data for backup and sharing with other Co-opMaps users</li>
-                    </ul>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Saving & Loading</h3>
-                    <p style="margin-bottom: 16px;">
-                        Go to the <strong>Diagrams</strong> tab to:
-                    </p>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li>Save your current diagram to browser storage</li>
-                        <li>Load previously saved diagrams</li>
-                        <li>Import diagrams from JSON files</li>
-                        <li>Delete saved diagrams</li>
-                    </ul>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Autosave</h3>
-                    <p style="margin-bottom: 16px;">
-                        Co-opMaps automatically saves your work every minute. If you close the browser
-                        and return within 24 hours, you'll be prompted to restore your work.
-                    </p>
-                `,
-
-                'shortcuts': `
-                    <h2 style="margin-bottom: 20px;">⌨️ Keyboard Shortcuts</h2>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">General</h3>
-                    <table style="width: 100%; margin-bottom: 16px; border-collapse: collapse;">
-                        <tr style="border-bottom: 1px solid var(--light-gray);">
-                            <td style="padding: 8px; font-family: monospace; background: var(--light-gray);">Ctrl+Z</td>
-                            <td style="padding: 8px;">Undo</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--light-gray);">
-                            <td style="padding: 8px; font-family: monospace; background: var(--light-gray);">Ctrl+Y</td>
-                            <td style="padding: 8px;">Redo</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--light-gray);">
-                            <td style="padding: 8px; font-family: monospace; background: var(--light-gray);">Ctrl+S</td>
-                            <td style="padding: 8px;">Save diagram</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--light-gray);">
-                            <td style="padding: 8px; font-family: monospace; background: var(--light-gray);">ESC</td>
-                            <td style="padding: 8px;">Cancel current operation</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--light-gray);">
-                            <td style="padding: 8px; font-family: monospace; background: var(--light-gray);">Delete</td>
-                            <td style="padding: 8px;">Delete selected item</td>
-                        </tr>
-                    </table>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Canvas</h3>
-                    <table style="width: 100%; margin-bottom: 16px; border-collapse: collapse;">
-                        <tr style="border-bottom: 1px solid var(--light-gray);">
-                            <td style="padding: 8px; font-family: monospace; background: var(--light-gray);">R</td>
-                            <td style="padding: 8px;">Toggle relationship creation mode</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--light-gray);">
-                            <td style="padding: 8px; font-family: monospace; background: var(--light-gray);">Shift+Drag</td>
-                            <td style="padding: 8px;">Pan the canvas</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--light-gray);">
-                            <td style="padding: 8px; font-family: monospace; background: var(--light-gray);">Mouse Wheel</td>
-                            <td style="padding: 8px;">Zoom in/out</td>
-                        </tr>
-                    </table>
-
-                    <h3 style="margin: 24px 0 12px; color: var(--dark);">Context Menu</h3>
-                    <p style="margin-bottom: 16px;">
-                        Right-click on an enterprise to access:
-                    </p>
-                    <ul style="margin-bottom: 16px; line-height: 1.8; padding-left: 20px;">
-                        <li>Duplicate</li>
-                        <li>Delete</li>
-                        <li>Bring to Front</li>
-                        <li>Send to Back</li>
-                    </ul>
-                `
+        renderSectionContent(section) {
+            const content = {
+                'getting-started': this.getGettingStartedContent(),
+                'enterprises': this.getEnterprisesContent(),
+                'relationships': this.getRelationshipsContent(),
+                'diagrams': this.getDiagramsContent(),
+                'shortcuts': this.getShortcutsContent(),
+                'tips': this.getTipsContent()
             };
 
-            return sections[sectionId] || sections['getting-started'];
-        }
-    };
+            return `<div class="manual-content">${content[section] || 'Content not found'}</div>`;
+        },
 
-    // Register module
-    if (window.CoopMaps) {
-        window.CoopMaps.registerModule('manuals', manuals);
-    }
+        getGettingStartedContent() {
+            return `
+                <h4>Welcome to Co-opMaps</h4>
+                <p>
+                    Co-opMaps is a powerful tool for mapping and visualizing cooperative ecosystems.
+                    This manual will help you get started with creating your first diagram.
+                </p>
+
+                <h4>Basic Workflow</h4>
+                <ol>
+                    <li><strong>Add Enterprises:</strong> Click on enterprise types in the Symbols tab and drag them onto the canvas</li>
+                    <li><strong>Edit Properties:</strong> Click on any enterprise to edit its name, size, and other properties</li>
+                    <li><strong>Create Relationships:</strong> Press 'R' or click the relationship button, then click two enterprises to connect them</li>
+                    <li><strong>Save Your Work:</strong> Use the Diagrams tab to save, load, and manage your diagrams</li>
+                </ol>
+
+                <h4>Canvas Navigation</h4>
+                <ul>
+                    <li><strong>Pan:</strong> Click and drag on empty canvas space</li>
+                    <li><strong>Zoom:</strong> Use mouse wheel or zoom buttons in toolbar</li>
+                    <li><strong>Select:</strong> Click on an enterprise to select it</li>
+                    <li><strong>Multi-select:</strong> Hold Shift and click multiple enterprises (coming soon)</li>
+                </ul>
+
+                <h4>Canvas Sizes</h4>
+                <p>
+                    Choose between A4 or A3 landscape canvas sizes using the dropdown in the toolbar.
+                    The canvas automatically adjusts to your selected size.
+                </p>
+
+                <h4>First Steps</h4>
+                <ol>
+                    <li>Start by dragging a Co-operative enterprise from the Symbols tab onto the canvas</li>
+                    <li>Click on it and rename it in the Properties tab</li>
+                    <li>Add more enterprises to represent your ecosystem</li>
+                    <li>Connect them with relationships to show how they interact</li>
+                    <li>Save your diagram using Ctrl+S or the Save button</li>
+                </ol>
+            `;
+        },
+
+        getEnterprisesContent() {
+            return `
+                <h4>Enterprise Types</h4>
+                <p>Co-opMaps supports six different enterprise types:</p>
+
+                <ul>
+                    <li><strong>Co-operative (Rectangle):</strong> Member-owned and democratically controlled organizations</li>
+                    <li><strong>Non-co-operative Mutual (Rounded Rectangle):</strong> Mutual benefit organizations without democratic member control</li>
+                    <li><strong>Social Enterprise (Pill Shape):</strong> Businesses with social or environmental objectives</li>
+                    <li><strong>Private Enterprise (Ellipse):</strong> Privately owned for-profit business</li>
+                    <li><strong>State Enterprise (Diamond):</strong> Government-owned and operated enterprises</li>
+                    <li><strong>Excluded Business (Rectangle):</strong> Businesses not part of the cooperative analysis</li>
+                </ul>
+
+                <h4>Adding Enterprises</h4>
+                <p>There are two ways to add enterprises:</p>
+                <ul>
+                    <li><strong>Drag and Drop:</strong> Drag from the symbols panel onto the canvas</li>
+                    <li><strong>Click to Add:</strong> Click a symbol to add it at the canvas center</li>
+                </ul>
+
+                <h4>Enterprise Properties</h4>
+                <p>Select an enterprise and switch to the Properties tab to edit:</p>
+                <ul>
+                    <li><strong>Name:</strong> The display name of the enterprise</li>
+                    <li><strong>Size:</strong> Choose from Small, Medium, or Large</li>
+                    <li><strong>Generic Set:</strong> Enable to show multiple enterprises as a stack</li>
+                    <li><strong>Position:</strong> Fine-tune X and Y coordinates</li>
+                </ul>
+
+                <h4>Participation Roles (Co-ops & NCMs only)</h4>
+                <p>Colored indicators across the top show participation roles:</p>
+                <ul>
+                    <li><strong>Red (P):</strong> Producers - Left position</li>
+                    <li><strong>Blue (U):</strong> Users - Center position</li>
+                    <li><strong>Green (I):</strong> Investors - Right position</li>
+                </ul>
+
+                <h4>Structural Tiers (Co-ops & NCMs only)</h4>
+                <p>Indicators on the left show position in value chain:</p>
+                <ul>
+                    <li><strong>Primary (P):</strong> Raw materials, production - Bottom</li>
+                    <li><strong>Secondary (S):</strong> Processing, manufacturing - Middle</li>
+                    <li><strong>Tertiary (T):</strong> Retail, distribution, services - Top</li>
+                </ul>
+
+                <h4>Context Menu</h4>
+                <p>Right-click on any enterprise to access:</p>
+                <ul>
+                    <li>Duplicate - Create a copy</li>
+                    <li>Delete - Remove the enterprise</li>
+                    <li>Bring to Front - Move above other enterprises</li>
+                    <li>Send to Back - Move behind other enterprises</li>
+                </ul>
+            `;
+        },
+
+        getRelationshipsContent() {
+            return `
+                <h4>Creating Relationships</h4>
+                <p>To create relationships between enterprises:</p>
+                <ol>
+                    <li>Click the "Create Relationship" button or press 'R'</li>
+                    <li>Click the first enterprise (start point)</li>
+                    <li>Click the second enterprise (end point)</li>
+                    <li>Select the relationship type from the dialog</li>
+                </ol>
+
+                <h4>Relationship Types</h4>
+                <ul>
+                    <li><strong>G - Governance:</strong> Has a reserved governance role in</li>
+                    <li><strong>I - Investment:</strong> Holds an investment in</li>
+                    <li><strong>L - Asset Lock:</strong> Has an asset lock to</li>
+                    <li><strong>M - Membership:</strong> Is a member of</li>
+                    <li><strong>O - Ownership:</strong> Owns</li>
+                    <li><strong>P - Partnership:</strong> Is a partner member of</li>
+                    <li><strong>S - Supply:</strong> Supplies</li>
+                    <li><strong>Inner Segment:</strong> Bidirectional relationship (special type)</li>
+                </ul>
+
+                <h4>Relationship Markers</h4>
+                <p>When connecting to generic sets, you can specify scope:</p>
+                <ul>
+                    <li><strong>Individual:</strong> Connection to one enterprise (normal arrow)</li>
+                    <li><strong>Entire Set:</strong> Connection to all enterprises (filled marker)</li>
+                    <li><strong>Subset:</strong> Connection to some enterprises (hollow marker)</li>
+                </ul>
+
+                <h4>Managing Relationships</h4>
+                <ul>
+                    <li>Relationships appear as lines with colored badges showing the type</li>
+                    <li>To delete a relationship, you must delete one of the connected enterprises</li>
+                    <li>Use Auto Layout to automatically arrange connected enterprises</li>
+                    <li>Dashed lines indicate subset connections</li>
+                </ul>
+
+                <h4>Visual Indicators</h4>
+                <p>Relationships use visual cues to convey information:</p>
+                <ul>
+                    <li><strong>Line Style:</strong> Solid for full connections, dashed for subsets</li>
+                    <li><strong>Badges:</strong> Colored circles with letters indicate relationship type</li>
+                    <li><strong>Arrows:</strong> Show direction of relationship</li>
+                    <li><strong>Markers:</strong> Special symbols for generic set connections</li>
+                </ul>
+            `;
+        },
+
+        getDiagramsContent() {
+            return `
+                <h4>Saving Diagrams</h4>
+                <p>Your work is saved in your browser's local storage:</p>
+                <ul>
+                    <li><strong>Save Current:</strong> Save changes to the current diagram (Ctrl+S)</li>
+                    <li><strong>Save As New:</strong> Create a new saved diagram</li>
+                    <li><strong>Auto-save:</strong> Enable to automatically save every minute</li>
+                </ul>
+
+                <h4>Managing Diagrams</h4>
+                <p>The Diagrams tab shows all your saved diagrams with options to:</p>
+                <ul>
+                    <li><strong>Load:</strong> Open a saved diagram</li>
+                    <li><strong>Rename:</strong> Change the diagram name</li>
+                    <li><strong>Duplicate:</strong> Create a copy of a diagram</li>
+                    <li><strong>Delete:</strong> Remove a diagram permanently</li>
+                </ul>
+
+                <h4>Import/Export</h4>
+                <ul>
+                    <li><strong>Export to File:</strong> Save diagram as .coopmaps file for backup or sharing</li>
+                    <li><strong>Import from File:</strong> Load a previously exported diagram</li>
+                    <li><strong>Export as Image:</strong> Save as PNG, SVG, or PDF via Export button</li>
+                </ul>
+
+                <h4>Diagram Properties</h4>
+                <p>Edit diagram metadata in the Properties tab when nothing is selected:</p>
+                <ul>
+                    <li><strong>Title:</strong> Name of your diagram</li>
+                    <li><strong>Author:</strong> Your name or organization</li>
+                    <li><strong>Date:</strong> Creation or modification date</li>
+                    <li><strong>WDR:</strong> Worldwide Diagram Reference (optional)</li>
+                    <li><strong>Scope:</strong> Geographic extent, time period, and economic sectors</li>
+                </ul>
+
+                <h4>Storage Management</h4>
+                <p>Monitor your browser storage usage:</p>
+                <ul>
+                    <li>Storage meter shows how much space is used</li>
+                    <li>Delete old diagrams to free up space</li>
+                    <li>Export important diagrams as backup</li>
+                    <li>Browser typically allows 5-10MB of storage</li>
+                </ul>
+            `;
+        },
+
+        getShortcutsContent() {
+            return `
+                <h4>Keyboard Shortcuts</h4>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="border-bottom: 2px solid #e9ecef;">
+                        <th style="padding: 12px; text-align: left; color: #2c3e50;">Action</th>
+                        <th style="padding: 12px; text-align: left; color: #2c3e50;">Windows/Linux</th>
+                        <th style="padding: 12px; text-align: left; color: #2c3e50;">Mac</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Save Diagram</td>
+                        <td style="padding: 12px;"><code>Ctrl+S</code></td>
+                        <td style="padding: 12px;"><code>Cmd+S</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Undo</td>
+                        <td style="padding: 12px;"><code>Ctrl+Z</code></td>
+                        <td style="padding: 12px;"><code>Cmd+Z</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Redo</td>
+                        <td style="padding: 12px;"><code>Ctrl+Y</code></td>
+                        <td style="padding: 12px;"><code>Cmd+Y</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Delete Selected</td>
+                        <td style="padding: 12px;" colspan="2"><code>Delete</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Relationship Mode</td>
+                        <td style="padding: 12px;" colspan="2"><code>R</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Exit Mode/Dialog</td>
+                        <td style="padding: 12px;" colspan="2"><code>Escape</code></td>
+                    </tr>
+                </table>
+
+                <h4>Mouse Controls</h4>
+                <ul>
+                    <li><strong>Left Click:</strong> Select enterprise</li>
+                    <li><strong>Right Click:</strong> Context menu</li>
+                    <li><strong>Drag:</strong> Move selected enterprise</li>
+                    <li><strong>Scroll Wheel:</strong> Zoom in/out</li>
+                    <li><strong>Click & Drag Canvas:</strong> Pan view (coming soon)</li>
+                </ul>
+
+                <h4>Toolbar Buttons</h4>
+                <p>Quick access to common actions:</p>
+                <ul>
+                    <li><strong>Undo/Redo:</strong> Navigate through action history</li>
+                    <li><strong>New:</strong> Create a new blank diagram</li>
+                    <li><strong>Clear:</strong> Remove all enterprises and relationships</li>
+                    <li><strong>Auto Layout:</strong> Automatically arrange your diagram</li>
+                    <li><strong>Connector Style:</strong> Toggle between orthogonal (right-angle) and direct (straight-line) connectors</li>
+                    <li><strong>Create Relationship:</strong> Enter relationship mode to connect enterprises</li>
+                    <li><strong>Zoom Controls:</strong> Adjust view scale</li>
+                    <li><strong>Export:</strong> Save as PNG, SVG, or PDF</li>
+                    <li><strong>Symbol Key:</strong> View reference guide</li>
+                    <li><strong>Manual:</strong> Open this help guide</li>
+                </ul>
+
+                <h4>Connector Styles</h4>
+                <p>Co-opMaps supports two connector styles for relationships:</p>
+                <ul>
+                    <li><strong>Orthogonal (Default):</strong> Connectors use right angles, creating clean paths that route around enterprises. Best for professional diagrams and complex layouts.</li>
+                    <li><strong>Direct:</strong> Connectors use straight lines between enterprises. Best for simple diagrams or when showing direct connections.</li>
+                    <li><strong>Toggle:</strong> Click the connector style button (shows └─ or /) to switch between styles.</li>
+                    <li><strong>Persistence:</strong> Your connector style preference is saved with each diagram.</li>
+                </ul>
+            `;
+        },
+
+        getTipsContent() {
+            return `
+                <h4>Pro Tips</h4>
+                <ul>
+                    <li><strong>Use Auto Layout:</strong> Let the algorithm arrange your diagram optimally, especially useful for complex relationship networks</li>
+                    <li><strong>Generic Sets:</strong> Use these to represent multiple similar enterprises without cluttering your diagram</li>
+                    <li><strong>Color Coding:</strong> Social enterprises are yellow to stand out; use this strategically</li>
+                    <li><strong>Export Options:</strong> Export as SVG for editing in design software, PDF for reports</li>
+                    <li><strong>Save Often:</strong> Use Ctrl+S frequently or enable auto-save</li>
+                </ul>
+
+                <h4>Best Practices</h4>
+                <ul>
+                    <li><strong>Start Simple:</strong> Begin with key enterprises, then add supporting ones</li>
+                    <li><strong>Name Clearly:</strong> Use descriptive names that explain the enterprise's role</li>
+                    <li><strong>Group Related:</strong> Position related enterprises near each other</li>
+                    <li><strong>Document Metadata:</strong> Fill in diagram properties for future reference</li>
+                    <li><strong>Use Tiers:</strong> Show value chain position with tier indicators</li>
+                    <li><strong>Regular Backups:</strong> Export important diagrams periodically</li>
+                </ul>
+
+                <h4>Common Issues</h4>
+                <ul>
+                    <li><strong>Can't see relationships:</strong> Use Auto Layout to spread enterprises apart</li>
+                    <li><strong>Diagram too crowded:</strong> Switch to A3 canvas or use generic sets</li>
+                    <li><strong>Lost work:</strong> Enable auto-save to prevent data loss</li>
+                    <li><strong>Export quality:</strong> Use SVG or PDF for best print quality</li>
+                    <li><strong>Browser storage full:</strong> Export old diagrams and delete them</li>
+                </ul>
+
+                <h4>Advanced Features</h4>
+                <ul>
+                    <li><strong>Symbol Key:</strong> Generate a reference guide for your diagram</li>
+                    <li><strong>Hybrid Tiers:</strong> Enterprises can operate across multiple tiers</li>
+                    <li><strong>Inner Segments:</strong> Create bidirectional relationships with different types at each end</li>
+                    <li><strong>Stack Effect:</strong> Generic sets show with 3D appearance</li>
+                    <li><strong>Custom Positioning:</strong> Fine-tune X/Y coordinates in properties</li>
+                </ul>
+
+                <h4>Diagram Types</h4>
+                <p>Co-opMaps can be used to create various diagram types:</p>
+                <ul>
+                    <li><strong>Ecosystem Maps:</strong> Show all enterprises in a cooperative ecosystem</li>
+                    <li><strong>Value Chain Analysis:</strong> Use tiers to show production flow</li>
+                    <li><strong>Ownership Structures:</strong> Use ownership relationships to show control</li>
+                    <li><strong>Network Analysis:</strong> Show complex inter-relationships</li>
+                    <li><strong>Governance Maps:</strong> Highlight governance relationships</li>
+                </ul>
+            `;
+        },
+
+        addManualStyles() {
+            if (!document.getElementById('manualStyles')) {
+                const style = document.createElement('style');
+                style.id = 'manualStyles';
+                style.textContent = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+
+                    @keyframes fadeOut {
+                        from { opacity: 1; }
+                        to { opacity: 0; }
+                    }
+
+                    @keyframes slideIn {
+                        from { transform: translateY(-30px); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+
+                    .manual-nav-item.active {
+                        background: white !important;
+                        color: #3498db !important;
+                        border-left: 4px solid #3498db !important;
+                    }
+
+                    .manual-content {
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        line-height: 1.6;
+                        color: #2c3e50;
+                    }
+
+                    .manual-content h4 {
+                        color: #2c3e50;
+                        margin: 24px 0 16px 0;
+                        font-size: 20px;
+                        font-weight: 600;
+                        padding-bottom: 8px;
+                        border-bottom: 2px solid #e9ecef;
+                    }
+
+                    .manual-content h4:first-child {
+                        margin-top: 0;
+                    }
+
+                    .manual-content p {
+                        color: #546e7a;
+                        line-height: 1.7;
+                        margin-bottom: 16px;
+                        font-size: 15px;
+                    }
+
+                    .manual-content ul, .manual-content ol {
+                        margin: 0 0 20px 20px;
+                        color: #546e7a;
+                        font-size: 15px;
+                    }
+
+                    .manual-content li {
+                        margin-bottom: 10px;
+                        line-height: 1.6;
+                    }
+
+                    .manual-content code {
+                        background: #f8f9fa;
+                        padding: 3px 8px;
+                        border-radius: 4px;
+                        font-family: 'Consolas', 'Monaco', monospace;
+                        font-size: 14px;
+                        color: #e74c3c;
+                        border: 1px solid #e9ecef;
+                    }
+
+                    .manual-content table {
+                        width: 100%;
+                        margin: 20px 0;
+                        border-collapse: collapse;
+                        font-size: 14px;
+                    }
+
+                    .manual-content table th {
+                        background: #f8f9fa;
+                        font-weight: 600;
+                        text-align: left;
+                        padding: 12px;
+                        border-bottom: 2px solid #e9ecef;
+                    }
+
+                    .manual-content table td {
+                        padding: 12px;
+                        border-bottom: 1px solid #f8f9fa;
+                    }
+
+                    .manual-content table tr:hover {
+                        background: #f8f9fa;
+                    }
+
+                    .manual-content strong {
+                        color: #2c3e50;
+                        font-weight: 600;
+                    }
+
+                    @media print {
+                        .manual-nav-item, button {
+                            display: none !important;
+                        }
+
+                        .manual-content {
+                            padding: 0 !important;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        },
+
+        printManual() {
+            window.print();
+        }
+    });
+
+    console.log('manuals.module.js loaded successfully');
 })();
