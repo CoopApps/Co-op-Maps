@@ -508,7 +508,8 @@
         },
 
         drawDiagramTitle() {
-            const title = CoopMaps.state.data.diagramMetadata.title || 'Untitled Diagram';
+            const props = CoopMaps.state.data.diagramProperties || {};
+            const title = props.title || 'Untitled Diagram';
             const canvasSize = this.canvasSizes[this.currentCanvasSize];
 
             // Fixed position at the top center

@@ -175,11 +175,14 @@
 
             init() {
                 console.log('Co-opMaps v' + this.version + ' initializing...');
-                
+
                 // 1. Build UI first
                 this.buildUI();
-                
-                // 2. NOW initialize modules (in correct order)
+
+                // 2. Save initial state BEFORE initializing modules
+                this.saveState();
+
+                // 3. NOW initialize modules (in correct order)
                 const initOrder = ['shapes', 'canvas', 'enterprises', 'relationships', 'properties', 'export', 'symbolKey', 'persistence', 'manuals', 'productInfo'];
                 initOrder.forEach(name => {
                     if (this.modules[name] && this.modules[name].init) {
@@ -192,13 +195,8 @@
                     }
                 });
 
-                // 3. Save initial state
-                this.saveState();
-
-                // 4. Load saved data
-                if (this.modules.persistence) {
-                    this.modules.persistence.loadFromLocalStorage();
-                }
+                // 4. Render sidebars with content
+                this.renderSidebars();
 
                 console.log('✓ Co-opMaps ready!');
                 this.showNotification('Co-opMaps ready!', 'success');
