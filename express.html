@@ -17,8 +17,12 @@
             color: white;
             padding: 10px;
             border-bottom: 2px solid #c0c0c0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         .header h1 { font-size: 16px; }
+        .header-buttons { display: flex; gap: 5px; }
         .container { display: flex; height: calc(100vh - 50px); }
         .sidebar {
             width: 250px;
@@ -57,6 +61,12 @@
 <body>
     <div class="header">
         <h1>Co-opMaps v0.92 - Express Edition</h1>
+        <div class="header-buttons">
+            <button class="btn" onclick="CoopMaps.showSymbolKey()">Symbol Key</button>
+            <button class="btn" onclick="CoopMaps.showHelp()">Help</button>
+            <button class="btn" onclick="CoopMaps.showAbout()">About</button>
+            <button class="btn" onclick="CoopMaps.exportDiagram()">Export</button>
+        </div>
     </div>
 
     <div class="container">
@@ -158,6 +168,67 @@
                     reader.readAsText(file);
                 };
                 input.click();
+            },
+
+            showSymbolKey() {
+                const symbols = [
+                    'Co-operative: White rectangle',
+                    'NCM: White rounded rectangle',
+                    'Social Enterprise: Yellow pill shape',
+                    'Private Enterprise: Gray oval',
+                    'State Enterprise: Gray diamond',
+                    'Excluded: White rectangle with X'
+                ];
+                alert('SYMBOL KEY\n\n' + symbols.join('\n'));
+            },
+
+            showHelp() {
+                const help =
+                    'CO-OPMAPS EXPRESS HELP\n\n' +
+                    'Adding Enterprises:\n' +
+                    '- Click enterprise buttons in left sidebar\n' +
+                    '- Enterprises appear randomly on canvas\n\n' +
+                    'Relationships:\n' +
+                    '- Click "Add Relationship" button\n' +
+                    '- Click two enterprises to connect\n\n' +
+                    'Saving/Loading:\n' +
+                    '- Save: Downloads JSON file\n' +
+                    '- Load: Upload saved JSON file\n\n' +
+                    'Exporting:\n' +
+                    '- Export button creates PNG image';
+                alert(help);
+            },
+
+            showAbout() {
+                const about =
+                    'CO-OPMAPS v0.92\n' +
+                    'Express Edition\n\n' +
+                    'Cooperative Ecosystem Mapping Tool\n\n' +
+                    'This is the Express version with:\n' +
+                    '- Simple, fast interface\n' +
+                    '- All core features\n' +
+                    '- Compatibility with Deluxe version\n\n' +
+                    'Switch to Deluxe for enhanced UI';
+                alert(about);
+            },
+
+            exportDiagram() {
+                const choice = confirm(
+                    'Export Options:\n\n' +
+                    'OK = Export as PNG image\n' +
+                    'Cancel = Export as JSON data'
+                );
+
+                if (choice) {
+                    // Export as PNG
+                    const link = document.createElement('a');
+                    link.download = 'coopmaps-diagram.png';
+                    link.href = this.canvas.toDataURL('image/png');
+                    link.click();
+                } else {
+                    // Export as JSON
+                    this.saveToFile();
+                }
             }
         };
 
