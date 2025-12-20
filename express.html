@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-opMaps v0.92 Express</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            color: #000;
+        }
+        .header {
+            background: #000080;
+            color: white;
+            padding: 10px;
+            border-bottom: 2px solid #c0c0c0;
+        }
+        .header h1 { font-size: 16px; }
+        .container { display: flex; height: calc(100vh - 50px); }
+        .sidebar {
+            width: 250px;
+            background: #c0c0c0;
+            border-right: 2px solid #808080;
+            overflow-y: auto;
+        }
+        .sidebar-section {
+            border-bottom: 2px solid #808080;
+            padding: 10px;
+        }
+        .sidebar-section h3 { font-size: 14px; margin-bottom: 5px; }
+        .canvas-area {
+            flex: 1;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #canvas { border: 1px solid #000; background: white; }
+        .btn {
+            padding: 5px 10px;
+            border: 2px outset #c0c0c0;
+            background: #c0c0c0;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn:active { border-style: inset; }
+        input[type="text"], select {
+            border: 2px inset #c0c0c0;
+            padding: 3px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Co-opMaps v0.92 - Express Edition</h1>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>Add Enterprise</h3>
+                <button class="btn" onclick="CoopMaps.addEnterprise('cooperative')">Co-operative</button><br><br>
+                <button class="btn" onclick="CoopMaps.addEnterprise('ncm')">NCM</button><br><br>
+                <button class="btn" onclick="CoopMaps.addEnterprise('social')">Social Ent.</button><br><br>
+                <button class="btn" onclick="CoopMaps.addEnterprise('private')">Private Ent.</button><br><br>
+                <button class="btn" onclick="CoopMaps.addEnterprise('state')">State Ent.</button><br><br>
+                <button class="btn" onclick="CoopMaps.addEnterprise('excluded')">Excluded</button>
+            </div>
+            <div class="sidebar-section">
+                <h3>Tools</h3>
+                <button class="btn" onclick="CoopMaps.startRelationship()">Add Relationship</button><br><br>
+                <button class="btn" onclick="CoopMaps.saveToFile()">Save</button><br><br>
+                <button class="btn" onclick="CoopMaps.loadFromFile()">Load</button>
+            </div>
+        </div>
+
+        <div class="canvas-area">
+            <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+    </div>
+
+    <script>
+        window.CoopMaps = {
+            version: '0.92',
+            state: {
+                enterprises: [],
+                relationships: [],
+                nextId: 1
+            },
+
+            init() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.render();
+            },
+
+            addEnterprise(type) {
+                const enterprise = {
+                    id: this.state.nextId++,
+                    type: type,
+                    name: type,
+                    x: 100 + Math.random() * 200,
+                    y: 100 + Math.random() * 200,
+                    width: 100,
+                    height: 60
+                };
+                this.state.enterprises.push(enterprise);
+                this.render();
+            },
+
+            startRelationship() {
+                alert('Click two enterprises to create a relationship');
+                // Simplified - full implementation would track clicks
+            },
+
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw enterprises
+                this.state.enterprises.forEach(ent => {
+                    this.ctx.strokeStyle = '#000';
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.fillRect(ent.x, ent.y, ent.width, ent.height);
+                    this.ctx.strokeRect(ent.x, ent.y, ent.width, ent.height);
+
+                    this.ctx.fillStyle = '#000';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(ent.name, ent.x + ent.width/2, ent.y + ent.height/2);
+                });
+            },
+
+            saveToFile() {
+                const data = JSON.stringify(this.state);
+                const blob = new Blob([data], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'coopmaps-diagram.json';
+                a.click();
+            },
+
+            loadFromFile() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        this.state = JSON.parse(event.target.result);
+                        this.render();
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => CoopMaps.init());
+    </script>
+</body>
+</html>
