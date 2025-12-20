@@ -12,77 +12,95 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            overflow: hidden;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             width: 100%;
+            padding: 20px;
         }
 
         .header {
             text-align: center;
             color: white;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
         }
 
         .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-size: 2.5em;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: -1px;
         }
 
         .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
+            font-size: 1.05em;
+            opacity: 0.95;
+            font-weight: 300;
         }
 
         .version-cards {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 25px;
+            margin-bottom: 20px;
         }
 
         .version-card {
             background: white;
-            border-radius: 15px;
-            padding: 40px 30px;
+            border-radius: 16px;
+            padding: 35px 30px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
             overflow: hidden;
         }
 
+        .version-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            transition: height 0.3s;
+        }
+
+        .version-card.express::before {
+            background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%);
+        }
+
+        .version-card.deluxe::before {
+            background: linear-gradient(90deg, #2196F3 0%, #42A5F5 100%);
+        }
+
         .version-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
 
-        .version-card.express {
-            border-top: 5px solid #4CAF50;
-        }
-
-        .version-card.deluxe {
-            border-top: 5px solid #2196F3;
+        .version-card:hover::before {
+            height: 6px;
         }
 
         .version-card .badge {
             position: absolute;
             top: 15px;
             right: 15px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             color: white;
         }
 
@@ -94,27 +112,29 @@
             background: #2196F3;
         }
 
-        .icon {
-            font-size: 4em;
-            margin-bottom: 20px;
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
         }
 
         .version-card h2 {
-            font-size: 2em;
-            margin-bottom: 15px;
-            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            font-weight: 700;
         }
 
         .version-card .tagline {
-            font-size: 1.1em;
+            font-size: 0.95em;
             color: #666;
-            margin-bottom: 20px;
-            font-style: italic;
+            margin-bottom: 18px;
+            font-weight: 400;
         }
 
         .features {
             text-align: left;
-            margin: 25px 0;
+            margin: 20px 0;
         }
 
         .features ul {
@@ -122,18 +142,24 @@
         }
 
         .features li {
-            padding: 8px 0;
-            color: #555;
+            padding: 6px 0;
+            color: #444;
+            font-size: 0.9em;
             position: relative;
-            padding-left: 25px;
+            padding-left: 22px;
+            line-height: 1.4;
         }
 
         .features li:before {
             content: "✓";
             position: absolute;
             left: 0;
-            color: #4CAF50;
             font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .express .features li:before {
+            color: #4CAF50;
         }
 
         .deluxe .features li:before {
@@ -141,40 +167,65 @@
         }
 
         .select-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 100%;
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.1em;
-            border-radius: 30px;
+            padding: 14px 30px;
+            font-size: 1em;
+            border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.2s;
-            font-weight: bold;
-            margin-top: 20px;
+            transition: all 0.2s;
+            font-weight: 600;
+            margin-top: 15px;
+            letter-spacing: 0.3px;
         }
 
         .select-button:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
         .express .select-button {
-            background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%);
+            background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
         }
 
         .deluxe .select-button {
-            background: linear-gradient(135deg, #42A5F5 0%, #1E88E5 100%);
+            background: linear-gradient(135deg, #42A5F5 0%, #2196F3 100%);
         }
 
         .footer {
             text-align: center;
             color: white;
-            margin-top: 30px;
-            opacity: 0.8;
+            margin-top: 20px;
+            font-size: 0.85em;
+            opacity: 0.9;
         }
 
-        .footer a {
+        .preference-bar {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preference-bar label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
             color: white;
-            text-decoration: underline;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .preference-bar input[type="checkbox"] {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
         }
 
         /* Responsive */
@@ -182,147 +233,107 @@
             .version-cards {
                 grid-template-columns: 1fr;
             }
-
             .header h1 {
                 font-size: 2em;
             }
-
-            .version-card h2 {
-                font-size: 1.5em;
-            }
-        }
-
-        .preferences {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .preferences h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .preference-option {
-            margin: 10px 0;
-        }
-
-        .preference-option label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            color: #555;
-        }
-
-        .preference-option input[type="checkbox"] {
-            margin-right: 10px;
-            width: 18px;
-            height: 18px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🗺️ Co-opMaps</h1>
-            <p>Collaborative Cooperative Ecosystem Mapping</p>
+            <h1>Co-opMaps</h1>
+            <p>Cooperative Ecosystem Mapping Tool</p>
         </div>
 
-        <!-- User preferences -->
-        <div class="preferences">
-            <h3>⚙️ Preferences</h3>
-            <div class="preference-option">
-                <label>
-                    <input type="checkbox" id="remember-choice">
-                    Remember my choice for next time
-                </label>
-            </div>
+        <div class="preference-bar">
+            <label>
+                <input type="checkbox" id="remember-choice">
+                Remember my choice
+            </label>
         </div>
 
-        <!-- Version selection cards -->
         <div class="version-cards">
             <!-- Express Version -->
             <div class="version-card express" onclick="selectVersion('express')">
                 <div class="badge">FAST</div>
-                <div class="icon">⚡</div>
+                <div class="icon-wrapper">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="#E8F5E9"/>
+                        <path d="M50 20L65 40H35L50 20Z" fill="#4CAF50"/>
+                        <path d="M35 45H65V75H35V45Z" fill="#66BB6A"/>
+                        <rect x="42" y="52" width="6" height="8" fill="#E8F5E9"/>
+                        <rect x="52" y="52" width="6" height="8" fill="#E8F5E9"/>
+                        <rect x="42" y="63" width="6" height="8" fill="#E8F5E9"/>
+                        <rect x="52" y="63" width="6" height="8" fill="#E8F5E9"/>
+                        <path d="M30 75L50 80L70 75" stroke="#4CAF50" stroke-width="2"/>
+                    </svg>
+                </div>
                 <h2>Express</h2>
-                <p class="tagline">Classic UI, All Features</p>
+                <p class="tagline">Simple & Fast</p>
                 <div class="features">
                     <ul>
-                        <li><strong>All features included!</strong></li>
-                        <li>Classic simple UI style</li>
-                        <li>Works on older computers</li>
-                        <li>Compatible with older browsers</li>
-                        <li>Fast load times</li>
-                        <li>No animations or graphics</li>
+                        <li>Classic interface</li>
+                        <li>Fast loading</li>
+                        <li>Older browser support</li>
+                        <li>No animations</li>
                     </ul>
                 </div>
-                <p style="color: #888; font-size: 0.9em; margin-top: 15px;">
-                    <strong>Best for:</strong> Older systems, slower connections, simple preference
-                </p>
                 <button class="select-button">Choose Express</button>
             </div>
 
             <!-- Deluxe Version -->
             <div class="version-card deluxe" onclick="selectVersion('deluxe')">
                 <div class="badge">FULL</div>
-                <div class="icon">✨</div>
+                <div class="icon-wrapper">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="#E3F2FD"/>
+                        <path d="M50 15L35 30L50 45L65 30L50 15Z" fill="#42A5F5"/>
+                        <path d="M30 35L20 50L30 65L40 50L30 35Z" fill="#64B5F6"/>
+                        <path d="M70 35L60 50L70 65L80 50L70 35Z" fill="#64B5F6"/>
+                        <path d="M50 55L35 70L50 85L65 70L50 55Z" fill="#2196F3"/>
+                        <circle cx="50" cy="50" r="8" fill="#1E88E5"/>
+                        <path d="M50 25L50 35M50 65L50 75M25 50L35 50M65 50L75 50" stroke="#1976D2" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
                 <h2>Deluxe</h2>
-                <p class="tagline">Modern UI, All Features</p>
+                <p class="tagline">Full Experience</p>
                 <div class="features">
                     <ul>
-                        <li><strong>All features included!</strong></li>
-                        <li>Modern web app style UI</li>
-                        <li>Sleek animations and transitions</li>
-                        <li>Canvas previews and graphics</li>
-                        <li>Beautiful visual design</li>
-                        <li>Tabbed interface</li>
-                        <li>Enhanced user experience</li>
+                        <li>Modern tabbed interface</li>
+                        <li>Visual previews</li>
+                        <li>Drag & drop</li>
+                        <li>Smooth animations</li>
                     </ul>
                 </div>
-                <p style="color: #888; font-size: 0.9em; margin-top: 15px;">
-                    <strong>Best for:</strong> Modern systems, modern browsers, full visual experience
-                </p>
                 <button class="select-button">Choose Deluxe</button>
             </div>
         </div>
 
         <div class="footer">
-            <p>
-                Maps created in either version are compatible with both.
-                <br>
-                You can switch versions anytime.
-            </p>
+            Maps are compatible between versions • Switch anytime
         </div>
     </div>
 
     <script>
-        // Check for saved preference
         (function() {
             try {
                 var savedVersion = localStorage.getItem('coopmaps_version');
                 var rememberChoice = localStorage.getItem('coopmaps_remember') === 'true';
 
                 if (savedVersion && rememberChoice) {
-                    // Auto-redirect if user wants their choice remembered
                     selectVersion(savedVersion, true);
                 }
 
-                // Restore checkbox state
                 if (rememberChoice) {
                     document.getElementById('remember-choice').checked = true;
                 }
-            } catch (e) {
-                // localStorage not available
-            }
+            } catch (e) {}
         })();
 
         function selectVersion(version, skipDelay) {
             var rememberChoice = document.getElementById('remember-choice').checked;
 
-            // Save preferences
             try {
                 if (rememberChoice) {
                     localStorage.setItem('coopmaps_version', version);
@@ -331,23 +342,18 @@
                     localStorage.removeItem('coopmaps_version');
                     localStorage.setItem('coopmaps_remember', 'false');
                 }
-            } catch (e) {
-                // localStorage not available
-            }
+            } catch (e) {}
 
-            // Redirect to appropriate version
             var url = version === 'express' ? 'express.html' : 'deluxe.html';
 
             if (skipDelay) {
                 window.location.href = url;
             } else {
-                // Show loading state
                 var cards = document.querySelectorAll('.version-card');
                 for (var i = 0; i < cards.length; i++) {
                     cards[i].style.opacity = '0.5';
                     cards[i].style.pointerEvents = 'none';
                 }
-
                 setTimeout(function() {
                     window.location.href = url;
                 }, 300);
