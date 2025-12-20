@@ -601,17 +601,24 @@
             CoopMaps.state.data.enterprises.push(enterprise);
             CoopMaps.state.data.selectedItem = enterprise;
 
-            // Animate the addition
-            this.animateEnterpriseAddition(enterprise);
+            // Render immediately without animation
+            if (CoopMaps.modules.canvas) {
+                CoopMaps.modules.canvas.render();
+            }
 
-            // Show properties after a short delay
-            setTimeout(() => {
-                CoopMaps.state.ui.activeTab = 'properties';
-                const propertiesTab = document.querySelector('[data-tab="properties"]');
-                if (propertiesTab) {
-                    propertiesTab.click();
-                }
-            }, 300);
+            // Update properties panel immediately (no delay for Express compatibility)
+            if (CoopMaps.updateSidebar) {
+                CoopMaps.updateSidebar();
+            } else {
+                // Fallback for Deluxe version - show properties tab
+                setTimeout(() => {
+                    CoopMaps.state.ui.activeTab = 'properties';
+                    const propertiesTab = document.querySelector('[data-tab="properties"]');
+                    if (propertiesTab) {
+                        propertiesTab.click();
+                    }
+                }, 50);
+            }
         },
 
         // Get enterprise statistics for dashboard
