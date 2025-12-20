@@ -219,7 +219,7 @@
                 <button onclick="CoopMaps.modules.canvas.autoLayout()">Auto Layout</button>
                 <button id="orthoBtn" onclick="CoopMaps.toggleOrtho()">Ortho</button>
                 <div class="separator"></div>
-                <button id="relBtn" onclick="CoopMaps.modules.relationships.toggleRelationshipMode()">Relationship</button>
+                <button id="relationshipModeBtn" onclick="CoopMaps.modules.relationships.toggleRelationshipMode()">Relationship</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas.zoomIn()">Zoom+</button>
                 <button onclick="CoopMaps.modules.canvas.zoomOut()">Zoom-</button>
@@ -390,6 +390,17 @@
                 });
             },
 
+            updateSidebar() {
+                const propertiesPanel = document.getElementById('propertiesPanel');
+                if (!propertiesPanel) return;
+
+                if (this.state.data.selectedItem && this.modules.properties) {
+                    propertiesPanel.innerHTML = this.modules.properties.render();
+                } else {
+                    propertiesPanel.innerHTML = '<p style="font-size: 11px; color: #7f8c8d;">Select an item to edit properties</p>';
+                }
+            },
+
             init() {
                 console.log('Co-opMaps Express v' + this.version + ' initializing...');
 
@@ -437,6 +448,13 @@
         // Listen for diagram changes
         document.addEventListener('diagram-changed', function() {
             if (CoopMaps.modules.persistence) CoopMaps.modules.persistence.autoSave();
+            CoopMaps.updateSidebar();
+
+            // Update zoom display
+            const zoomText = document.getElementById('zoomText');
+            if (zoomText) {
+                zoomText.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
+            }
         });
     </script>
 

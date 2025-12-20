@@ -205,8 +205,8 @@
                     e.stopPropagation();
 
                     // Place the selected symbol at click location
-                    if (CoopMaps.modules.enterprises && CoopMaps.modules.enterprises.addEnterprise) {
-                        CoopMaps.modules.enterprises.addEnterprise(CoopMaps.selectedSymbolType, x, y);
+                    if (CoopMaps.modules.enterprises && CoopMaps.modules.enterprises.addEnterpriseAt) {
+                        CoopMaps.modules.enterprises.addEnterpriseAt(CoopMaps.selectedSymbolType, x, y);
                     }
 
                     // Clear selection
