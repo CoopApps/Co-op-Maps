@@ -67,10 +67,31 @@
                 select.value = size;
             }
 
-            // Re-center canvas
+            // Calculate zoom to fit entire page on screen
             const container = document.querySelector('.canvas-container');
             if (container) {
                 const containerRect = container.getBoundingClientRect();
+
+                // Add padding so canvas doesn't touch edges
+                const padding = 40;
+                const availableWidth = containerRect.width - (padding * 2);
+                const availableHeight = containerRect.height - (padding * 2);
+
+                // Calculate zoom needed to fit
+                const zoomX = availableWidth / canvasSize.width;
+                const zoomY = availableHeight / canvasSize.height;
+                const fitZoom = Math.min(zoomX, zoomY, 1); // Don't zoom in beyond 100%
+
+                // Set the zoom
+                CoopMaps.state.ui.zoom = Math.max(0.1, fitZoom); // Minimum 10% zoom
+
+                // Update zoom display if it exists
+                const zoomDisplay = document.getElementById('zoomLevel');
+                if (zoomDisplay) {
+                    zoomDisplay.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
+                }
+
+                // Re-center canvas
                 this.canvas.style.left = Math.max(0, (containerRect.width - this.canvas.width) / 2) + 'px';
                 this.canvas.style.top = Math.max(0, (containerRect.height - this.canvas.height) / 2) + 'px';
             }
@@ -508,8 +529,8 @@
             const gridSize = 20;
             const majorGridSize = 100;
 
-            // Minor grid lines
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.03)';
+            // Minor grid lines - increased opacity for better visibility
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
             this.ctx.lineWidth = 0.5;
 
             for (let x = 0; x < this.canvas.width; x += gridSize) {
@@ -530,8 +551,8 @@
                 }
             }
 
-            // Major grid lines
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
+            // Major grid lines - increased opacity for better visibility
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
             this.ctx.lineWidth = 1;
 
             for (let x = 0; x < this.canvas.width; x += majorGridSize) {
