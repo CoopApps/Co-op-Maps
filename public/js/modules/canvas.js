@@ -20,8 +20,10 @@
         isExporting: false, // Flag to disable grid during export
         canvasSizes: {
             // Landscape orientations at 96 DPI
-            'A4': { width: 1123, height: 794 }, // 297mm x 210mm landscape
-            'A3': { width: 1587, height: 1123 }  // 420mm x 297mm landscape
+            'A4': { width: 1123, height: 794 },   // 297mm x 210mm landscape
+            'A3': { width: 1587, height: 1123 },  // 420mm x 297mm landscape
+            'A2': { width: 2245, height: 1587 },  // 594mm x 420mm landscape
+            'A1': { width: 3179, height: 2245 }   // 841mm x 594mm landscape
         },
         currentCanvasSize: 'A4', // Track current size
 
@@ -59,8 +61,8 @@
             this.currentCanvasSize = size;
             CoopMaps.state.ui.canvasSize = size;
 
-            // Update select dropdown if it exists
-            const select = document.getElementById('canvasSizeSelect');
+            // Update select dropdown if it exists (both express and deluxe versions)
+            const select = document.getElementById('canvasSizeSelect') || document.getElementById('canvasSizeSelector');
             if (select && select.value !== size) {
                 select.value = size;
             }
@@ -74,6 +76,12 @@
             }
 
             this.render();
+        },
+
+        updateCanvasSize() {
+            // Read size from state and update canvas
+            const size = CoopMaps.state.data.diagramProperties?.canvasSize || 'A4';
+            this.setCanvasSize(size);
         },
 
         setupDragAndDrop() {
