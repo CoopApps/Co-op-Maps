@@ -523,8 +523,21 @@
             // Success notification
             CoopMaps.showNotification(`Relationship created: ${startEnt.name} → ${endEnt.name}`, 'success');
 
-            // Exit relationship mode
-            this.cancelRelationshipCreation();
+            // Reset selection state but KEEP relationship mode active
+            this.startEnterprise = null;
+            this.previewX = 0;
+            this.previewY = 0;
+
+            // Update indicator to show we're ready for the next relationship
+            const indicator = document.getElementById('relationshipModeIndicator');
+            if (indicator) {
+                indicator.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 18px;">🔗</span>
+                        <span>Relationship Mode Active - Click two enterprises to connect (ESC to exit mode)</span>
+                    </div>
+                `;
+            }
 
             // Trigger canvas update
             document.dispatchEvent(new CustomEvent('diagram-changed'));
