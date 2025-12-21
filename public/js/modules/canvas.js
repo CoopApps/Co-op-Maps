@@ -1347,10 +1347,10 @@
                 maxMovement = Math.max(maxMovement, movement);
             });
 
-            // Animate both position and zoom changes
+            // Animate both position and zoom changes (skip animation in Express mode)
             const needsZoomChange = Math.abs(targetZoom - originalZoom) > 0.01;
 
-            if (maxMovement > 10 || needsZoomChange) {
+            if ((maxMovement > 10 || needsZoomChange) && !CoopMaps.isExpressMode) {
                 const duration = 800; // Slightly longer for zoom animation
                 const startTime = Date.now();
 
@@ -1390,12 +1390,22 @@
 
                 animate();
             } else {
+                // Instant update (no animation) - for Express mode or small movements
                 enterprises.forEach((enterprise, index) => {
                     enterprise.x = finalPositions[index].x;
                     enterprise.y = finalPositions[index].y;
                 });
+                if (needsZoomChange) {
+                    CoopMaps.state.ui.zoom = targetZoom;
+                    // Update zoom display if it exists
+                    const zoomBtn = document.getElementById('zoomResetBtn');
+                    if (zoomBtn) {
+                        const zoomPercent = Math.round(CoopMaps.state.ui.zoom * 100);
+                        zoomBtn.textContent = `${zoomPercent}%`;
+                    }
+                }
                 this.render();
-                CoopMaps.showNotification('Layout is already optimized', 'info');
+                CoopMaps.showNotification(CoopMaps.isExpressMode ? 'Layout applied' : 'Layout is already optimized', 'success');
             }
         },
 

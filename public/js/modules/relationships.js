@@ -534,6 +534,9 @@
         },
 
         updatePreview(x, y) {
+            // Skip preview in Express mode
+            if (CoopMaps.isExpressMode) return;
+
             if (this.relationshipCreationActive && this.startEnterprise) {
                 this.previewX = x;
                 this.previewY = y;
@@ -544,6 +547,9 @@
         },
 
         drawCreationPreview(ctx) {
+            // Skip preview in Express mode
+            if (CoopMaps.isExpressMode) return;
+
             if (!this.startEnterprise || !this.relationshipCreationActive) return;
 
             const startX = this.startEnterprise.x + this.startEnterprise.width / 2;
