@@ -68,7 +68,7 @@
             }
 
             // Calculate zoom to fit entire page on screen
-            const container = document.querySelector('.canvas-container');
+            const container = document.querySelector('.canvas-area');
             if (container) {
                 const containerRect = container.getBoundingClientRect();
 
@@ -91,9 +91,8 @@
                     zoomDisplay.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
                 }
 
-                // Re-center canvas
-                this.canvas.style.left = Math.max(0, (containerRect.width - this.canvas.width) / 2) + 'px';
-                this.canvas.style.top = Math.max(0, (containerRect.height - this.canvas.height) / 2) + 'px';
+                // Re-center canvas (removed absolute positioning - not needed with flexbox)
+                // Canvas is centered by flexbox in .canvas-area
             }
 
             this.render();
