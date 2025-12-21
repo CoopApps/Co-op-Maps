@@ -18,6 +18,10 @@
         clickStartY: 0,
         potentialSelection: null,
         isExporting: false, // Flag to disable grid during export
+        isPanning: false,
+        panStart: { x: 0, y: 0 },
+        panOffset: { x: 0, y: 0 },
+        minZoom: 0.1, // Dynamic minimum zoom (zoom-to-fit)
         canvasSizes: {
             // Landscape orientations at 96 DPI
             'A4': { width: 1123, height: 794 },   // 297mm x 210mm landscape
@@ -82,8 +86,12 @@
                 const zoomY = availableHeight / canvasSize.height;
                 const fitZoom = Math.min(zoomX, zoomY, 1); // Don't zoom in beyond 100%
 
-                // Set the zoom
-                CoopMaps.state.ui.zoom = Math.max(0.1, fitZoom); // Minimum 10% zoom
+                // Store minimum zoom and set zoom to fit
+                this.minZoom = Math.max(0.05, fitZoom); // Absolute minimum 5%
+                CoopMaps.state.ui.zoom = this.minZoom;
+
+                // Reset pan offset when changing size
+                this.panOffset = { x: 0, y: 0 };
 
                 // Update zoom display if it exists
                 const zoomDisplay = document.getElementById('zoomLevel');
@@ -279,6 +287,11 @@
                     if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.relationshipCreationActive) {
                         CoopMaps.modules.relationships.startEnterprise = null;
                         self.render();
+                    } else {
+                        // Start panning if clicking on empty space
+                        self.isPanning = true;
+                        self.panStart = { x: e.clientX, y: e.clientY };
+                        self.canvas.style.cursor = 'grab';
                     }
                 }
             });
@@ -337,6 +350,18 @@
                         self.canvas.style.cursor = 'move';
                         console.log('Started dragging');
                     }
+                }
+
+                // Handle panning
+                if (self.isPanning) {
+                    const dx = e.clientX - self.panStart.x;
+                    const dy = e.clientY - self.panStart.y;
+                    self.panOffset.x += dx;
+                    self.panOffset.y += dy;
+                    self.panStart = { x: e.clientX, y: e.clientY };
+                    self.canvas.style.cursor = 'grabbing';
+                    self.render();
+                    return;
                 }
 
                 if (self.isDragging && self.draggedItem) {
@@ -410,6 +435,7 @@
                 self.draggedItem = null;
                 self.potentialSelection = null;
                 self.mouseDownTime = 0;
+                self.isPanning = false;
                 self.canvas.style.cursor = 'default';
             });
 
@@ -417,6 +443,7 @@
                 self.isDragging = false;
                 self.draggedItem = null;
                 self.mouseDownTime = 0;
+                self.isPanning = false;
                 self.canvas.style.cursor = 'default';
             });
 
@@ -484,8 +511,9 @@
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             }
 
-            // Apply zoom
+            // Apply zoom and pan
             this.ctx.save();
+            this.ctx.translate(this.panOffset.x / CoopMaps.state.ui.zoom, this.panOffset.y / CoopMaps.state.ui.zoom);
             this.ctx.scale(CoopMaps.state.ui.zoom, CoopMaps.state.ui.zoom);
 
             // Draw grid only if not exporting and grid is enabled
@@ -883,7 +911,8 @@
         smoothZoom(factor, mouseX, mouseY) {
             const targetZoom = CoopMaps.state.ui.zoom * factor;
 
-            if (targetZoom >= 0.1 && targetZoom <= 5) {
+            // Use dynamic minZoom (zoom-to-fit) instead of hardcoded 0.1
+            if (targetZoom >= this.minZoom && targetZoom <= 5) {
                 // Animate zoom
                 const startZoom = CoopMaps.state.ui.zoom;
                 const duration = 200;
