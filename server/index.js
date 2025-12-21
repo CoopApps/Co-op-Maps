@@ -11,6 +11,7 @@ const logger = require('./utils/logger');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { connectDB } = require('./db/connection');
 const { connectRedis } = require('./db/redis');
+const { autoMigrate } = require('./db/auto-migrate');
 const { initializeSocketHandlers } = require('./sockets/index');
 
 // Import routes
@@ -90,6 +91,9 @@ async function startServer() {
         // Connect to database
         await connectDB();
         logger.info('Database connected successfully');
+
+        // Run auto-migration if needed
+        await autoMigrate();
 
         // Connect to Redis
         await connectRedis();
