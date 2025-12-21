@@ -116,7 +116,7 @@
         handleCanvasClick(x, y) {
             if (!this.relationshipCreationActive) return false;
 
-            const enterprise = CoopMaps.modules.canvas.getEnterpriseAt(x, y);
+            const enterprise = CoopMaps.modules.canvas.getItemAtPosition(x, y);
             if (!enterprise) return false;
 
             if (!this.startEnterprise) {
