@@ -41,12 +41,7 @@ CREATE TABLE community_maps (
     edit_count INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    search_vector tsvector GENERATED ALWAYS AS (
-        setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
-        setweight(to_tsvector('english', coalesce(author, '')), 'B') ||
-        setweight(to_tsvector('english', coalesce(description, '')), 'C') ||
-        setweight(to_tsvector('english', array_to_string(coalesce(tags, ARRAY[]::TEXT[]), ' ')), 'D')
-    ) STORED
+    search_vector tsvector
 );
 
 -- Moderation history table
@@ -86,7 +81,23 @@ CREATE INDEX idx_moderation_history_map_id ON moderation_history(map_id, created
 CREATE INDEX idx_email_queue_status ON email_queue(status, created_at DESC);
 CREATE INDEX idx_email_queue_map_id ON email_queue(map_id);
 
--- Create trigger
+-- Function to update search vector
+CREATE OR REPLACE FUNCTION update_community_maps_search_vector()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.search_vector :=
+        setweight(to_tsvector('english', coalesce(NEW.title, '')), 'A') ||
+        setweight(to_tsvector('english', coalesce(NEW.author, '')), 'B') ||
+        setweight(to_tsvector('english', coalesce(NEW.description, '')), 'C') ||
+        setweight(to_tsvector('english', array_to_string(coalesce(NEW.tags, ARRAY[]::TEXT[]), ' ')), 'D');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create triggers
+CREATE TRIGGER update_community_maps_search_vector BEFORE INSERT OR UPDATE ON community_maps
+    FOR EACH ROW EXECUTE FUNCTION update_community_maps_search_vector();
+
 CREATE TRIGGER update_community_maps_updated_at BEFORE UPDATE ON community_maps
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
