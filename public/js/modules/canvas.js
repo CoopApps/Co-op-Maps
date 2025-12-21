@@ -225,8 +225,8 @@
 
                     self.potentialSelection = clickedItem;
 
-                    if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.isRelationshipMode) {
-                        CoopMaps.modules.relationships.handleEnterpriseClick(clickedItem);
+                    if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.relationshipCreationActive) {
+                        CoopMaps.modules.relationships.handleCanvasClick(x, y);
                         self.render();
                         return;
                     } else {
@@ -248,9 +248,8 @@
                     CoopMaps.state.data.selectedItem = null;
                     CoopMaps.updateSidebar();
 
-                    if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.isRelationshipMode) {
-                        CoopMaps.modules.relationships.relationshipStart = null;
-                        CoopMaps.modules.relationships.highlightedEnterprise = null;
+                    if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.relationshipCreationActive) {
+                        CoopMaps.modules.relationships.startEnterprise = null;
                         self.render();
                     }
                 }
@@ -259,18 +258,20 @@
             this.canvas.addEventListener('contextmenu', (e) => {
                 e.preventDefault(); // Prevent default browser context menu
 
+                // Calculate canvas coordinates
+                const rect = self.canvas.getBoundingClientRect();
+                const scale = CoopMaps.state.ui.zoom;
+                const x = (e.clientX - rect.left) / scale;
+                const y = (e.clientY - rect.top) / scale;
+
                 // Check if relationships module handles it
                 if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.handleCanvasRightClick) {
-                    if (CoopMaps.modules.relationships.handleCanvasRightClick(e)) {
+                    if (CoopMaps.modules.relationships.handleCanvasRightClick(x, y)) {
                         return; // Relationship handled it
                     }
                 }
 
                 // Handle right-click for enterprises
-                const rect = self.canvas.getBoundingClientRect();
-                const scale = CoopMaps.state.ui.zoom;
-                const x = (e.clientX - rect.left) / scale;
-                const y = (e.clientY - rect.top) / scale;
 
                 const clickedItem = self.getItemAtPosition(x, y);
 
@@ -319,7 +320,11 @@
                     // Check if Express mode symbol is selected
                     if (CoopMaps.selectedSymbolType) {
                         self.canvas.style.cursor = 'crosshair';
-                    } else if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.isRelationshipMode) {
+                    } else if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.relationshipCreationActive) {
+                        // Update relationship preview
+                        if (CoopMaps.modules.relationships.updatePreview) {
+                            CoopMaps.modules.relationships.updatePreview(x, y);
+                        }
                         self.canvas.style.cursor = hoverItem ? 'crosshair' : 'default';
                     } else if (hoverItem) {
                         self.canvas.style.cursor = 'pointer';
@@ -464,16 +469,19 @@
             this.drawDiagramTitle();
 
             // Draw relationships with better visuals
-            CoopMaps.state.data.relationships.forEach(rel => {
-                if (CoopMaps.modules.relationships) {
-                    CoopMaps.modules.relationships.drawRelationship(this.ctx, rel);
-                }
-            });
+            if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.drawRelationships) {
+                CoopMaps.modules.relationships.drawRelationships(this.ctx);
+            }
 
             // Draw enterprises with enhanced visuals
             CoopMaps.state.data.enterprises.forEach(enterprise => {
                 this.drawEnterprise(enterprise);
             });
+
+            // Draw relationship creation preview
+            if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.drawCreationPreview) {
+                CoopMaps.modules.relationships.drawCreationPreview(this.ctx);
+            }
 
             // Draw selection highlight
             if (CoopMaps.state.data.selectedItem && !this.isExporting) {
