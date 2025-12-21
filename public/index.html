@@ -87,8 +87,24 @@
         }
 
         .option-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .option-icon.express {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .option-icon.deluxe {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
 
         .option-title {
@@ -183,19 +199,34 @@
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .community-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
+
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            background: #667eea;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🗺️ Co-opMaps</h1>
+            <h1>Co-opMaps</h1>
             <p>Cooperative Ecosystem Mapping Tool</p>
         </div>
 
@@ -203,13 +234,13 @@
             <h2 class="section-title">Create New Map</h2>
             <div class="options">
                 <a href="./express.html" class="option-card">
-                    <div class="option-icon">⚡</div>
+                    <div class="option-icon express">EX</div>
                     <div class="option-title">Express Mode</div>
                     <div class="option-description">Quick and simple mapping with essential features</div>
                 </a>
 
                 <a href="./deluxe.html" class="option-card">
-                    <div class="option-icon">💎</div>
+                    <div class="option-icon deluxe">DX</div>
                     <div class="option-title">Deluxe Mode</div>
                     <div class="option-description">Full-featured mapper with advanced customization</div>
                 </a>
@@ -223,12 +254,21 @@
             </div>
 
             <div class="community-section">
-                <h3>🌍 Community Maps</h3>
+                <h3>Community Maps</h3>
                 <p style="margin-bottom: 20px;">Explore maps shared by the cooperative community or share your own!</p>
                 <div class="community-buttons">
-                    <a href="./browse.html" class="community-btn">📚 Browse Maps</a>
-                    <a href="./deluxe.html" class="community-btn">📤 Submit Map</a>
-                    <a href="./admin.html" class="community-btn">🔐 Admin Panel</a>
+                    <a href="./browse.html" class="community-btn">
+                        <span class="btn-icon">B</span>
+                        Browse Maps
+                    </a>
+                    <a href="./deluxe.html" class="community-btn">
+                        <span class="btn-icon">S</span>
+                        Submit Map
+                    </a>
+                    <a href="./admin.html" class="community-btn">
+                        <span class="btn-icon">A</span>
+                        Admin Panel
+                    </a>
                 </div>
             </div>
         </div>
