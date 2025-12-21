@@ -1079,11 +1079,23 @@
                   }
                 : path[midIndex];
 
+            // Calculate the angle of the line at the midpoint for proper badge positioning
+            const segmentStart = path.length % 2 === 0 ? path[midIndex - 1] : (midIndex > 0 ? path[midIndex - 1] : path[midIndex]);
+            const segmentEnd = path.length % 2 === 0 ? path[midIndex] : (midIndex < path.length - 1 ? path[midIndex + 1] : path[midIndex]);
+
+            const dx = segmentEnd.x - segmentStart.x;
+            const dy = segmentEnd.y - segmentStart.y;
+            const angle = Math.atan2(dy, dx);
+
+            // Calculate perpendicular direction for spacing multiple badges
+            const perpAngle = angle + Math.PI / 2;
+            const perpX = Math.cos(perpAngle);
+            const perpY = Math.sin(perpAngle);
+
             // Draw badges for each relationship
             const badgeSize = 24;
             const badgeSpacing = 28;
-            const totalWidth = relationships.length * badgeSpacing - 4;
-            let startX = midPoint.x - totalWidth / 2;
+            const totalOffset = (relationships.length - 1) * badgeSpacing / 2;
 
             ctx.save();
             ctx.font = 'bold 12px Arial';
@@ -1094,8 +1106,10 @@
                 const type = this.relationshipTypes[rel.type];
                 if (!type) return;
 
-                const badgeX = startX + index * badgeSpacing;
-                const badgeY = midPoint.y;
+                // Position badges perpendicular to the line, centered
+                const offset = (index * badgeSpacing) - totalOffset;
+                const badgeX = midPoint.x + perpX * offset;
+                const badgeY = midPoint.y + perpY * offset;
 
                 // Badge background
                 ctx.fillStyle = 'white';
