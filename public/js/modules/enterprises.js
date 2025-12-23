@@ -554,6 +554,12 @@
         animateEnterpriseAddition(enterprise) {
             if (!CoopMaps.modules.canvas) return;
 
+            // Skip animation in Express mode
+            if (CoopMaps.isExpressMode) {
+                CoopMaps.modules.canvas.render();
+                return;
+            }
+
             // Store original size
             const originalWidth = enterprise.width;
             const originalHeight = enterprise.height;

@@ -205,6 +205,12 @@
         },
 
         animateEnterpriseDrop(enterpriseType, x, y) {
+            // Skip animation in Express mode
+            if (CoopMaps.isExpressMode) {
+                CoopMaps.modules.enterprises.addEnterpriseAt(enterpriseType, x, y);
+                return;
+            }
+
             // Smooth drop animation
             const startY = y - 50;
             const endY = y;
@@ -1085,15 +1091,27 @@
 
             // Use dynamic minZoom (zoom-to-fit) instead of hardcoded 0.1
             if (targetZoom >= this.minZoom && targetZoom <= 5) {
+                const canvasSize = this.canvasSizes[this.currentCanvasSize];
+
+                // Reset pan offset when zooming to keep canvas centered
+                this.panOffset = { x: 0, y: 0 };
+
+                // Skip animation in Express mode
+                if (CoopMaps.isExpressMode) {
+                    CoopMaps.state.ui.zoom = targetZoom;
+                    this.canvas.style.width = (canvasSize.width * targetZoom) + 'px';
+                    this.canvas.style.height = (canvasSize.height * targetZoom) + 'px';
+                    const zoomDisplay = document.getElementById('zoomLevel');
+                    if (zoomDisplay) zoomDisplay.textContent = Math.round(targetZoom * 100) + '%';
+                    this.render();
+                    return;
+                }
+
                 // Animate zoom
                 const startZoom = CoopMaps.state.ui.zoom;
                 const duration = 200;
                 const startTime = Date.now();
                 const self = this;
-                const canvasSize = this.canvasSizes[this.currentCanvasSize];
-
-                // Reset pan offset when zooming to keep canvas centered
-                this.panOffset = { x: 0, y: 0 };
 
                 const animate = () => {
                     const elapsed = Date.now() - startTime;
@@ -1189,15 +1207,27 @@
 
         zoomReset() {
             // Reset to fit zoom (minZoom) instead of 100%
-            const startZoom = CoopMaps.state.ui.zoom;
             const targetZoom = this.minZoom;
-            const duration = 300;
-            const startTime = Date.now();
-            const self = this;
             const canvasSize = this.canvasSizes[this.currentCanvasSize];
 
             // Reset pan offset
             this.panOffset = { x: 0, y: 0 };
+
+            // Skip animation in Express mode
+            if (CoopMaps.isExpressMode) {
+                CoopMaps.state.ui.zoom = targetZoom;
+                this.canvas.style.width = (canvasSize.width * targetZoom) + 'px';
+                this.canvas.style.height = (canvasSize.height * targetZoom) + 'px';
+                const zoomDisplay = document.getElementById('zoomLevel');
+                if (zoomDisplay) zoomDisplay.textContent = Math.round(targetZoom * 100) + '%';
+                this.render();
+                return;
+            }
+
+            const startZoom = CoopMaps.state.ui.zoom;
+            const duration = 300;
+            const startTime = Date.now();
+            const self = this;
 
             const animate = () => {
                 const elapsed = Date.now() - startTime;
@@ -1266,12 +1296,6 @@
             const zoomY = containerRect.height / contentHeight;
             const targetZoom = Math.min(zoomX, zoomY, 2); // Max 200%
 
-            // Animate zoom
-            const startZoom = CoopMaps.state.ui.zoom;
-            const duration = 300;
-            const startTime = Date.now();
-            const self = this;
-
             // Calculate pan to center content
             const contentCenterX = (minX + maxX) / 2;
             const contentCenterY = (minY + maxY) / 2;
@@ -1280,6 +1304,26 @@
 
             const targetPanX = (canvasCenterX - contentCenterX) * targetZoom;
             const targetPanY = (canvasCenterY - contentCenterY) * targetZoom;
+
+            // Skip animation in Express mode
+            if (CoopMaps.isExpressMode) {
+                CoopMaps.state.ui.zoom = targetZoom;
+                this.panOffset.x = targetPanX;
+                this.panOffset.y = targetPanY;
+                this.canvas.style.width = (canvasSize.width * targetZoom) + 'px';
+                this.canvas.style.height = (canvasSize.height * targetZoom) + 'px';
+                const zoomDisplay = document.getElementById('zoomLevel');
+                if (zoomDisplay) zoomDisplay.textContent = Math.round(targetZoom * 100) + '%';
+                this.render();
+                CoopMaps.showNotification('Zoomed to fit content', 'success');
+                return;
+            }
+
+            // Animate zoom
+            const startZoom = CoopMaps.state.ui.zoom;
+            const duration = 300;
+            const startTime = Date.now();
+            const self = this;
 
             const startPanX = this.panOffset.x;
             const startPanY = this.panOffset.y;

@@ -44,20 +44,21 @@
         createModeIndicator() {
             const indicator = document.createElement('div');
             indicator.id = 'relationshipModeIndicator';
+            const useAnimation = !CoopMaps.isExpressMode;
             indicator.style.cssText = `
                 position: fixed;
                 top: 70px;
                 left: 50%;
                 transform: translateX(-50%);
-                background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+                background: ${CoopMaps.isExpressMode ? '#27ae60' : 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)'};
                 color: white;
                 padding: 12px 24px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+                border-radius: ${CoopMaps.isExpressMode ? '0' : '8px'};
+                box-shadow: ${CoopMaps.isExpressMode ? 'none' : '0 4px 12px rgba(46, 204, 113, 0.3)'};
                 font-weight: 600;
                 z-index: 10000;
                 display: none;
-                animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                ${useAnimation ? 'animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);' : ''}
             `;
             indicator.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -147,6 +148,8 @@
         },
 
         showRelationshipDialog(startEnt, endEnt) {
+            const useAnimation = !CoopMaps.isExpressMode;
+
             // Create modal backdrop
             const modal = document.createElement('div');
             modal.className = 'modal-backdrop';
@@ -161,19 +164,20 @@
                 align-items: center;
                 justify-content: center;
                 z-index: 10001;
-                animation: fadeIn 0.2s ease-out;
+                ${useAnimation ? 'animation: fadeIn 0.2s ease-out;' : ''}
             `;
 
             // Step 1: Select relationship type
             const typeDialog = document.createElement('div');
             typeDialog.style.cssText = `
                 background: white;
-                border-radius: 12px;
-                padding: 32px;
+                border-radius: ${CoopMaps.isExpressMode ? '0' : '12px'};
+                padding: ${CoopMaps.isExpressMode ? '20px' : '32px'};
                 max-width: 500px;
                 width: 90%;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-                animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: ${CoopMaps.isExpressMode ? 'none' : '0 8px 32px rgba(0, 0, 0, 0.2)'};
+                border: ${CoopMaps.isExpressMode ? '2px solid #7f8c8d' : 'none'};
+                ${useAnimation ? 'animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);' : ''}
             `;
 
             let html = `
@@ -310,6 +314,7 @@
             }
 
             // Create modal backdrop
+            const useAnimation = !CoopMaps.isExpressMode;
             const modal = document.createElement('div');
             modal.className = 'modal-backdrop';
             modal.style.cssText = `
@@ -323,18 +328,19 @@
                 align-items: center;
                 justify-content: center;
                 z-index: 10001;
-                animation: fadeIn 0.2s ease-out;
+                ${useAnimation ? 'animation: fadeIn 0.2s ease-out;' : ''}
             `;
 
             const segDialog = document.createElement('div');
             segDialog.style.cssText = `
                 background: white;
-                border-radius: 12px;
-                padding: 32px;
+                border-radius: ${CoopMaps.isExpressMode ? '0' : '12px'};
+                padding: ${CoopMaps.isExpressMode ? '20px' : '32px'};
                 max-width: 600px;
                 width: 90%;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-                animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: ${CoopMaps.isExpressMode ? 'none' : '0 8px 32px rgba(0, 0, 0, 0.2)'};
+                border: ${CoopMaps.isExpressMode ? '2px solid #7f8c8d' : 'none'};
+                ${useAnimation ? 'animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);' : ''}
             `;
 
             let html = `

@@ -15,6 +15,9 @@
 
             this.isDialogOpen = true;
 
+            const useAnimation = !CoopMaps.isExpressMode;
+            const expressStyles = CoopMaps.isExpressMode;
+
             const modal = document.createElement('div');
             modal.id = 'productInfoModal';
             modal.className = 'modal';
@@ -29,21 +32,22 @@
                 z-index: 2000;
                 align-items: center;
                 justify-content: center;
-                backdrop-filter: blur(5px);
-                animation: fadeIn 0.3s ease;
+                ${useAnimation ? 'backdrop-filter: blur(5px);' : ''}
+                ${useAnimation ? 'animation: fadeIn 0.3s ease;' : ''}
             `;
 
             modal.innerHTML = `
                 <div class="modal-content" style="
                     background: white;
-                    border-radius: 16px;
+                    border-radius: ${expressStyles ? '0' : '16px'};
                     padding: 0;
                     max-width: 900px;
                     width: 90%;
                     max-height: 90vh;
                     overflow: hidden;
-                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                    animation: slideIn 0.3s ease;
+                    box-shadow: ${expressStyles ? 'none' : '0 20px 60px rgba(0, 0, 0, 0.3)'};
+                    border: ${expressStyles ? '2px solid #7f8c8d' : 'none'};
+                    ${useAnimation ? 'animation: slideIn 0.3s ease;' : ''}
                     display: flex;
                     flex-direction: column;
                 ">

@@ -933,6 +933,17 @@
             if (selected && size) {
                 CoopMaps.saveState();
 
+                // Skip animation in Express mode
+                if (CoopMaps.isExpressMode) {
+                    selected.width = size.width;
+                    selected.height = size.height;
+                    CoopMaps.modules.canvas.render();
+                    document.dispatchEvent(new CustomEvent('diagram-changed'));
+                    const sidebarContent = document.getElementById('sidebar-content');
+                    if (sidebarContent) sidebarContent.innerHTML = this.render();
+                    return;
+                }
+
                 // Animate size change
                 const startWidth = selected.width;
                 const startHeight = selected.height;
@@ -1051,6 +1062,38 @@
             if (selected && confirm(`Delete "${selected.name || 'this enterprise'}"?\n\nThis will also remove any relationships connected to this enterprise.`)) {
                 CoopMaps.saveState();
 
+                // Helper to perform actual deletion
+                const performDeletion = () => {
+                    // Remove any relationships connected to this enterprise
+                    CoopMaps.state.data.relationships = CoopMaps.state.data.relationships.filter(
+                        rel => rel.startId !== selected.id && rel.endId !== selected.id
+                    );
+
+                    // Remove the enterprise
+                    const index = CoopMaps.state.data.enterprises.indexOf(selected);
+                    if (index > -1) {
+                        CoopMaps.state.data.enterprises.splice(index, 1);
+                        CoopMaps.state.data.selectedItem = null;
+
+                        // Mark as dirty
+                        document.dispatchEvent(new CustomEvent('diagram-changed'));
+
+                        CoopMaps.modules.canvas.render();
+
+                        // Show diagram properties
+                        const sidebarContent = document.getElementById('sidebar-content');
+                        if (sidebarContent) {
+                            sidebarContent.innerHTML = this.render();
+                        }
+                    }
+                };
+
+                // Skip animation in Express mode
+                if (CoopMaps.isExpressMode) {
+                    performDeletion();
+                    return;
+                }
+
                 // Animate deletion
                 const originalWidth = selected.width;
                 const originalHeight = selected.height;
@@ -1070,28 +1113,7 @@
                     if (progress < 1) {
                         requestAnimationFrame(animate);
                     } else {
-                        // Remove any relationships connected to this enterprise
-                        CoopMaps.state.data.relationships = CoopMaps.state.data.relationships.filter(
-                            rel => rel.startId !== selected.id && rel.endId !== selected.id
-                        );
-
-                        // Remove the enterprise
-                        const index = CoopMaps.state.data.enterprises.indexOf(selected);
-                        if (index > -1) {
-                            CoopMaps.state.data.enterprises.splice(index, 1);
-                            CoopMaps.state.data.selectedItem = null;
-
-                            // Mark as dirty
-                            document.dispatchEvent(new CustomEvent('diagram-changed'));
-
-                            CoopMaps.modules.canvas.render();
-
-                            // Show diagram properties
-                            const sidebarContent = document.getElementById('sidebar-content');
-                            if (sidebarContent) {
-                                sidebarContent.innerHTML = this.render();
-                            }
-                        }
+                        performDeletion();
                     }
                 };
 

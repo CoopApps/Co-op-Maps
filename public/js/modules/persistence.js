@@ -388,6 +388,13 @@
         },
 
         showSaveAnimation() {
+            // Skip fancy animation in Express mode
+            if (CoopMaps.isExpressMode) {
+                // Just log to console in Express mode
+                console.log('Saved');
+                return;
+            }
+
             const animation = document.createElement('div');
             animation.style.cssText = `
                 position: fixed;
@@ -410,6 +417,12 @@
         },
 
         showLoadAnimation(name) {
+            // Skip fancy animation in Express mode
+            if (CoopMaps.isExpressMode) {
+                alert(`Loaded "${name}"`);
+                return;
+            }
+
             const animation = document.createElement('div');
             animation.style.cssText = `
                 position: fixed;

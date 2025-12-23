@@ -31,6 +31,7 @@
                 existingModal.remove();
             }
 
+            const useAnimation = !CoopMaps.isExpressMode;
             const modal = document.createElement('div');
             modal.className = 'modal';
             modal.id = 'exportModal';
@@ -45,19 +46,21 @@
                 z-index: 2000;
                 align-items: center;
                 justify-content: center;
-                backdrop-filter: blur(5px);
-                animation: fadeIn 0.3s ease;
+                ${useAnimation ? 'backdrop-filter: blur(5px);' : ''}
+                ${useAnimation ? 'animation: fadeIn 0.3s ease;' : ''}
             `;
 
+            const expressStyles = CoopMaps.isExpressMode;
             modal.innerHTML = `
                 <div class="modal-content" style="
                     background: white;
-                    border-radius: 16px;
-                    padding: 40px;
+                    border-radius: ${expressStyles ? '0' : '16px'};
+                    padding: ${expressStyles ? '20px' : '40px'};
                     max-width: 600px;
                     width: 90%;
-                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                    animation: slideIn 0.3s ease;
+                    box-shadow: ${expressStyles ? 'none' : '0 20px 60px rgba(0, 0, 0, 0.3)'};
+                    border: ${expressStyles ? '2px solid #7f8c8d' : 'none'};
+                    ${useAnimation ? 'animation: slideIn 0.3s ease;' : ''}
                 ">
                     <div class="modal-header" style="margin-bottom: 30px;">
                         <h2 style="
@@ -780,6 +783,12 @@
         },
 
         showSuccess(message) {
+            // In Express mode, use alert instead of animated toast
+            if (CoopMaps.isExpressMode) {
+                alert(message);
+                return;
+            }
+
             const success = document.createElement('div');
             success.style.cssText = `
                 position: fixed;
