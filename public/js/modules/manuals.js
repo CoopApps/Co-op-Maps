@@ -446,17 +446,25 @@
 
                 <h4>Canvas Navigation</h4>
                 <ul>
-                    <li><strong>Pan:</strong> Click and drag on empty canvas space</li>
+                    <li><strong>Pan:</strong> Click and drag on empty canvas space (cursor changes to grabbing hand)</li>
                     <li><strong>Zoom:</strong> Use mouse wheel or zoom buttons in toolbar</li>
+                    <li><strong>Fit to Content:</strong> Click the Fit button to zoom to show all enterprises</li>
                     <li><strong>Select:</strong> Click on an enterprise to select it</li>
-                    <li><strong>Multi-select:</strong> Hold Shift and click multiple enterprises (coming soon)</li>
+                    <li><strong>Multi-select:</strong> Hold Shift and click multiple enterprises to select them for alignment</li>
                 </ul>
 
                 <h4>Canvas Sizes</h4>
                 <p>
-                    Choose between A4 or A3 landscape canvas sizes using the dropdown in the toolbar.
-                    The canvas automatically adjusts to your selected size.
+                    Choose between A4, A3, A2, or A1 landscape canvas sizes using the dropdown in the toolbar.
+                    The canvas automatically adjusts zoom to fit your selected size on screen.
                 </p>
+
+                <h4>Display Options</h4>
+                <ul>
+                    <li><strong>Dark Mode:</strong> Toggle dark mode for comfortable viewing in low-light environments</li>
+                    <li><strong>Minimap:</strong> Enable the minimap to see an overview of your diagram and quickly navigate (Deluxe only)</li>
+                    <li><strong>Snap to Grid:</strong> Toggle grid snapping for precise positioning</li>
+                </ul>
 
                 <h4>First Steps</h4>
                 <ol>
@@ -515,13 +523,22 @@
                     <li><strong>Tertiary (T):</strong> Retail, distribution, services - Top</li>
                 </ul>
 
+                <h4>Enterprise Customization</h4>
+                <ul>
+                    <li><strong>Fill Color:</strong> Change the background color using preset colors or a custom color picker</li>
+                    <li><strong>Logo/Image:</strong> Add a logo or image to any enterprise (click Logo button or use context menu)</li>
+                    <li><strong>Lock/Unlock:</strong> Lock enterprises to prevent accidental movement</li>
+                </ul>
+
                 <h4>Context Menu</h4>
                 <p>Right-click on any enterprise to access:</p>
                 <ul>
-                    <li>Duplicate - Create a copy</li>
-                    <li>Delete - Remove the enterprise</li>
-                    <li>Bring to Front - Move above other enterprises</li>
-                    <li>Send to Back - Move behind other enterprises</li>
+                    <li><strong>Duplicate:</strong> Create a copy offset from the original</li>
+                    <li><strong>Delete:</strong> Remove the enterprise and its relationships</li>
+                    <li><strong>Lock/Unlock:</strong> Toggle position locking</li>
+                    <li><strong>Add Logo:</strong> Import an image for the enterprise</li>
+                    <li><strong>Bring to Front:</strong> Move above other enterprises</li>
+                    <li><strong>Send to Back:</strong> Move behind other enterprises</li>
                 </ul>
             `;
         },
@@ -644,16 +661,48 @@
                     </tr>
                     <tr style="border-bottom: 1px solid #f8f9fa;">
                         <td style="padding: 12px;">Redo</td>
-                        <td style="padding: 12px;"><code>Ctrl+Y</code></td>
-                        <td style="padding: 12px;"><code>Cmd+Y</code></td>
+                        <td style="padding: 12px;"><code>Ctrl+Shift+Z</code></td>
+                        <td style="padding: 12px;"><code>Cmd+Shift+Z</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Copy Selected</td>
+                        <td style="padding: 12px;"><code>Ctrl+C</code></td>
+                        <td style="padding: 12px;"><code>Cmd+C</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Paste</td>
+                        <td style="padding: 12px;"><code>Ctrl+V</code></td>
+                        <td style="padding: 12px;"><code>Cmd+V</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Duplicate</td>
+                        <td style="padding: 12px;"><code>Ctrl+D</code></td>
+                        <td style="padding: 12px;"><code>Cmd+D</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Select All</td>
+                        <td style="padding: 12px;"><code>Ctrl+A</code></td>
+                        <td style="padding: 12px;"><code>Cmd+A</code></td>
                     </tr>
                     <tr style="border-bottom: 1px solid #f8f9fa;">
                         <td style="padding: 12px;">Delete Selected</td>
-                        <td style="padding: 12px;" colspan="2"><code>Delete</code></td>
+                        <td style="padding: 12px;" colspan="2"><code>Delete</code> or <code>Backspace</code></td>
                     </tr>
                     <tr style="border-bottom: 1px solid #f8f9fa;">
                         <td style="padding: 12px;">Relationship Mode</td>
                         <td style="padding: 12px;" colspan="2"><code>R</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Nudge 1px</td>
+                        <td style="padding: 12px;" colspan="2"><code>Arrow Keys</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Nudge 10px</td>
+                        <td style="padding: 12px;" colspan="2"><code>Shift+Arrow Keys</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Show Shortcuts</td>
+                        <td style="padding: 12px;" colspan="2"><code>?</code></td>
                     </tr>
                     <tr style="border-bottom: 1px solid #f8f9fa;">
                         <td style="padding: 12px;">Exit Mode/Dialog</td>
@@ -664,10 +713,11 @@
                 <h4>Mouse Controls</h4>
                 <ul>
                     <li><strong>Left Click:</strong> Select enterprise</li>
-                    <li><strong>Right Click:</strong> Context menu</li>
-                    <li><strong>Drag:</strong> Move selected enterprise</li>
+                    <li><strong>Shift+Click:</strong> Add/remove from multi-selection (for alignment tools)</li>
+                    <li><strong>Right Click:</strong> Context menu with actions</li>
+                    <li><strong>Drag Enterprise:</strong> Move selected enterprise (unless locked)</li>
+                    <li><strong>Drag Canvas:</strong> Pan the view (cursor shows grab hand)</li>
                     <li><strong>Scroll Wheel:</strong> Zoom in/out</li>
-                    <li><strong>Click & Drag Canvas:</strong> Pan view (coming soon)</li>
                 </ul>
 
                 <h4>Toolbar Buttons</h4>
@@ -679,8 +729,16 @@
                     <li><strong>Auto Layout:</strong> Automatically arrange your diagram</li>
                     <li><strong>Connector Style:</strong> Toggle between orthogonal (right-angle) and direct (straight-line) connectors</li>
                     <li><strong>Create Relationship:</strong> Enter relationship mode to connect enterprises</li>
-                    <li><strong>Zoom Controls:</strong> Adjust view scale</li>
+                    <li><strong>Zoom Controls:</strong> Adjust view scale (+/- buttons, zoom dropdown)</li>
+                    <li><strong>Fit:</strong> Zoom to show all content on screen</li>
+                    <li><strong>Snap:</strong> Toggle grid snapping for precise positioning</li>
+                    <li><strong>Align:</strong> Alignment and distribution tools for multiple selected items</li>
+                    <li><strong>Note:</strong> Add text annotations to your diagram</li>
+                    <li><strong>Logo:</strong> Import an image/logo for the selected enterprise</li>
+                    <li><strong>Map:</strong> Toggle the minimap for navigation (Deluxe only)</li>
+                    <li><strong>Dark Mode:</strong> Toggle light/dark theme</li>
                     <li><strong>Export:</strong> Save as PNG, SVG, or PDF</li>
+                    <li><strong>Print:</strong> Print the current diagram</li>
                     <li><strong>Symbol Key:</strong> View reference guide</li>
                     <li><strong>Manual:</strong> Open this help guide</li>
                 </ul>
@@ -702,7 +760,11 @@
                 <ul>
                     <li><strong>Use Auto Layout:</strong> Let the algorithm arrange your diagram optimally, especially useful for complex relationship networks</li>
                     <li><strong>Generic Sets:</strong> Use these to represent multiple similar enterprises without cluttering your diagram</li>
-                    <li><strong>Color Coding:</strong> Social enterprises are yellow to stand out; use this strategically</li>
+                    <li><strong>Custom Colors:</strong> Use fill colors to highlight important enterprises or group related ones visually</li>
+                    <li><strong>Add Logos:</strong> Import company logos or icons to make enterprises instantly recognizable</li>
+                    <li><strong>Lock Position:</strong> Lock important enterprises to prevent accidental movement while editing others</li>
+                    <li><strong>Dark Mode:</strong> Switch to dark mode for comfortable viewing during extended sessions</li>
+                    <li><strong>Minimap:</strong> Enable the minimap for quick navigation in large diagrams (Deluxe only)</li>
                     <li><strong>Export Options:</strong> Export as SVG for editing in design software, PDF for reports</li>
                     <li><strong>Save Often:</strong> Use Ctrl+S frequently or enable auto-save</li>
                 </ul>
@@ -728,11 +790,15 @@
 
                 <h4>Advanced Features</h4>
                 <ul>
-                    <li><strong>Symbol Key:</strong> Generate a reference guide for your diagram</li>
+                    <li><strong>Symbol Key:</strong> Generate a printable reference guide for your diagram</li>
+                    <li><strong>Alignment Tools:</strong> Use Shift+Click to multi-select, then align or distribute items</li>
+                    <li><strong>Fit to Content:</strong> Automatically zoom to show all enterprises on screen</li>
+                    <li><strong>Snap to Grid:</strong> Toggle grid snapping for precise positioning</li>
                     <li><strong>Hybrid Tiers:</strong> Enterprises can operate across multiple tiers</li>
                     <li><strong>Inner Segments:</strong> Create bidirectional relationships with different types at each end</li>
                     <li><strong>Stack Effect:</strong> Generic sets show with 3D appearance</li>
                     <li><strong>Custom Positioning:</strong> Fine-tune X/Y coordinates in properties</li>
+                    <li><strong>Notes/Annotations:</strong> Add text notes to your diagram for documentation</li>
                 </ul>
 
                 <h4>Diagram Types</h4>
