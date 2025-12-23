@@ -93,9 +93,10 @@
                 // Reset pan offset when changing size
                 this.panOffset = { x: 0, y: 0 };
 
-                // Apply CSS transform to scale canvas visually
-                this.canvas.style.transform = `scale(${fitZoom})`;
-                this.canvas.style.transformOrigin = 'center center';
+                // Set CSS dimensions to scaled size for proper centering
+                // Canvas internal resolution stays at full size for quality
+                this.canvas.style.width = (canvasSize.width * fitZoom) + 'px';
+                this.canvas.style.height = (canvasSize.height * fitZoom) + 'px';
 
                 // Update zoom display if it exists
                 const zoomDisplay = document.getElementById('zoomLevel');
@@ -942,6 +943,7 @@
                 const duration = 200;
                 const startTime = Date.now();
                 const self = this;
+                const canvasSize = this.canvasSizes[this.currentCanvasSize];
 
                 const animate = () => {
                     const elapsed = Date.now() - startTime;
@@ -950,8 +952,9 @@
 
                     CoopMaps.state.ui.zoom = startZoom + (targetZoom - startZoom) * easeProgress;
 
-                    // Apply CSS transform for visual zoom
-                    self.canvas.style.transform = `scale(${CoopMaps.state.ui.zoom})`;
+                    // Update CSS dimensions for proper centering
+                    self.canvas.style.width = (canvasSize.width * CoopMaps.state.ui.zoom) + 'px';
+                    self.canvas.style.height = (canvasSize.height * CoopMaps.state.ui.zoom) + 'px';
 
                     // Update zoom display
                     const zoomDisplay = document.getElementById('zoomLevel');
@@ -1041,6 +1044,7 @@
             const duration = 300;
             const startTime = Date.now();
             const self = this;
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
 
             // Reset pan offset
             this.panOffset = { x: 0, y: 0 };
@@ -1052,8 +1056,9 @@
 
                 CoopMaps.state.ui.zoom = startZoom + (targetZoom - startZoom) * easeProgress;
 
-                // Apply CSS transform for visual zoom
-                self.canvas.style.transform = `scale(${CoopMaps.state.ui.zoom})`;
+                // Update CSS dimensions for proper centering
+                self.canvas.style.width = (canvasSize.width * CoopMaps.state.ui.zoom) + 'px';
+                self.canvas.style.height = (canvasSize.height * CoopMaps.state.ui.zoom) + 'px';
 
                 // Update zoom display
                 const zoomDisplay = document.getElementById('zoomLevel');
