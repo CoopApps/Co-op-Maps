@@ -382,7 +382,8 @@
                     } else if (hoverItem) {
                         self.canvas.style.cursor = 'pointer';
                     } else {
-                        self.canvas.style.cursor = 'default';
+                        // Show grab cursor on empty space to indicate panning is available
+                        self.canvas.style.cursor = 'grab';
                     }
                 }
             });
@@ -436,7 +437,14 @@
                 self.potentialSelection = null;
                 self.mouseDownTime = 0;
                 self.isPanning = false;
-                self.canvas.style.cursor = 'default';
+
+                // Reset cursor - show grab on empty space, pointer on items
+                const hoverItem = self.getItemAtPosition(x, y);
+                if (hoverItem) {
+                    self.canvas.style.cursor = 'pointer';
+                } else {
+                    self.canvas.style.cursor = 'grab';
+                }
             });
 
             this.canvas.addEventListener('mouseleave', () => {
