@@ -298,18 +298,42 @@
                 </select>
                 <button id="gridBtn" onclick="CoopMaps.toggleGrid()">Grid: On</button>
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas.autoLayout()">Auto Layout</button>
+                <button onclick="CoopMaps.modules.canvas.autoLayout()">Auto</button>
+                <select id="alignSelect" onchange="CoopMaps.handleAlign(this.value); this.selectedIndex=0;">
+                    <option value="">Align</option>
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                    <option value="top">Top</option>
+                    <option value="middle">Middle</option>
+                    <option value="bottom">Bottom</option>
+                    <option value="distH">Distribute H</option>
+                    <option value="distV">Distribute V</option>
+                </select>
+                <button id="snapBtn" onclick="CoopMaps.toggleSnap()">Snap</button>
                 <button id="orthoBtn" onclick="CoopMaps.toggleOrtho()">Ortho</button>
                 <div class="separator"></div>
                 <button id="relationshipModeBtn" onclick="CoopMaps.modules.relationships.toggleRelationshipMode()">Relationship</button>
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas.zoomIn()">Zoom+</button>
-                <button onclick="CoopMaps.modules.canvas.zoomOut()">Zoom-</button>
+                <button onclick="CoopMaps.modules.canvas.zoomIn()">+</button>
+                <button onclick="CoopMaps.modules.canvas.zoomOut()">-</button>
                 <button onclick="CoopMaps.modules.canvas.zoomReset()"><span id="zoomText">100%</span></button>
+                <button onclick="CoopMaps.modules.canvas.fitToContent()">Fit</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas.printCanvas()">Print</button>
+                <input type="text" id="searchInput" placeholder="Search..." style="width:80px;padding:4px;border:1px solid #7f8c8d;font-size:11px;" oninput="CoopMaps.modules.canvas.searchEnterprises(this.value)">
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas.showAddNoteDialog()">Note</button>
+                <button onclick="CoopMaps.modules.canvas.showLogoImportDialog()">Logo</button>
+                <button onclick="CoopMaps.modules.canvas.toggleMinimap()">Map</button>
+                <button id="darkModeBtn" onclick="CoopMaps.toggleDarkMode()">Dark</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export.showExportDialog()">Export</button>
                 <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
-                <button onclick="CoopMaps.showHelp()">Help</button>
+                <button onclick="CoopMaps.modules.symbolKey.generateKey()">Key</button>
+                <button onclick="CoopMaps.showKeyboardShortcuts()">Shortcuts</button>
+                <button onclick="CoopMaps.modules.manuals.showManualDialog()">Manual</button>
+                <button onclick="CoopMaps.modules.productInfo.showInfoDialog()">Terms</button>
             </div>
 
             <!-- Canvas Area -->
@@ -323,6 +347,7 @@
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas.duplicateSelected(); CoopMaps.hideContextMenu();">Duplicate</div>
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas.deleteSelected(); CoopMaps.hideContextMenu();">Delete</div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas.toggleLockSelected(); CoopMaps.hideContextMenu();" id="lockMenuItem">Lock/Unlock</div>
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas.bringToFront(); CoopMaps.hideContextMenu();">Bring to Front</div>
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas.sendToBack(); CoopMaps.hideContextMenu();">Send to Back</div>
     </div>
@@ -467,20 +492,50 @@
                 if (menu) menu.style.display = 'none';
             },
 
-            showHelp() {
+            handleAlign(action) {
+                if (!action || !this.modules.canvas) return;
+                switch(action) {
+                    case 'left': this.modules.canvas.alignLeft(); break;
+                    case 'center': this.modules.canvas.alignCenter(); break;
+                    case 'right': this.modules.canvas.alignRight(); break;
+                    case 'top': this.modules.canvas.alignTop(); break;
+                    case 'middle': this.modules.canvas.alignMiddle(); break;
+                    case 'bottom': this.modules.canvas.alignBottom(); break;
+                    case 'distH': this.modules.canvas.distributeHorizontally(); break;
+                    case 'distV': this.modules.canvas.distributeVertically(); break;
+                }
+            },
+
+            toggleSnap() {
+                if (this.modules.canvas) {
+                    this.modules.canvas.toggleSnapToGrid();
+                    const btn = document.getElementById('snapBtn');
+                    if (btn) btn.textContent = this.modules.canvas.snapToGrid ? 'Snap: On' : 'Snap';
+                }
+            },
+
+            toggleDarkMode() {
+                if (this.modules.canvas) {
+                    this.modules.canvas.toggleDarkMode();
+                    const btn = document.getElementById('darkModeBtn');
+                    if (btn) btn.textContent = this.modules.canvas.darkMode ? 'Light' : 'Dark';
+                }
+            },
+
+            showKeyboardShortcuts() {
                 alert(
-                    'CO-OPMAPS EXPRESS HELP\n\n' +
-                    'Adding Enterprises:\n' +
-                    '- Click symbol button to select\n' +
-                    '- Click canvas to place\n\n' +
-                    'Relationships:\n' +
-                    '- Click Relationship button\n' +
-                    '- Click two enterprises to connect\n\n' +
-                    'Tools:\n' +
-                    '- Auto Layout: Organize diagram\n' +
-                    '- Grid toggle: Show/hide grid\n' +
-                    '- Ortho: Switch connector style\n' +
-                    '- Right-click items for options'
+                    'KEYBOARD SHORTCUTS\n\n' +
+                    'Ctrl+Z - Undo\n' +
+                    'Ctrl+Y / Ctrl+Shift+Z - Redo\n' +
+                    'Ctrl+S - Save\n' +
+                    'Delete - Delete selected\n' +
+                    'Ctrl+D - Duplicate selected\n' +
+                    'Escape - Deselect / Cancel\n' +
+                    'Arrow keys - Move selected\n' +
+                    '+ / - - Zoom in/out\n' +
+                    '0 - Reset zoom\n' +
+                    'G - Toggle grid\n' +
+                    'R - Toggle relationship mode'
                 );
             },
 
