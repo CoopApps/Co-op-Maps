@@ -33,11 +33,39 @@
                 description: 'Privately owned for-profit business'
             },
             {
+                id: 'public',
+                name: 'Public Enterprise',
+                category: 'non-mutual',
+                fill: '#f0f0f0',
+                description: 'Publicly traded or publicly owned enterprise'
+            },
+            {
                 id: 'state',
                 name: 'State Enterprise',
                 category: 'non-mutual',
                 fill: '#f0f0f0',
                 description: 'Government-owned enterprise'
+            },
+            {
+                id: 'partnership',
+                name: 'Partnership',
+                category: 'non-mutual',
+                fill: '#f0f0f0',
+                description: 'Business owned by two or more partners'
+            },
+            {
+                id: 'charity',
+                name: 'Charity',
+                category: 'other',
+                fill: '#e8f5e9',
+                description: 'Non-profit charitable organization'
+            },
+            {
+                id: 'community',
+                name: 'Community Org',
+                category: 'other',
+                fill: '#e3f2fd',
+                description: 'Community-based organization'
             },
             {
                 id: 'excluded',
@@ -439,15 +467,19 @@
                         shapes.drawRectangle(ctx, x, y, width, height, options);
                         break;
                     case 'ncm':
+                    case 'community':
                         shapes.drawRoundedRectangle(ctx, x, y - 3, width, height, 6, options);
                         break;
                     case 'social':
+                    case 'charity':
                         shapes.drawPill(ctx, x, y, width, height, options);
                         break;
                     case 'private':
+                    case 'partnership':
                         shapes.drawEllipse(ctx, x, y, width, height, options);
                         break;
                     case 'state':
+                    case 'public':
                         shapes.drawDiamond(ctx, x, y, width, height, options);
                         break;
                 }

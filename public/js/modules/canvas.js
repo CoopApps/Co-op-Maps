@@ -845,15 +845,19 @@
                         shapes.drawRectangle(ctx, x, y, width, height, options);
                         break;
                     case 'ncm':
+                    case 'community':
                         shapes.drawRoundedRectangle(ctx, x, y, width, height, 15, options);
                         break;
                     case 'social':
+                    case 'charity':
                         shapes.drawPill(ctx, x, y, width, height, options);
                         break;
                     case 'private':
+                    case 'partnership':
                         shapes.drawEllipse(ctx, x, y, width, height, options);
                         break;
                     case 'state':
+                    case 'public':
                         shapes.drawDiamond(ctx, x, y, width, height, options);
                         break;
                 }
