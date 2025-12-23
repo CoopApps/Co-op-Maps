@@ -336,6 +336,13 @@
                 <button onclick="CoopMaps.modules.timeline.showAddSnapshotDialog()">+Snapshot</button>
                 <button onclick="CoopMaps.modules.timeline.showTimelinePanel()">Timeline</button>
                 <button onclick="CoopMaps.modules.layers.showLayersPanel()">Layers</button>
+                <select id="analysisSelect" onchange="CoopMaps.handleAnalysis(this.value); this.selectedIndex=0;">
+                    <option value="">Analysis</option>
+                    <option value="stats">Statistics</option>
+                    <option value="compare">Compare</option>
+                    <option value="reports">Reports</option>
+                    <option value="deps">Dependencies</option>
+                </select>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export.showExportDialog()">Export</button>
                 <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
@@ -522,6 +529,24 @@
                 switch(action) {
                     case 'create': this.modules.groups.showCreateGroupDialog(); break;
                     case 'manage': this.modules.groups.showGroupsPanel(); break;
+                }
+            },
+
+            handleAnalysis(action) {
+                if (!action) return;
+                switch(action) {
+                    case 'stats':
+                        if (this.modules.statistics) this.modules.statistics.showStatisticsPanel();
+                        break;
+                    case 'compare':
+                        if (this.modules.comparison) this.modules.comparison.showComparisonDialog();
+                        break;
+                    case 'reports':
+                        if (this.modules.reports) this.modules.reports.showReportsDialog();
+                        break;
+                    case 'deps':
+                        if (this.modules.dependency) this.modules.dependency.showDependencyPanel();
+                        break;
                 }
             },
 
@@ -828,6 +853,10 @@
     <script src="./js/modules/timeline.js"></script>
     <script src="./js/modules/groups.js"></script>
     <script src="./js/modules/layers.js"></script>
+    <script src="./js/modules/statistics.js"></script>
+    <script src="./js/modules/comparison.js"></script>
+    <script src="./js/modules/reports.js"></script>
+    <script src="./js/modules/dependency.js"></script>
 
     <!-- Initialize after modules load -->
     <script>
