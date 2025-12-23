@@ -88,19 +88,20 @@
 
                 // Store minimum zoom and set zoom to fit
                 this.minZoom = Math.max(0.05, fitZoom); // Absolute minimum 5%
-                CoopMaps.state.ui.zoom = this.minZoom;
+                CoopMaps.state.ui.zoom = fitZoom;
 
                 // Reset pan offset when changing size
                 this.panOffset = { x: 0, y: 0 };
 
+                // Apply CSS transform to scale canvas visually
+                this.canvas.style.transform = `scale(${fitZoom})`;
+                this.canvas.style.transformOrigin = 'center center';
+
                 // Update zoom display if it exists
                 const zoomDisplay = document.getElementById('zoomLevel');
                 if (zoomDisplay) {
-                    zoomDisplay.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
+                    zoomDisplay.textContent = Math.round(fitZoom * 100) + '%';
                 }
-
-                // Re-center canvas (removed absolute positioning - not needed with flexbox)
-                // Canvas is centered by flexbox in .canvas-area
             }
 
             this.render();
@@ -519,10 +520,10 @@
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             }
 
-            // Apply zoom and pan
+            // Apply pan offset (zoom is handled by CSS transform)
             this.ctx.save();
-            this.ctx.translate(this.panOffset.x / CoopMaps.state.ui.zoom, this.panOffset.y / CoopMaps.state.ui.zoom);
-            this.ctx.scale(CoopMaps.state.ui.zoom, CoopMaps.state.ui.zoom);
+            const zoom = CoopMaps.state.ui.zoom || 1;
+            this.ctx.translate(this.panOffset.x / zoom, this.panOffset.y / zoom);
 
             // Draw grid only if not exporting and grid is enabled
             if (!excludeGrid && !this.isExporting && CoopMaps.state.ui.showGrid) {
@@ -940,6 +941,7 @@
                 const startZoom = CoopMaps.state.ui.zoom;
                 const duration = 200;
                 const startTime = Date.now();
+                const self = this;
 
                 const animate = () => {
                     const elapsed = Date.now() - startTime;
@@ -947,7 +949,17 @@
                     const easeProgress = 1 - Math.pow(1 - progress, 3);
 
                     CoopMaps.state.ui.zoom = startZoom + (targetZoom - startZoom) * easeProgress;
-                    this.render();
+
+                    // Apply CSS transform for visual zoom
+                    self.canvas.style.transform = `scale(${CoopMaps.state.ui.zoom})`;
+
+                    // Update zoom display
+                    const zoomDisplay = document.getElementById('zoomLevel');
+                    if (zoomDisplay) {
+                        zoomDisplay.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
+                    }
+
+                    self.render();
 
                     if (progress < 1) {
                         requestAnimationFrame(animate);
@@ -1023,10 +1035,15 @@
         },
 
         zoomReset() {
+            // Reset to fit zoom (minZoom) instead of 100%
             const startZoom = CoopMaps.state.ui.zoom;
-            const targetZoom = 1;
+            const targetZoom = this.minZoom;
             const duration = 300;
             const startTime = Date.now();
+            const self = this;
+
+            // Reset pan offset
+            this.panOffset = { x: 0, y: 0 };
 
             const animate = () => {
                 const elapsed = Date.now() - startTime;
@@ -1034,7 +1051,17 @@
                 const easeProgress = 1 - Math.pow(1 - progress, 3);
 
                 CoopMaps.state.ui.zoom = startZoom + (targetZoom - startZoom) * easeProgress;
-                this.render();
+
+                // Apply CSS transform for visual zoom
+                self.canvas.style.transform = `scale(${CoopMaps.state.ui.zoom})`;
+
+                // Update zoom display
+                const zoomDisplay = document.getElementById('zoomLevel');
+                if (zoomDisplay) {
+                    zoomDisplay.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
+                }
+
+                self.render();
 
                 if (progress < 1) {
                     requestAnimationFrame(animate);
