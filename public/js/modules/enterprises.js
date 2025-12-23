@@ -477,14 +477,14 @@
 
             const size = this.sizes[0]; // Default to small size
 
-            // Calculate center position considering zoom
+            // Get canvas internal dimensions (full resolution)
             const canvas = document.getElementById('canvas');
-            const canvasRect = canvas.getBoundingClientRect();
-            const zoom = CoopMaps.state.ui.zoom || 1;
+            const canvasModule = CoopMaps.modules.canvas;
+            const canvasSize = canvasModule ? canvasModule.canvasSizes[canvasModule.currentCanvasSize] : { width: canvas.width, height: canvas.height };
 
-            // Get visible center of canvas
-            const visibleCenterX = (canvasRect.width / 2) / zoom + (parseInt(canvas.style.left) || 0) / zoom;
-            const visibleCenterY = (canvasRect.height / 2) / zoom + (parseInt(canvas.style.top) || 0) / zoom;
+            // Calculate center of the canvas in internal coordinates
+            const centerX = canvasSize.width / 2;
+            const centerY = canvasSize.height / 2;
 
             // Add some randomness to prevent overlap
             const offsetX = (Math.random() - 0.5) * 100;
@@ -494,8 +494,8 @@
                 id: CoopMaps.generateId(),
                 type: typeId,
                 name: type.name,
-                x: visibleCenterX + offsetX - size.width / 2,
-                y: visibleCenterY + offsetY - size.height / 2,
+                x: centerX + offsetX - size.width / 2,
+                y: centerY + offsetY - size.height / 2,
                 width: size.width,
                 height: size.height,
                 fill: type.fill,
