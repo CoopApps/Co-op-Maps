@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-opMaps Explorer - Interactive Cooperative Ecosystem Viewer</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --light-gray: #ecf0f1;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        .header h1 span {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .diagram-title {
+            font-size: 16px;
+            color: var(--gray);
+            padding-left: 20px;
+            border-left: 2px solid var(--light-gray);
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-controls button {
+            padding: 10px 20px;
+            background: white;
+            color: var(--dark);
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .header-controls button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .header-controls button.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+        }
+        .header-controls button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Container */
+        .container {
+            display: flex;
+            height: 100vh;
+            padding-top: 60px;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
+        }
+        #canvas {
+            background: white;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            cursor: grab;
+        }
+        #canvas:active {
+            cursor: grabbing;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+        .zoom-controls button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        .zoom-controls button:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .zoom-level {
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        /* Business Profile Sidebar */
+        .profile-sidebar {
+            width: 400px;
+            background: white;
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+        .profile-sidebar.open {
+            transform: translateX(0);
+        }
+        .profile-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .profile-header h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .profile-type {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .profile-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .profile-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        .profile-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        .profile-section {
+            margin-bottom: 30px;
+        }
+        .profile-section h3 {
+            font-size: 14px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .profile-section p {
+            font-size: 16px;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        .profile-field {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .profile-field-icon {
+            width: 40px;
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .profile-field-content {
+            flex: 1;
+        }
+        .profile-field-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+        .profile-field-value {
+            font-size: 15px;
+            color: var(--dark);
+        }
+        .profile-field-value a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .profile-field-value a:hover {
+            text-decoration: underline;
+        }
+        .profile-relationships {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .profile-rel-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+        .profile-rel-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .profile-rel-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--dark);
+            cursor: pointer;
+        }
+        .profile-rel-name:hover {
+            color: var(--primary);
+        }
+
+        /* Directory Panel */
+        .directory-panel {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 350px;
+            background: white;
+            box-shadow: 10px 0 40px rgba(0, 0, 0, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+        .directory-panel.open {
+            transform: translateX(0);
+        }
+        .directory-header {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .directory-header h3 {
+            font-size: 18px;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+        .directory-search {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .directory-search:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .directory-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .directory-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .directory-item:hover {
+            background: #f8f9fa;
+        }
+        .directory-item-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .directory-item-info {
+            flex: 1;
+        }
+        .directory-item-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 2px;
+        }
+        .directory-item-type {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Welcome State */
+        .welcome-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 50;
+        }
+        .welcome-panel h2 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        .welcome-panel p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .welcome-panel button {
+            padding: 14px 32px;
+            background: white;
+            color: var(--dark);
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .welcome-panel button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--dark);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <h1>Co-op<span>Maps</span> Explorer</h1>
+            <div class="diagram-title" id="diagramTitle">No diagram loaded</div>
+        </div>
+        <div class="header-controls">
+            <button onclick="toggleDirectory()">Directory</button>
+            <button onclick="loadDiagram()" class="primary">Load Diagram</button>
+        </div>
+    </header>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- Canvas Area -->
+        <div class="canvas-area" id="canvasArea">
+            <canvas id="canvas" width="1123" height="794"></canvas>
+
+            <!-- Welcome State -->
+            <div class="welcome-panel" id="welcomePanel">
+                <h2>Welcome to Co-opMaps Explorer</h2>
+                <p>Load a diagram to explore the cooperative ecosystem</p>
+                <button onclick="loadDiagram()">Load Diagram</button>
+            </div>
+
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <button onclick="zoomIn()">+</button>
+                <div class="zoom-level" id="zoomLevel">100%</div>
+                <button onclick="zoomOut()">-</button>
+                <button onclick="fitToContent()" title="Fit to content">Fit</button>
+            </div>
+        </div>
+
+        <!-- Business Profile Sidebar -->
+        <aside class="profile-sidebar" id="profileSidebar">
+            <div class="profile-header">
+                <button class="profile-close" onclick="closeProfile()">&times;</button>
+                <h2 id="profileName">Enterprise Name</h2>
+                <span class="profile-type" id="profileType">Co-operative</span>
+            </div>
+            <div class="profile-content" id="profileContent">
+                <!-- Content populated dynamically -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- Directory Panel -->
+    <div class="directory-panel" id="directoryPanel">
+        <div class="directory-header">
+            <h3>Enterprise Directory</h3>
+            <input type="text" class="directory-search" id="directorySearch" placeholder="Search enterprises..." oninput="filterDirectory(this.value)">
+        </div>
+        <div class="directory-list" id="directoryList">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept=".coopmaps,.json" style="display: none" onchange="handleFileLoad(event)">
+
+    <script>
+        // Explorer State
+        const ExplorerState = {
+            diagram: null,
+            enterprises: [],
+            relationships: [],
+            zoom: 1,
+            panOffset: { x: 0, y: 0 },
+            selectedEnterprise: null,
+            isPanning: false,
+            panStart: { x: 0, y: 0 }
+        };
+
+        // Enterprise type configurations
+        const enterpriseTypes = {
+            cooperative: { name: 'Co-operative', color: '#3498db', shape: 'rectangle' },
+            ncm: { name: 'Non-co-operative Mutual', color: '#9b59b6', shape: 'roundedRect' },
+            social: { name: 'Social Enterprise', color: '#f1c40f', shape: 'pill' },
+            private: { name: 'Private Enterprise', color: '#e74c3c', shape: 'ellipse' },
+            state: { name: 'State Enterprise', color: '#27ae60', shape: 'diamond' },
+            excluded: { name: 'Excluded Business', color: '#95a5a6', shape: 'rectangle' },
+            partnership: { name: 'Partnership', color: '#1abc9c', shape: 'hexagon' },
+            public: { name: 'Public Listed', color: '#e67e22', shape: 'octagon' },
+            charity: { name: 'Charity/Non-profit', color: '#8e44ad', shape: 'cross' },
+            community: { name: 'Community Organization', color: '#16a085', shape: 'house' }
+        };
+
+        const relationshipTypes = {
+            G: { name: 'Governance', color: '#9b59b6' },
+            I: { name: 'Investment', color: '#27ae60' },
+            L: { name: 'Asset Lock', color: '#34495e' },
+            M: { name: 'Membership', color: '#3498db' },
+            O: { name: 'Ownership', color: '#e74c3c' },
+            P: { name: 'Partnership', color: '#f39c12' },
+            S: { name: 'Supply', color: '#1abc9c' }
+        };
+
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize
+        function init() {
+            bindEvents();
+            render();
+        }
+
+        function bindEvents() {
+            // Canvas click for enterprise selection
+            canvas.addEventListener('click', handleCanvasClick);
+
+            // Pan functionality
+            canvas.addEventListener('mousedown', startPan);
+            canvas.addEventListener('mousemove', doPan);
+            canvas.addEventListener('mouseup', endPan);
+            canvas.addEventListener('mouseleave', endPan);
+
+            // Zoom with wheel
+            canvas.addEventListener('wheel', handleWheel);
+        }
+
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const x = (e.clientX - rect.left) * scaleX / ExplorerState.zoom - ExplorerState.panOffset.x / ExplorerState.zoom;
+            const y = (e.clientY - rect.top) * scaleY / ExplorerState.zoom - ExplorerState.panOffset.y / ExplorerState.zoom;
+
+            // Find clicked enterprise
+            const clicked = ExplorerState.enterprises.find(ent => {
+                return x >= ent.x && x <= ent.x + ent.width &&
+                       y >= ent.y && y <= ent.y + ent.height;
+            });
+
+            if (clicked) {
+                showProfile(clicked);
+            }
+        }
+
+        function startPan(e) {
+            ExplorerState.isPanning = true;
+            ExplorerState.panStart = { x: e.clientX - ExplorerState.panOffset.x, y: e.clientY - ExplorerState.panOffset.y };
+            canvas.style.cursor = 'grabbing';
+        }
+
+        function doPan(e) {
+            if (!ExplorerState.isPanning) return;
+            ExplorerState.panOffset.x = e.clientX - ExplorerState.panStart.x;
+            ExplorerState.panOffset.y = e.clientY - ExplorerState.panStart.y;
+            render();
+        }
+
+        function endPan() {
+            ExplorerState.isPanning = false;
+            canvas.style.cursor = 'grab';
+        }
+
+        function handleWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            ExplorerState.zoom = Math.min(Math.max(ExplorerState.zoom * delta, 0.1), 5);
+            updateZoomDisplay();
+            render();
+        }
+
+        function zoomIn() {
+            ExplorerState.zoom = Math.min(ExplorerState.zoom * 1.2, 5);
+            updateZoomDisplay();
+            render();
+        }
+
+        function zoomOut() {
+            ExplorerState.zoom = Math.max(ExplorerState.zoom * 0.8, 0.1);
+            updateZoomDisplay();
+            render();
+        }
+
+        function fitToContent() {
+            if (ExplorerState.enterprises.length === 0) return;
+
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            ExplorerState.enterprises.forEach(ent => {
+                minX = Math.min(minX, ent.x);
+                minY = Math.min(minY, ent.y);
+                maxX = Math.max(maxX, ent.x + ent.width);
+                maxY = Math.max(maxY, ent.y + ent.height);
+            });
+
+            const contentWidth = maxX - minX + 100;
+            const contentHeight = maxY - minY + 100;
+            const scaleX = canvas.width / contentWidth;
+            const scaleY = canvas.height / contentHeight;
+
+            ExplorerState.zoom = Math.min(scaleX, scaleY, 1);
+            ExplorerState.panOffset.x = -minX * ExplorerState.zoom + 50;
+            ExplorerState.panOffset.y = -minY * ExplorerState.zoom + 50;
+
+            updateZoomDisplay();
+            render();
+        }
+
+        function updateZoomDisplay() {
+            document.getElementById('zoomLevel').textContent = Math.round(ExplorerState.zoom * 100) + '%';
+        }
+
+        // Rendering
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(ExplorerState.panOffset.x, ExplorerState.panOffset.y);
+            ctx.scale(ExplorerState.zoom, ExplorerState.zoom);
+
+            // Draw relationships first
+            ExplorerState.relationships.forEach(rel => drawRelationship(rel));
+
+            // Draw enterprises
+            ExplorerState.enterprises.forEach(ent => drawEnterprise(ent));
+
+            ctx.restore();
+        }
+
+        function drawEnterprise(ent) {
+            const type = enterpriseTypes[ent.type] || enterpriseTypes.cooperative;
+            const isSelected = ExplorerState.selectedEnterprise?.id === ent.id;
+
+            ctx.save();
+
+            // Shadow for selected
+            if (isSelected) {
+                ctx.shadowColor = 'rgba(102, 126, 234, 0.5)';
+                ctx.shadowBlur = 20;
+            }
+
+            // Fill
+            ctx.fillStyle = ent.fill || '#ffffff';
+            ctx.strokeStyle = type.color;
+            ctx.lineWidth = isSelected ? 4 : 2;
+
+            // Draw shape based on type
+            drawShape(ent.x, ent.y, ent.width, ent.height, type.shape);
+
+            ctx.restore();
+
+            // Draw name
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '14px -apple-system, BlinkMacSystemFont, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const name = ent.name || 'Unnamed';
+            const maxWidth = ent.width - 20;
+            wrapText(ctx, name, ent.x + ent.width / 2, ent.y + ent.height / 2, maxWidth, 16);
+        }
+
+        function drawShape(x, y, w, h, shape) {
+            ctx.beginPath();
+            switch (shape) {
+                case 'rectangle':
+                    ctx.rect(x, y, w, h);
+                    break;
+                case 'roundedRect':
+                    roundedRect(ctx, x, y, w, h, 15);
+                    break;
+                case 'pill':
+                    roundedRect(ctx, x, y, w, h, h / 2);
+                    break;
+                case 'ellipse':
+                    ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2);
+                    break;
+                case 'diamond':
+                    ctx.moveTo(x + w / 2, y);
+                    ctx.lineTo(x + w, y + h / 2);
+                    ctx.lineTo(x + w / 2, y + h);
+                    ctx.lineTo(x, y + h / 2);
+                    ctx.closePath();
+                    break;
+                default:
+                    ctx.rect(x, y, w, h);
+            }
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function roundedRect(ctx, x, y, w, h, r) {
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+        }
+
+        function drawRelationship(rel) {
+            const start = ExplorerState.enterprises.find(e => e.id === rel.startId);
+            const end = ExplorerState.enterprises.find(e => e.id === rel.endId);
+            if (!start || !end) return;
+
+            const type = relationshipTypes[rel.type] || { color: '#95a5a6' };
+
+            const startX = start.x + start.width / 2;
+            const startY = start.y + start.height / 2;
+            const endX = end.x + end.width / 2;
+            const endY = end.y + end.height / 2;
+
+            ctx.beginPath();
+            ctx.strokeStyle = type.color;
+            ctx.lineWidth = 2;
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            // Draw badge
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2;
+
+            ctx.beginPath();
+            ctx.arc(midX, midY, 12, 0, Math.PI * 2);
+            ctx.fillStyle = type.color;
+            ctx.fill();
+
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(rel.type, midX, midY);
+        }
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let lines = [];
+
+            for (let word of words) {
+                const testLine = line + word + ' ';
+                if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+                    lines.push(line.trim());
+                    line = word + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line.trim());
+
+            const startY = y - (lines.length - 1) * lineHeight / 2;
+            lines.forEach((line, i) => {
+                ctx.fillText(line, x, startY + i * lineHeight);
+            });
+        }
+
+        // Profile Management
+        function showProfile(enterprise) {
+            ExplorerState.selectedEnterprise = enterprise;
+            render();
+
+            const type = enterpriseTypes[enterprise.type] || enterpriseTypes.cooperative;
+            document.getElementById('profileName').textContent = enterprise.name || 'Unnamed Enterprise';
+            document.getElementById('profileType').textContent = type.name;
+            document.getElementById('profileType').style.background = type.color;
+
+            const info = enterprise.businessInfo || {};
+            const content = document.getElementById('profileContent');
+
+            let html = '';
+
+            // Description
+            if (info.description) {
+                html += `
+                    <div class="profile-section">
+                        <h3>About</h3>
+                        <p>${info.description}</p>
+                    </div>
+                `;
+            }
+
+            // Details
+            html += '<div class="profile-section"><h3>Details</h3>';
+
+            if (info.website) {
+                html += `
+                    <div class="profile-field">
+                        <div class="profile-field-icon">🌐</div>
+                        <div class="profile-field-content">
+                            <div class="profile-field-label">Website</div>
+                            <div class="profile-field-value"><a href="${info.website}" target="_blank">${info.website}</a></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (info.location) {
+                html += `
+                    <div class="profile-field">
+                        <div class="profile-field-icon">📍</div>
+                        <div class="profile-field-content">
+                            <div class="profile-field-label">Location</div>
+                            <div class="profile-field-value">${info.location}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (info.yearFounded) {
+                html += `
+                    <div class="profile-field">
+                        <div class="profile-field-icon">📅</div>
+                        <div class="profile-field-content">
+                            <div class="profile-field-label">Year Founded</div>
+                            <div class="profile-field-value">${info.yearFounded}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (info.members) {
+                html += `
+                    <div class="profile-field">
+                        <div class="profile-field-icon">👥</div>
+                        <div class="profile-field-content">
+                            <div class="profile-field-label">Members/Employees</div>
+                            <div class="profile-field-value">${info.members}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (info.products) {
+                html += `
+                    <div class="profile-field">
+                        <div class="profile-field-icon">📦</div>
+                        <div class="profile-field-content">
+                            <div class="profile-field-label">Products/Services</div>
+                            <div class="profile-field-value">${info.products}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (info.email) {
+                html += `
+                    <div class="profile-field">
+                        <div class="profile-field-icon">📧</div>
+                        <div class="profile-field-content">
+                            <div class="profile-field-label">Contact</div>
+                            <div class="profile-field-value"><a href="mailto:${info.email}">${info.email}</a></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+
+            // Relationships
+            const relatedRels = ExplorerState.relationships.filter(
+                r => r.startId === enterprise.id || r.endId === enterprise.id
+            );
+
+            if (relatedRels.length > 0) {
+                html += '<div class="profile-section"><h3>Relationships</h3><div class="profile-relationships">';
+
+                relatedRels.forEach(rel => {
+                    const isOutgoing = rel.startId === enterprise.id;
+                    const otherId = isOutgoing ? rel.endId : rel.startId;
+                    const other = ExplorerState.enterprises.find(e => e.id === otherId);
+                    const relType = relationshipTypes[rel.type] || { name: 'Unknown', color: '#95a5a6' };
+
+                    if (other) {
+                        html += `
+                            <div class="profile-rel-item">
+                                <div class="profile-rel-badge" style="background: ${relType.color}">${rel.type}</div>
+                                <span class="profile-rel-name" onclick="selectEnterprise('${other.id}')">${isOutgoing ? '→' : '←'} ${other.name || 'Unnamed'}</span>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += '</div></div>';
+            }
+
+            // No info available
+            if (!info.description && !info.website && !info.location && !info.yearFounded && !info.members && !info.products && !info.email) {
+                html = `
+                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                        <p>No business information available for this enterprise.</p>
+                    </div>
+                ` + (relatedRels.length > 0 ? html : '');
+            }
+
+            content.innerHTML = html;
+            document.getElementById('profileSidebar').classList.add('open');
+        }
+
+        function closeProfile() {
+            document.getElementById('profileSidebar').classList.remove('open');
+            ExplorerState.selectedEnterprise = null;
+            render();
+        }
+
+        function selectEnterprise(id) {
+            const ent = ExplorerState.enterprises.find(e => e.id === id);
+            if (ent) {
+                showProfile(ent);
+                // Pan to center on enterprise
+                const containerRect = document.getElementById('canvasArea').getBoundingClientRect();
+                ExplorerState.panOffset.x = containerRect.width / 2 - (ent.x + ent.width / 2) * ExplorerState.zoom;
+                ExplorerState.panOffset.y = containerRect.height / 2 - (ent.y + ent.height / 2) * ExplorerState.zoom;
+                render();
+            }
+        }
+
+        // Directory
+        function toggleDirectory() {
+            document.getElementById('directoryPanel').classList.toggle('open');
+        }
+
+        function populateDirectory() {
+            const list = document.getElementById('directoryList');
+            list.innerHTML = '';
+
+            ExplorerState.enterprises.forEach(ent => {
+                const type = enterpriseTypes[ent.type] || enterpriseTypes.cooperative;
+                const item = document.createElement('div');
+                item.className = 'directory-item';
+                item.onclick = () => selectEnterprise(ent.id);
+                item.innerHTML = `
+                    <div class="directory-item-icon" style="background: ${type.color}20; color: ${type.color};">
+                        ${getTypeIcon(ent.type)}
+                    </div>
+                    <div class="directory-item-info">
+                        <div class="directory-item-name">${ent.name || 'Unnamed'}</div>
+                        <div class="directory-item-type">${type.name}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function filterDirectory(query) {
+            const items = document.querySelectorAll('.directory-item');
+            const lowerQuery = query.toLowerCase();
+
+            items.forEach(item => {
+                const name = item.querySelector('.directory-item-name').textContent.toLowerCase();
+                item.style.display = name.includes(lowerQuery) ? 'flex' : 'none';
+            });
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                cooperative: '🏢',
+                ncm: '🤝',
+                social: '💛',
+                private: '🏭',
+                state: '🏛️',
+                excluded: '⊘',
+                partnership: '👥',
+                public: '📈',
+                charity: '❤️',
+                community: '🏘️'
+            };
+            return icons[type] || '🏢';
+        }
+
+        // File Loading
+        function loadDiagram() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    ExplorerState.enterprises = data.enterprises || [];
+                    ExplorerState.relationships = data.relationships || [];
+                    ExplorerState.diagram = data.diagramProperties || {};
+
+                    // Update title
+                    document.getElementById('diagramTitle').textContent =
+                        ExplorerState.diagram.title || file.name.replace('.coopmaps', '').replace('.json', '');
+
+                    // Hide welcome panel
+                    document.getElementById('welcomePanel').style.display = 'none';
+
+                    // Populate directory
+                    populateDirectory();
+
+                    // Fit to content
+                    fitToContent();
+
+                    showToast('Diagram loaded successfully');
+                } catch (err) {
+                    showToast('Error loading diagram: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // URL parameter loading
+        function checkURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            const diagramId = params.get('id');
+            const diagramUrl = params.get('url');
+
+            if (diagramUrl) {
+                fetch(diagramUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        ExplorerState.enterprises = data.enterprises || [];
+                        ExplorerState.relationships = data.relationships || [];
+                        ExplorerState.diagram = data.diagramProperties || {};
+                        document.getElementById('diagramTitle').textContent = ExplorerState.diagram.title || 'Loaded Diagram';
+                        document.getElementById('welcomePanel').style.display = 'none';
+                        populateDirectory();
+                        fitToContent();
+                    })
+                    .catch(err => showToast('Error loading diagram from URL'));
+            }
+        }
+
+        // Initialize
+        init();
+        checkURLParams();
+    </script>
+</body>
+</html>

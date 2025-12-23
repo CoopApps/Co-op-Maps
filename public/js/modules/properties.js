@@ -706,6 +706,167 @@
                         </div>
                     </div>
 
+                    <!-- Business Information (for Explore mode) -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                        border: 1px solid #e9ecef;
+                    ">
+                        <h4 style="
+                            font-size: 16px;
+                            color: #2c3e50;
+                            margin: 0 0 8px 0;
+                            font-weight: 600;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                        ">
+                            Business Information
+                            <span style="font-size: 11px; font-weight: normal; color: #7f8c8d; background: #f0f0f0; padding: 2px 8px; border-radius: 4px;">For Explore Mode</span>
+                        </h4>
+                        <p style="font-size: 12px; color: #7f8c8d; margin-bottom: 16px;">
+                            This information appears when viewing in Explore mode
+                        </p>
+
+                        <div class="property-field" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; color: #546e7a; margin-bottom: 8px; font-weight: 500;">Description</label>
+                            <textarea
+                                onchange="CoopMaps.modules.properties.updateBusinessInfo('description', this.value)"
+                                placeholder="Brief description of the enterprise..."
+                                style="
+                                    width: 100%;
+                                    padding: 12px 16px;
+                                    border: 2px solid #e9ecef;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                    background: #f8f9fa;
+                                    resize: vertical;
+                                    min-height: 80px;
+                                    font-family: inherit;
+                                "
+                                onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
+                                onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';"
+                            >${selected.businessInfo?.description || ''}</textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div class="property-field">
+                                <label style="display: block; font-size: 13px; color: #546e7a; margin-bottom: 8px; font-weight: 500;">Website</label>
+                                <input type="url"
+                                       value="${selected.businessInfo?.website || ''}"
+                                       onchange="CoopMaps.modules.properties.updateBusinessInfo('website', this.value)"
+                                       placeholder="https://..."
+                                       style="
+                                           width: 100%;
+                                           padding: 12px 16px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           font-size: 14px;
+                                           background: #f8f9fa;
+                                       "
+                                       onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
+                                       onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                            </div>
+
+                            <div class="property-field">
+                                <label style="display: block; font-size: 13px; color: #546e7a; margin-bottom: 8px; font-weight: 500;">Location</label>
+                                <input type="text"
+                                       value="${selected.businessInfo?.location || ''}"
+                                       onchange="CoopMaps.modules.properties.updateBusinessInfo('location', this.value)"
+                                       placeholder="City, Country"
+                                       style="
+                                           width: 100%;
+                                           padding: 12px 16px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           font-size: 14px;
+                                           background: #f8f9fa;
+                                       "
+                                       onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
+                                       onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div class="property-field">
+                                <label style="display: block; font-size: 13px; color: #546e7a; margin-bottom: 8px; font-weight: 500;">Year Founded</label>
+                                <input type="number"
+                                       value="${selected.businessInfo?.yearFounded || ''}"
+                                       onchange="CoopMaps.modules.properties.updateBusinessInfo('yearFounded', this.value)"
+                                       placeholder="e.g., 1995"
+                                       min="1800"
+                                       max="2100"
+                                       style="
+                                           width: 100%;
+                                           padding: 12px 16px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           font-size: 14px;
+                                           background: #f8f9fa;
+                                       "
+                                       onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
+                                       onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                            </div>
+
+                            <div class="property-field">
+                                <label style="display: block; font-size: 13px; color: #546e7a; margin-bottom: 8px; font-weight: 500;">Members/Employees</label>
+                                <input type="text"
+                                       value="${selected.businessInfo?.members || ''}"
+                                       onchange="CoopMaps.modules.properties.updateBusinessInfo('members', this.value)"
+                                       placeholder="e.g., 500 members"
+                                       style="
+                                           width: 100%;
+                                           padding: 12px 16px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           font-size: 14px;
+                                           background: #f8f9fa;
+                                       "
+                                       onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
+                                       onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                            </div>
+                        </div>
+
+                        <div class="property-field" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; color: #546e7a; margin-bottom: 8px; font-weight: 500;">Products/Services</label>
+                            <input type="text"
+                                   value="${selected.businessInfo?.products || ''}"
+                                   onchange="CoopMaps.modules.properties.updateBusinessInfo('products', this.value)"
+                                   placeholder="e.g., Organic produce, Fair trade coffee"
+                                   style="
+                                       width: 100%;
+                                       padding: 12px 16px;
+                                       border: 2px solid #e9ecef;
+                                       border-radius: 8px;
+                                       font-size: 14px;
+                                       background: #f8f9fa;
+                                   "
+                                   onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
+                                   onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                        </div>
+
+                        <div class="property-field">
+                            <label style="display: block; font-size: 13px; color: #546e7a; margin-bottom: 8px; font-weight: 500;">Contact Email</label>
+                            <input type="email"
+                                   value="${selected.businessInfo?.email || ''}"
+                                   onchange="CoopMaps.modules.properties.updateBusinessInfo('email', this.value)"
+                                   placeholder="contact@example.coop"
+                                   style="
+                                       width: 100%;
+                                       padding: 12px 16px;
+                                       border: 2px solid #e9ecef;
+                                       border-radius: 8px;
+                                       font-size: 14px;
+                                       background: #f8f9fa;
+                                   "
+                                   onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
+                                   onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                        </div>
+                    </div>
+
                     <!-- Relationships Info -->
                     ${this.renderRelationshipsInfo(selected)}
 
@@ -1024,6 +1185,23 @@
             }
 
             CoopMaps.state.data.diagramProperties.scope[property] = value;
+
+            // Mark as dirty
+            document.dispatchEvent(new CustomEvent('diagram-changed'));
+        },
+
+        updateBusinessInfo(property, value) {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (!selected) return;
+
+            CoopMaps.saveState();
+
+            // Ensure businessInfo object exists
+            if (!selected.businessInfo) {
+                selected.businessInfo = {};
+            }
+
+            selected.businessInfo[property] = value;
 
             // Mark as dirty
             document.dispatchEvent(new CustomEvent('diagram-changed'));
