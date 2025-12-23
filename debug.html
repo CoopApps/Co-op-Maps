@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CoopMaps Debug</title>
+</head>
+<body>
+    <h1>CoopMaps Module Loader Debug</h1>
+    <div id="status"></div>
+    <pre id="log" style="background: #f5f5f5; padding: 20px; font-family: monospace;"></pre>
+
+    <script>
+        const log = document.getElementById('log');
+        const status = document.getElementById('status');
+        
+        function addLog(msg) {
+            console.log(msg);
+            log.textContent += msg + '\n';
+        }
+
+        window.CoopMaps = {
+            modules: {},
+            registerModule(name, module) {
+                this.modules[name] = module;
+                addLog(`✓ Module registered: ${name}`);
+                status.innerHTML += `<div style="color: green">✓ ${name}</div>`;
+            }
+        };
+
+        addLog('Starting module load test...');
+        addLog('Testing module paths...\n');
+
+        const modules = [
+            'public/js/modules/shapes.js',
+            'public/js/modules/canvas.js',
+            'public/js/modules/enterprises.js',
+            'public/js/modules/relationships.js',
+            'public/js/modules/properties.js',
+            'public/js/modules/export.js',
+            'public/js/modules/symbolKey.js',
+            'public/js/modules/persistence.js',
+            'public/js/modules/manuals.js',
+            'public/js/modules/productInfo.js'
+        ];
+
+        modules.forEach(src => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => addLog(`Loaded: ${src}`);
+            script.onerror = () => {
+                addLog(`❌ FAILED: ${src}`);
+                status.innerHTML += `<div style="color: red">❌ ${src}</div>`;
+            };
+            document.body.appendChild(script);
+        });
+    </script>
+</body>
+</html>

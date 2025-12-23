@@ -11,6 +11,7 @@ const logger = require('./utils/logger');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { connectDB } = require('./db/connection');
 const { connectRedis } = require('./db/redis');
+const { autoMigrate } = require('./db/auto-migrate');
 const { initializeSocketHandlers } = require('./sockets/index');
 
 // Import routes
@@ -19,6 +20,8 @@ const userRoutes = require('./routes/users');
 const diagramRoutes = require('./routes/diagrams');
 const collaboratorRoutes = require('./routes/collaborators');
 const publicRoutes = require('./routes/public');
+const mapsRoutes = require('./routes/maps');  // Community maps
+const adminRoutes = require('./routes/admin');  // Admin panel
 
 const app = express();
 const server = http.createServer(app);
@@ -33,7 +36,22 @@ const io = socketIo(server, {
 });
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com"],
+            scriptSrcAttr: ["'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "blob:"],
+            connectSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+            fontSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+        },
+    },
+}));
 app.use(cors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     credentials: true
@@ -65,6 +83,8 @@ app.use('/api/diagrams', diagramRoutes);
 app.use('/api/diagrams', collaboratorRoutes);
 app.use('/api/collaborators', collaboratorRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/maps', mapsRoutes);  // Community maps routes
+app.use('/api/admin', adminRoutes);  // Admin panel routes
 
 // Serve static files (for the frontend)
 app.use(express.static('public'));
@@ -86,6 +106,9 @@ async function startServer() {
         // Connect to database
         await connectDB();
         logger.info('Database connected successfully');
+
+        // Run auto-migration if needed
+        await autoMigrate();
 
         // Connect to Redis
         await connectRedis();
