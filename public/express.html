@@ -328,6 +328,9 @@
                 <button onclick="CoopMaps.modules.canvas.toggleMinimap()">Map</button>
                 <button id="darkModeBtn" onclick="CoopMaps.toggleDarkMode()">Dark</button>
                 <div class="separator"></div>
+                <button onclick="CoopMaps.modules.timeline.showAddSnapshotDialog()">+Snapshot</button>
+                <button onclick="CoopMaps.modules.timeline.showTimelinePanel()">Timeline</button>
+                <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export.showExportDialog()">Export</button>
                 <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
                 <button onclick="CoopMaps.modules.symbolKey.generateKey()">Key</button>
@@ -417,6 +420,8 @@
                     },
                     enterprises: [],
                     relationships: [],
+                    groups: [],
+                    timeline: [],
                     selectedItem: null,
                     selectedItemType: null
                 },
@@ -806,6 +811,7 @@
     <script src="./js/modules/persistence.js"></script>
     <script src="./js/modules/manuals.js"></script>
     <script src="./js/modules/productInfo.js"></script>
+    <script src="./js/modules/timeline.js"></script>
 
     <!-- Initialize after modules load -->
     <script>
