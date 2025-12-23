@@ -68,6 +68,7 @@
         },
 
         createPanel() {
+            const isDarkMode = document.body.classList.contains('dark-mode');
             const panel = document.createElement('div');
             panel.id = 'symbolKeyPanel';
             panel.className = 'symbol-key-panel';
@@ -77,8 +78,8 @@
                 right: -500px;
                 width: 500px;
                 height: calc(100vh - 60px);
-                background: white;
-                box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+                background: ${isDarkMode ? '#1e1e2e' : 'white'};
+                box-shadow: -4px 0 24px rgba(0, 0, 0, ${isDarkMode ? '0.4' : '0.15'});
                 transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 z-index: 999;
                 display: flex;
@@ -136,8 +137,8 @@
 
                 <div class="symbol-key-actions no-print" style="
                     padding: 20px;
-                    background: #f8f9fa;
-                    border-bottom: 1px solid #e9ecef;
+                    background: ${isDarkMode ? '#252538' : '#f8f9fa'};
+                    border-bottom: 1px solid ${isDarkMode ? '#3a3a4e' : '#e9ecef'};
                     display: flex;
                     gap: 12px;
                     flex-shrink: 0;
@@ -190,17 +191,17 @@
                     flex: 1;
                     overflow-y: auto;
                     padding: 30px;
-                    background: #fafafa;
+                    background: ${isDarkMode ? '#1a1a2e' : '#fafafa'};
                 ">
                     <div class="loading" style="
                         text-align: center;
                         padding: 40px;
-                        color: #7f8c8d;
+                        color: ${isDarkMode ? '#888' : '#7f8c8d'};
                     ">
                         <div style="
                             width: 50px;
                             height: 50px;
-                            border: 3px solid #e9ecef;
+                            border: 3px solid ${isDarkMode ? '#3a3a4e' : '#e9ecef'};
                             border-top: 3px solid #667eea;
                             border-radius: 50%;
                             animation: spin 1s linear infinite;
@@ -233,35 +234,49 @@
             const content = document.getElementById('symbolKeyContent');
             if (!content) return;
 
+            const isDarkMode = document.body.classList.contains('dark-mode');
             const diagramTitle = CoopMaps.state.data.diagramProperties.title || 'Co-operative Diagram';
             const stats = this.getUsageStatistics();
+
+            // Dark mode color variables
+            const colors = {
+                bg: isDarkMode ? '#2a2a3e' : 'white',
+                bgAlt: isDarkMode ? '#252538' : '#f8f9fa',
+                bgGradient: isDarkMode ? 'linear-gradient(135deg, #2a2a3e 0%, #353548 100%)' : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                border: isDarkMode ? '#3a3a4e' : '#e9ecef',
+                text: isDarkMode ? '#e0e0e0' : '#2c3e50',
+                textMuted: isDarkMode ? '#888' : '#7f8c8d',
+                textSubtle: isDarkMode ? '#aaa' : '#546e7a',
+                canvasBg: isDarkMode ? '#1e1e2e' : 'white',
+                canvasBorder: isDarkMode ? '#3a3a4e' : '#e9ecef'
+            };
 
             let html = `
                 <!-- Diagram Context -->
                 <div class="key-section" style="
-                    background: white;
+                    background: ${colors.bg};
                     padding: 20px;
                     border-radius: 12px;
                     margin-bottom: 25px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #e9ecef;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.05'});
+                    border: 1px solid ${colors.border};
                 ">
                     <h3 style="
                         font-size: 16px;
                         font-weight: 600;
                         margin: 0 0 12px 0;
-                        color: #2c3e50;
+                        color: ${colors.text};
                     ">Current Diagram</h3>
                     <p style="
                         margin: 0 0 8px 0;
                         font-size: 14px;
-                        color: #546e7a;
+                        color: ${colors.textSubtle};
                     "><strong>${diagramTitle}</strong></p>
                     <div style="
                         display: flex;
                         gap: 20px;
                         font-size: 13px;
-                        color: #7f8c8d;
+                        color: ${colors.textMuted};
                     ">
                         <span>${stats.enterprises} enterprises</span>
                         <span>${stats.relationships} relationships</span>
@@ -276,7 +291,7 @@
                         font-size: 18px;
                         font-weight: 600;
                         margin: 0 0 20px 0;
-                        color: #2c3e50;
+                        color: ${colors.text};
                         padding-bottom: 12px;
                         border-bottom: 2px solid #667eea;
                         display: flex;
@@ -304,18 +319,18 @@
                         align-items: center;
                         margin-bottom: 16px;
                         padding: 16px;
-                        background: ${isUsed ? 'white' : '#f8f9fa'};
-                        border: 2px solid ${isUsed ? '#e9ecef' : '#f8f9fa'};
+                        background: ${isUsed ? colors.bg : colors.bgAlt};
+                        border: 2px solid ${isUsed ? colors.border : colors.bgAlt};
                         border-radius: 12px;
                         transition: all 0.2s ease;
                         opacity: ${isUsed ? '1' : '0.7'};
                     "
                     onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateX(4px)';"
-                    onmouseout="this.style.borderColor='${isUsed ? '#e9ecef' : '#f8f9fa'}'; this.style.transform='translateX(0)';">
+                    onmouseout="this.style.borderColor='${isUsed ? colors.border : colors.bgAlt}'; this.style.transform='translateX(0)';">
                         <canvas id="key-${type.id}" width="100" height="60" style="
-                            background: white;
+                            background: ${colors.canvasBg};
                             border-radius: 8px;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.1'});
                             margin-right: 20px;
                         "></canvas>
                         <div class="key-item-label" style="flex: 1;">
@@ -327,7 +342,7 @@
                             ">
                                 <strong style="
                                     font-size: 15px;
-                                    color: #2c3e50;
+                                    color: ${colors.text};
                                 ">${type.name}</strong>
                                 ${isUsed ? `<span style="
                                     background: #667eea;
@@ -340,7 +355,7 @@
                             </div>
                             <small style="
                                 font-size: 13px;
-                                color: #7f8c8d;
+                                color: ${colors.textMuted};
                                 line-height: 1.4;
                             ">${type.desc}</small>
                         </div>
@@ -352,18 +367,18 @@
             // Participation Roles section
             html += `
                 <div class="key-section" style="
-                    background: white;
+                    background: ${colors.bg};
                     padding: 25px;
                     border-radius: 12px;
                     margin-bottom: 25px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #e9ecef;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.05'});
+                    border: 1px solid ${colors.border};
                 ">
                     <h3 style="
                         font-size: 18px;
                         font-weight: 600;
                         margin: 0 0 20px 0;
-                        color: #2c3e50;
+                        color: ${colors.text};
                         display: flex;
                         align-items: center;
                         gap: 10px;
@@ -372,7 +387,7 @@
                     </h3>
                     <p style="
                         font-size: 13px;
-                        color: #7f8c8d;
+                        color: ${colors.textMuted};
                         margin-bottom: 16px;
                         line-height: 1.5;
                     ">Colored indicators appear across the top edge of co-operative and NCM enterprises</p>
@@ -382,7 +397,7 @@
                         gap: 12px;
                         margin-bottom: 20px;
                         padding: 16px;
-                        background: #f8f9fa;
+                        background: ${colors.bgAlt};
                         border-radius: 8px;
                     ">
                         <div style="
@@ -425,8 +440,8 @@
 
                     <canvas id="key-participation-demo" width="400" height="80" style="
                         width: 100%;
-                        background: white;
-                        border: 1px solid #e9ecef;
+                        background: ${colors.canvasBg};
+                        border: 1px solid ${colors.canvasBorder};
                         border-radius: 8px;
                     "></canvas>
                 </div>
@@ -435,18 +450,18 @@
             // Structural Tiers section
             html += `
                 <div class="key-section" style="
-                    background: white;
+                    background: ${colors.bg};
                     padding: 25px;
                     border-radius: 12px;
                     margin-bottom: 25px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #e9ecef;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.05'});
+                    border: 1px solid ${colors.border};
                 ">
                     <h3 style="
                         font-size: 18px;
                         font-weight: 600;
                         margin: 0 0 20px 0;
-                        color: #2c3e50;
+                        color: ${colors.text};
                         display: flex;
                         align-items: center;
                         gap: 10px;
@@ -455,7 +470,7 @@
                     </h3>
                     <p style="
                         font-size: 13px;
-                        color: #7f8c8d;
+                        color: ${colors.textMuted};
                         margin-bottom: 16px;
                         line-height: 1.5;
                     ">Indicators on the left edge show the enterprise's position in the value chain</p>
@@ -469,7 +484,7 @@
                             <div style="
                                 width: 40px;
                                 height: 40px;
-                                background: #f8f9fa;
+                                background: ${colors.bgAlt};
                                 border: 2px solid #546e7a;
                                 display: flex;
                                 align-items: center;
@@ -481,7 +496,7 @@
                             <div style="
                                 width: 40px;
                                 height: 40px;
-                                background: #f8f9fa;
+                                background: ${colors.bgAlt};
                                 border: 2px solid #546e7a;
                                 display: flex;
                                 align-items: center;
@@ -505,16 +520,16 @@
                         </div>
                         <div style="flex: 1;">
                             <div style="margin-bottom: 12px;">
-                                <strong style="color: #2c3e50;">T - Tertiary</strong>
-                                <span style="color: #7f8c8d; font-size: 13px;"> (Top): Retail, distribution, services</span>
+                                <strong style="color: ${colors.text};">T - Tertiary</strong>
+                                <span style="color: ${colors.textMuted}; font-size: 13px;"> (Top): Retail, distribution, services</span>
                             </div>
                             <div style="margin-bottom: 12px;">
-                                <strong style="color: #2c3e50;">S - Secondary</strong>
-                                <span style="color: #7f8c8d; font-size: 13px;"> (Middle): Processing, manufacturing</span>
+                                <strong style="color: ${colors.text};">S - Secondary</strong>
+                                <span style="color: ${colors.textMuted}; font-size: 13px;"> (Middle): Processing, manufacturing</span>
                             </div>
                             <div>
-                                <strong style="color: #2c3e50;">P - Primary</strong>
-                                <span style="color: #7f8c8d; font-size: 13px;"> (Bottom): Raw materials, production</span>
+                                <strong style="color: ${colors.text};">P - Primary</strong>
+                                <span style="color: ${colors.textMuted}; font-size: 13px;"> (Bottom): Raw materials, production</span>
                             </div>
                         </div>
                     </div>
@@ -522,8 +537,8 @@
                     <canvas id="key-tier-demo" width="400" height="100" style="
                         width: 100%;
                         margin-top: 20px;
-                        background: white;
-                        border: 1px solid #e9ecef;
+                        background: ${colors.canvasBg};
+                        border: 1px solid ${colors.canvasBorder};
                         border-radius: 8px;
                     "></canvas>
                 </div>
@@ -536,7 +551,7 @@
                         font-size: 18px;
                         font-weight: 600;
                         margin: 0 0 20px 0;
-                        color: #2c3e50;
+                        color: ${colors.text};
                         padding-bottom: 12px;
                         border-bottom: 2px solid #667eea;
                         display: flex;
@@ -565,14 +580,14 @@
                 html += `
                     <div class="key-item" style="
                         padding: 12px;
-                        background: ${isUsed ? 'white' : '#f8f9fa'};
-                        border: 2px solid ${isUsed ? '#e9ecef' : '#f8f9fa'};
+                        background: ${isUsed ? colors.bg : colors.bgAlt};
+                        border: 2px solid ${isUsed ? colors.border : colors.bgAlt};
                         border-radius: 8px;
                         transition: all 0.2s ease;
                         opacity: ${isUsed ? '1' : '0.7'};
                     "
-                    onmouseover="this.style.borderColor='${rel.color}'; this.style.background='${rel.color}10';"
-                    onmouseout="this.style.borderColor='${isUsed ? '#e9ecef' : '#f8f9fa'}'; this.style.background='${isUsed ? 'white' : '#f8f9fa'}';">
+                    onmouseover="this.style.borderColor='${rel.color}'; this.style.background='${rel.color}${isDarkMode ? '30' : '10'}';"
+                    onmouseout="this.style.borderColor='${isUsed ? colors.border : colors.bgAlt}'; this.style.background='${isUsed ? colors.bg : colors.bgAlt}';">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <canvas id="key-rel-${rel.id}" width="80" height="40"></canvas>
                             <div style="flex: 1;">
@@ -606,7 +621,7 @@
                                 </div>
                                 <div style="
                                     font-size: 11px;
-                                    color: #7f8c8d;
+                                    color: ${colors.textMuted};
                                     line-height: 1.3;
                                 ">${rel.name}</div>
                             </div>
@@ -619,18 +634,18 @@
             // Segmentation markers section
             html += `
                 <div class="key-section" style="
-                    background: white;
+                    background: ${colors.bg};
                     padding: 25px;
                     border-radius: 12px;
                     margin-bottom: 25px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #e9ecef;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.05'});
+                    border: 1px solid ${colors.border};
                 ">
                     <h3 style="
                         font-size: 18px;
                         font-weight: 600;
                         margin: 0 0 20px 0;
-                        color: #2c3e50;
+                        color: ${colors.text};
                         display: flex;
                         align-items: center;
                         gap: 10px;
@@ -639,33 +654,33 @@
                     </h3>
                     <p style="
                         font-size: 13px;
-                        color: #7f8c8d;
+                        color: ${colors.textMuted};
                         margin-bottom: 20px;
                         line-height: 1.5;
                     ">Used when relationships connect to generic sets to indicate scope</p>
 
                     <h4 style="
                         font-size: 14px;
-                        color: #34495e;
+                        color: ${colors.textSubtle};
                         margin-bottom: 12px;
                         font-weight: 600;
                     ">Start Markers (FROM)</h4>
                     <div style="margin-bottom: 20px;">
-                        ${this.renderMarkerItem('start-individual', 'Individual', 'No marker')}
-                        ${this.renderMarkerItem('start-entire', 'Entire set', 'Filled circle')}
-                        ${this.renderMarkerItem('start-subset', 'Subset', 'Hollow circle')}
+                        ${this.renderMarkerItem('start-individual', 'Individual', 'No marker', colors)}
+                        ${this.renderMarkerItem('start-entire', 'Entire set', 'Filled circle', colors)}
+                        ${this.renderMarkerItem('start-subset', 'Subset', 'Hollow circle', colors)}
                     </div>
 
                     <h4 style="
                         font-size: 14px;
-                        color: #34495e;
+                        color: ${colors.textSubtle};
                         margin-bottom: 12px;
                         font-weight: 600;
                     ">End Markers (TO)</h4>
                     <div>
-                        ${this.renderMarkerItem('end-individual', 'Individual', 'Normal arrow')}
-                        ${this.renderMarkerItem('end-entire', 'Entire set', 'Filled triangle')}
-                        ${this.renderMarkerItem('end-subset', 'Subset', 'Hollow triangle')}
+                        ${this.renderMarkerItem('end-individual', 'Individual', 'Normal arrow', colors)}
+                        ${this.renderMarkerItem('end-entire', 'Entire set', 'Filled triangle', colors)}
+                        ${this.renderMarkerItem('end-subset', 'Subset', 'Hollow triangle', colors)}
                     </div>
                 </div>
             `;
@@ -673,17 +688,17 @@
             // Generic Set section
             html += `
                 <div class="key-section" style="
-                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    background: ${colors.bgGradient};
                     padding: 25px;
                     border-radius: 12px;
                     margin-bottom: 25px;
-                    border: 1px solid #e9ecef;
+                    border: 1px solid ${colors.border};
                 ">
                     <h3 style="
                         font-size: 18px;
                         font-weight: 600;
                         margin: 0 0 20px 0;
-                        color: #2c3e50;
+                        color: ${colors.text};
                         display: flex;
                         align-items: center;
                         gap: 10px;
@@ -696,20 +711,20 @@
                         gap: 20px;
                     ">
                         <canvas id="key-generic-set" width="120" height="80" style="
-                            background: white;
+                            background: ${colors.canvasBg};
                             border-radius: 8px;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.1'});
                         "></canvas>
                         <div>
                             <strong style="
                                 font-size: 15px;
-                                color: #2c3e50;
+                                color: ${colors.text};
                                 display: block;
                                 margin-bottom: 8px;
                             ">Multiple Enterprises</strong>
                             <p style="
                                 font-size: 13px;
-                                color: #7f8c8d;
+                                color: ${colors.textMuted};
                                 margin: 0;
                                 line-height: 1.5;
                             ">
@@ -729,21 +744,25 @@
             }, 50);
         },
 
-        renderMarkerItem(id, name, desc) {
+        renderMarkerItem(id, name, desc, colors = {}) {
+            const bgColor = colors.bgAlt || '#f8f9fa';
+            const textColor = colors.text || '#2c3e50';
+            const mutedColor = colors.textMuted || '#7f8c8d';
+
             return `
                 <div style="
                     display: flex;
                     align-items: center;
                     gap: 12px;
                     padding: 8px 12px;
-                    background: #f8f9fa;
+                    background: ${bgColor};
                     border-radius: 6px;
                     margin-bottom: 8px;
                 ">
                     <canvas id="key-${id}" width="60" height="30"></canvas>
                     <div style="flex: 1;">
-                        <strong style="font-size: 13px; color: #2c3e50;">${name}</strong>
-                        <span style="font-size: 12px; color: #7f8c8d; margin-left: 8px;">${desc}</span>
+                        <strong style="font-size: 13px; color: ${textColor};">${name}</strong>
+                        <span style="font-size: 12px; color: ${mutedColor}; margin-left: 8px;">${desc}</span>
                     </div>
                 </div>
             `;
@@ -1171,13 +1190,13 @@
             yOffset += 25;
 
             const relationships = [
-                { letter: 'G', name: 'Governance', color: [231, 76, 60] },
-                { letter: 'I', name: 'Investment', color: [39, 174, 96] },
-                { letter: 'L', name: 'Asset Lock', color: [243, 156, 18] },
-                { letter: 'M', name: 'Member', color: [155, 89, 182] },
-                { letter: 'O', name: 'Owns', color: [52, 73, 94] },
-                { letter: 'P', name: 'Partner', color: [52, 152, 219] },
-                { letter: 'S', name: 'Supplies', color: [22, 160, 133] }
+                { letter: 'G', name: 'Governance', color: [231, 76, 60] },      // #e74c3c
+                { letter: 'I', name: 'Investment', color: [243, 156, 18] },     // #f39c12
+                { letter: 'L', name: 'Asset Lock', color: [241, 196, 15] },     // #f1c40f
+                { letter: 'M', name: 'Member', color: [46, 204, 113] },         // #2ecc71
+                { letter: 'O', name: 'Owns', color: [52, 152, 219] },           // #3498db
+                { letter: 'P', name: 'Partner', color: [155, 89, 182] },        // #9b59b6
+                { letter: 'S', name: 'Supplies', color: [230, 126, 34] }        // #e67e22
             ];
 
             relationships.forEach(rel => {
