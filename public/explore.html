@@ -432,6 +432,7 @@
         </div>
         <div class="header-controls">
             <button onclick="toggleDirectory()">Directory</button>
+            <button onclick="toggleTimeline()" id="timelineBtn" style="display: none;">Timeline</button>
             <button onclick="loadDiagram()" class="primary">Load Diagram</button>
         </div>
     </header>
@@ -494,6 +495,11 @@
             diagram: null,
             enterprises: [],
             relationships: [],
+            timeline: [],
+            currentSnapshotIndex: -1,
+            isPlaying: false,
+            playInterval: null,
+            savedCurrentState: null,
             zoom: 1,
             panOffset: { x: 0, y: 0 },
             selectedEnterprise: null,
@@ -1017,6 +1023,8 @@
                     ExplorerState.enterprises = data.enterprises || [];
                     ExplorerState.relationships = data.relationships || [];
                     ExplorerState.diagram = data.diagramProperties || {};
+                    ExplorerState.timeline = data.timeline || [];
+                    ExplorerState.currentSnapshotIndex = -1;
 
                     // Update title
                     document.getElementById('diagramTitle').textContent =
@@ -1025,13 +1033,18 @@
                     // Hide welcome panel
                     document.getElementById('welcomePanel').style.display = 'none';
 
+                    // Show/hide timeline button
+                    document.getElementById('timelineBtn').style.display =
+                        ExplorerState.timeline.length > 0 ? 'inline-block' : 'none';
+
                     // Populate directory
                     populateDirectory();
 
                     // Fit to content
                     fitToContent();
 
-                    showToast('Diagram loaded successfully');
+                    showToast('Diagram loaded successfully' +
+                        (ExplorerState.timeline.length > 0 ? ' (includes ' + ExplorerState.timeline.length + ' timeline snapshots)' : ''));
                 } catch (err) {
                     showToast('Error loading diagram: ' + err.message);
                 }
@@ -1060,13 +1073,236 @@
                         ExplorerState.enterprises = data.enterprises || [];
                         ExplorerState.relationships = data.relationships || [];
                         ExplorerState.diagram = data.diagramProperties || {};
+                        ExplorerState.timeline = data.timeline || [];
+                        ExplorerState.currentSnapshotIndex = -1;
                         document.getElementById('diagramTitle').textContent = ExplorerState.diagram.title || 'Loaded Diagram';
                         document.getElementById('welcomePanel').style.display = 'none';
+                        document.getElementById('timelineBtn').style.display =
+                            ExplorerState.timeline.length > 0 ? 'inline-block' : 'none';
                         populateDirectory();
                         fitToContent();
                     })
                     .catch(err => showToast('Error loading diagram from URL'));
             }
+        }
+
+        // Timeline Functions
+        function toggleTimeline() {
+            if (ExplorerState.timeline.length === 0) {
+                showToast('No timeline data in this diagram');
+                return;
+            }
+            showTimelineBar();
+        }
+
+        function showTimelineBar() {
+            let bar = document.getElementById('timelineBar');
+            if (bar) {
+                bar.remove();
+                return;
+            }
+
+            bar = document.createElement('div');
+            bar.id = 'timelineBar';
+            bar.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                padding: 15px 25px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                z-index: 1000;
+                min-width: 400px;
+            `;
+
+            updateTimelineBarContent(bar);
+            document.body.appendChild(bar);
+        }
+
+        function updateTimelineBarContent(bar) {
+            const timeline = ExplorerState.timeline;
+            if (!bar || timeline.length === 0) return;
+
+            const currentLabel = ExplorerState.currentSnapshotIndex >= 0
+                ? timeline[ExplorerState.currentSnapshotIndex].label
+                : 'Current State';
+
+            const dots = timeline.map((snap, idx) => `
+                <div
+                    onclick="viewSnapshot(${idx})"
+                    style="
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        background: ${idx === ExplorerState.currentSnapshotIndex ? '#3498db' : '#bdc3c7'};
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    "
+                    title="${snap.label} (${snap.date})"
+                ></div>
+            `).join('');
+
+            bar.innerHTML = `
+                <button onclick="prevSnapshot()" style="
+                    padding: 8px 12px;
+                    background: #f8f9fa;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 16px;
+                " ${ExplorerState.currentSnapshotIndex <= 0 ? 'disabled' : ''}>◀</button>
+
+                <button onclick="togglePlayback()" style="
+                    padding: 8px 12px;
+                    background: ${ExplorerState.isPlaying ? '#e74c3c' : '#27ae60'};
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: bold;
+                ">${ExplorerState.isPlaying ? '⏸' : '▶'}</button>
+
+                <button onclick="nextSnapshot()" style="
+                    padding: 8px 12px;
+                    background: #f8f9fa;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 16px;
+                " ${ExplorerState.currentSnapshotIndex >= timeline.length - 1 ? 'disabled' : ''}>▶</button>
+
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center;">
+                    ${dots}
+                </div>
+
+                <div style="min-width: 120px; text-align: center; font-weight: 600; color: #2c3e50;">
+                    ${escapeHtml(currentLabel)}
+                </div>
+
+                <button onclick="returnToCurrentState()" style="
+                    padding: 8px 12px;
+                    background: #2c3e50;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 12px;
+                ">✕ Close</button>
+            `;
+        }
+
+        function viewSnapshot(index) {
+            const timeline = ExplorerState.timeline;
+            if (index < 0 || index >= timeline.length) return;
+
+            // Save current state on first view
+            if (!ExplorerState.savedCurrentState) {
+                ExplorerState.savedCurrentState = {
+                    enterprises: JSON.parse(JSON.stringify(ExplorerState.enterprises)),
+                    relationships: JSON.parse(JSON.stringify(ExplorerState.relationships))
+                };
+            }
+
+            ExplorerState.currentSnapshotIndex = index;
+            const snapshot = timeline[index];
+
+            // Load snapshot data
+            ExplorerState.enterprises = JSON.parse(JSON.stringify(snapshot.data.enterprises));
+            ExplorerState.relationships = JSON.parse(JSON.stringify(snapshot.data.relationships));
+
+            // Re-render
+            render();
+            populateDirectory();
+
+            // Update bar
+            const bar = document.getElementById('timelineBar');
+            if (bar) updateTimelineBarContent(bar);
+
+            showToast('Viewing: ' + snapshot.label + ' (' + snapshot.date + ')');
+        }
+
+        function returnToCurrentState() {
+            if (ExplorerState.savedCurrentState) {
+                ExplorerState.enterprises = ExplorerState.savedCurrentState.enterprises;
+                ExplorerState.relationships = ExplorerState.savedCurrentState.relationships;
+                ExplorerState.savedCurrentState = null;
+            }
+
+            ExplorerState.currentSnapshotIndex = -1;
+            stopPlayback();
+
+            render();
+            populateDirectory();
+
+            const bar = document.getElementById('timelineBar');
+            if (bar) bar.remove();
+
+            showToast('Returned to current state');
+        }
+
+        function prevSnapshot() {
+            if (ExplorerState.currentSnapshotIndex > 0) {
+                viewSnapshot(ExplorerState.currentSnapshotIndex - 1);
+            }
+        }
+
+        function nextSnapshot() {
+            if (ExplorerState.currentSnapshotIndex < ExplorerState.timeline.length - 1) {
+                viewSnapshot(ExplorerState.currentSnapshotIndex + 1);
+            }
+        }
+
+        function togglePlayback() {
+            if (ExplorerState.isPlaying) {
+                stopPlayback();
+            } else {
+                startPlayback();
+            }
+        }
+
+        function startPlayback() {
+            const timeline = ExplorerState.timeline;
+            if (timeline.length < 2) return;
+
+            ExplorerState.isPlaying = true;
+
+            // Start from first if not already viewing
+            if (ExplorerState.currentSnapshotIndex < 0) {
+                viewSnapshot(0);
+            }
+
+            ExplorerState.playInterval = setInterval(() => {
+                if (ExplorerState.currentSnapshotIndex >= timeline.length - 1) {
+                    stopPlayback();
+                    return;
+                }
+                viewSnapshot(ExplorerState.currentSnapshotIndex + 1);
+            }, 2000);
+
+            const bar = document.getElementById('timelineBar');
+            if (bar) updateTimelineBarContent(bar);
+        }
+
+        function stopPlayback() {
+            ExplorerState.isPlaying = false;
+            if (ExplorerState.playInterval) {
+                clearInterval(ExplorerState.playInterval);
+                ExplorerState.playInterval = null;
+            }
+            const bar = document.getElementById('timelineBar');
+            if (bar) updateTimelineBarContent(bar);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
         }
 
         // Initialize
