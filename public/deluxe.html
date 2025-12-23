@@ -709,7 +709,7 @@
 
             registerModule(name, module) {
                 this.modules[name] = module;
-                console.log(`✓ Module registered: ${name}`);
+                console.log(`[OK] Module registered: ${name}`);
             },
 
             generateId() {
@@ -861,7 +861,7 @@
                                 <div style="max-height: 400px; overflow-y: auto;">
                                     ${enterprises.length === 0 ? `
                                         <div style="padding: 40px; text-align: center; color: #7f8c8d;">
-                                            <div style="font-size: 40px; margin-bottom: 12px;">🏢</div>
+                                            <div style="margin-bottom: 12px;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/></svg></div>
                                             <p>No enterprises yet.<br>Add some from the Symbols tab.</p>
                                         </div>
                                     ` : enterprises.map(ent => {
@@ -895,7 +895,7 @@
                                                         ${ent.name || 'Unnamed'}
                                                     </div>
                                                     <div style="font-size: 11px; color: #7f8c8d;">
-                                                        ${hasInfo ? '✓ Has business info' : 'No info yet'}
+                                                        ${hasInfo ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="3" style="vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"/></svg>Has business info' : 'No info yet'}
                                                     </div>
                                                 </div>
                                                 <div style="color: #bdc3c7;">→</div>
@@ -1398,7 +1398,7 @@
                 // 6. Load map from URL if specified
                 const mapLoaded = await this.loadMapFromUrl();
 
-                console.log('✓ Co-opMaps ready!');
+                console.log('[OK] Co-opMaps ready!');
                 if (!mapLoaded) {
                     this.showNotification('Co-opMaps ready!', 'success');
                 }

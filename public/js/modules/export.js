@@ -186,7 +186,7 @@
                                 justify-content: center;
                                 color: white;
                                 font-size: 20px;
-                            ">ℹ</div>
+                            "><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
                             <div>
                                 <strong style="color: #2c3e50;">Export Information</strong>
                                 <p style="margin: 5px 0 0 0; font-size: 13px; color: #7f8c8d;">
@@ -796,7 +796,7 @@
 
             success.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="font-size: 24px;">✓</div>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                     <div>${message}</div>
                 </div>
                 <style>

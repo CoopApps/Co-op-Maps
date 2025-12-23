@@ -200,12 +200,12 @@
 
         renderManualNavigation() {
             const sections = [
-                { id: 'getting-started', label: 'Getting Started', icon: '🚀' },
-                { id: 'enterprises', label: 'Enterprises', icon: '🏢' },
-                { id: 'relationships', label: 'Relationships', icon: '🔗' },
-                { id: 'diagrams', label: 'Diagrams', icon: '📊' },
-                { id: 'shortcuts', label: 'Shortcuts', icon: '⌨️' },
-                { id: 'tips', label: 'Tips & Tricks', icon: '💡' }
+                { id: 'getting-started', label: 'Getting Started', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>' },
+                { id: 'enterprises', label: 'Enterprises', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/></svg>' },
+                { id: 'relationships', label: 'Relationships', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' },
+                { id: 'diagrams', label: 'Diagrams', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' },
+                { id: 'shortcuts', label: 'Shortcuts', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h8M6 16h.001M10 16h8"/></svg>' },
+                { id: 'tips', label: 'Tips & Tricks', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2v1M4.22 4.22l.77.77M1 12h1M4.22 19.78l.77-.77M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"/></svg>' }
             ];
 
             return sections.map(section => `
@@ -225,7 +225,7 @@
                      "
                      onmouseover="if('${this.currentSection}' !== '${section.id}') { this.style.background='#ecf0f1'; this.style.color='#2c3e50'; }"
                      onmouseout="if('${this.currentSection}' !== '${section.id}') { this.style.background='transparent'; this.style.color='#7f8c8d'; }">
-                    <span style="font-size: 20px;">${section.icon}</span>
+                    <span style="display: flex; align-items: center;">${section.icon}</span>
                     <span>${section.label}</span>
                 </div>
             `).join('');

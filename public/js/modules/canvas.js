@@ -911,11 +911,15 @@
                 this.ctx.fill();
 
                 // Lock icon (simple padlock shape)
+                this.ctx.strokeStyle = 'white';
                 this.ctx.fillStyle = 'white';
-                this.ctx.font = 'bold 12px sans-serif';
-                this.ctx.textAlign = 'center';
-                this.ctx.textBaseline = 'middle';
-                this.ctx.fillText('🔒', lockX, lockY);
+                this.ctx.lineWidth = 1.5;
+                // Draw padlock body
+                this.ctx.fillRect(lockX - 4, lockY - 2, 8, 7);
+                // Draw padlock shackle
+                this.ctx.beginPath();
+                this.ctx.arc(lockX, lockY - 4, 3, Math.PI, 0, false);
+                this.ctx.stroke();
             }
 
             this.ctx.restore();

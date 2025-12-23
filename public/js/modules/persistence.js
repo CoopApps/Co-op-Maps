@@ -403,7 +403,7 @@
                 z-index: 3000;
                 animation: slideInRight 0.5s ease;
             `;
-            animation.innerHTML = '✓ Saved';
+            animation.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align: middle; margin-right: 6px;"><polyline points="20 6 9 17 4 12"/></svg>Saved';
             document.body.appendChild(animation);
 
             setTimeout(() => animation.remove(), 2000);

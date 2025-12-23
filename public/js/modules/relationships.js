@@ -61,7 +61,7 @@
             `;
             indicator.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 18px;">🔗</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                     <span>Relationship Mode Active - Click two enterprises to connect (ESC to exit mode)</span>
                 </div>
             `;
@@ -128,7 +128,7 @@
                 if (indicator) {
                     indicator.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 18px;">🔗</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                             <span>Selected: ${enterprise.name}</span>
                             <span style="opacity: 0.8; font-size: 12px; margin-left: 8px;">Click target enterprise</span>
                         </div>
@@ -533,7 +533,7 @@
             if (indicator) {
                 indicator.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 18px;">🔗</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                         <span>Relationship Mode Active - Click two enterprises to connect (ESC to exit mode)</span>
                     </div>
                 `;
@@ -604,7 +604,7 @@
                 indicator.style.display = 'none';
                 indicator.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 18px;">🔗</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                         <span>Relationship Mode Active</span>
                         <span style="opacity: 0.8; font-size: 12px; margin-left: 8px;">Press ESC to exit</span>
                     </div>

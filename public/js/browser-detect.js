@@ -123,7 +123,7 @@
             warning.id = 'browser-warning';
             warning.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff6b6b;color:white;padding:15px;text-align:center;z-index:99999;font-family:Arial,sans-serif;';
             warning.innerHTML =
-                '<strong>⚠️ Browser Not Supported</strong><br>' +
+                '<strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Browser Not Supported</strong><br>' +
                 'Your browser is too old to run Co-opMaps. Please upgrade to:<br>' +
                 'Chrome 49+, Firefox 52+, Safari 10+, or Edge 14+';
             document.body.insertBefore(warning, document.body.firstChild);
@@ -135,7 +135,7 @@
             info.id = 'legacy-info';
             info.style.cssText = 'position:fixed;bottom:10px;right:10px;background:#4a90e2;color:white;padding:10px 15px;border-radius:5px;font-size:12px;z-index:9999;font-family:Arial,sans-serif;max-width:300px;';
             info.innerHTML =
-                '💡 <strong>Legacy Mode</strong><br>' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><path d="M9 18h6M10 22h4M12 2v1M4.22 4.22l.77.77M1 12h1M4.22 19.78l.77-.77M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"/></svg><strong>Legacy Mode</strong><br>' +
                 'Running in compatibility mode for your browser. ' +
                 'Some features may be limited.';
 
