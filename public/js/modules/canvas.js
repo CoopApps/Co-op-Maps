@@ -1661,6 +1661,233 @@
 
         redo() {
             CoopMaps.redo();
+        },
+
+        // Print canvas with optimized styling
+        printCanvas() {
+            // Create a temporary canvas for printing at full resolution
+            const tempCanvas = document.createElement('canvas');
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            tempCanvas.width = canvasSize.width;
+            tempCanvas.height = canvasSize.height;
+
+            const tempCtx = tempCanvas.getContext('2d');
+
+            // Store current state
+            const originalCtx = this.ctx;
+            const originalCanvas = this.canvas;
+
+            // Temporarily swap context
+            this.ctx = tempCtx;
+            this.canvas = tempCanvas;
+
+            // Render without grid
+            this.render(true);
+
+            // Restore original
+            this.ctx = originalCtx;
+            this.canvas = originalCanvas;
+
+            // Create print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Print Diagram - ${CoopMaps.state.data.diagramProperties?.title || 'Co-opMaps'}</title>
+                    <style>
+                        @page { size: ${this.currentCanvasSize}; margin: 0.5cm; }
+                        body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                        img { max-width: 100%; max-height: 100vh; object-fit: contain; }
+                        @media print { body { margin: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <img src="${tempCanvas.toDataURL('image/png')}" />
+                    <script>
+                        window.onload = function() { window.print(); window.close(); }
+                    </script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        },
+
+        // Search for enterprises by name
+        searchEnterprises(query) {
+            if (!query || query.trim() === '') {
+                // Clear selection and highlights
+                this.searchResults = [];
+                this.render();
+                return [];
+            }
+
+            const searchTerm = query.toLowerCase().trim();
+            const enterprises = CoopMaps.state.data.enterprises;
+
+            this.searchResults = enterprises.filter(e =>
+                e.name.toLowerCase().includes(searchTerm) ||
+                e.type.toLowerCase().includes(searchTerm)
+            );
+
+            // Highlight first result
+            if (this.searchResults.length > 0) {
+                CoopMaps.state.data.selectedItem = this.searchResults[0];
+                this.centerOnEnterprise(this.searchResults[0]);
+            }
+
+            this.render();
+            return this.searchResults;
+        },
+
+        // Center view on a specific enterprise
+        centerOnEnterprise(enterprise) {
+            if (!enterprise) return;
+
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            const targetX = enterprise.x + enterprise.width / 2;
+            const targetY = enterprise.y + enterprise.height / 2;
+
+            // Calculate pan offset to center the enterprise
+            const containerRect = document.querySelector('.canvas-area')?.getBoundingClientRect();
+            if (containerRect) {
+                const zoom = CoopMaps.state.ui.zoom;
+                this.panOffset.x = (containerRect.width / 2) - (targetX * zoom);
+                this.panOffset.y = (containerRect.height / 2) - (targetY * zoom);
+            }
+
+            this.render();
+        },
+
+        // Multi-select support
+        selectedItems: [],
+        isMultiSelecting: false,
+        selectionRect: null,
+
+        startMultiSelect(x, y) {
+            this.isMultiSelecting = true;
+            this.selectionRect = { x, y, width: 0, height: 0 };
+        },
+
+        updateMultiSelect(x, y) {
+            if (!this.isMultiSelecting || !this.selectionRect) return;
+
+            this.selectionRect.width = x - this.selectionRect.x;
+            this.selectionRect.height = y - this.selectionRect.y;
+            this.render();
+        },
+
+        endMultiSelect() {
+            if (!this.isMultiSelecting || !this.selectionRect) return;
+
+            // Normalize rectangle (handle negative dimensions)
+            const rect = {
+                x: this.selectionRect.width < 0 ? this.selectionRect.x + this.selectionRect.width : this.selectionRect.x,
+                y: this.selectionRect.height < 0 ? this.selectionRect.y + this.selectionRect.height : this.selectionRect.y,
+                width: Math.abs(this.selectionRect.width),
+                height: Math.abs(this.selectionRect.height)
+            };
+
+            // Find all enterprises within selection rectangle
+            this.selectedItems = CoopMaps.state.data.enterprises.filter(e => {
+                const ex = e.x + e.width / 2;
+                const ey = e.y + e.height / 2;
+                return ex >= rect.x && ex <= rect.x + rect.width &&
+                       ey >= rect.y && ey <= rect.y + rect.height;
+            });
+
+            this.isMultiSelecting = false;
+            this.selectionRect = null;
+            this.render();
+
+            if (this.selectedItems.length > 0) {
+                CoopMaps.showNotification(`Selected ${this.selectedItems.length} items`, 'info');
+            }
+        },
+
+        // Delete all selected items
+        deleteSelectedItems() {
+            if (this.selectedItems.length === 0) {
+                // Fall back to single selection
+                if (CoopMaps.state.data.selectedItem) {
+                    this.deleteSelected();
+                }
+                return;
+            }
+
+            CoopMaps.saveState();
+
+            const selectedIds = new Set(this.selectedItems.map(e => e.id));
+
+            // Remove enterprises
+            CoopMaps.state.data.enterprises = CoopMaps.state.data.enterprises.filter(
+                e => !selectedIds.has(e.id)
+            );
+
+            // Remove relationships connected to deleted enterprises
+            CoopMaps.state.data.relationships = CoopMaps.state.data.relationships.filter(
+                r => !selectedIds.has(r.startId) && !selectedIds.has(r.endId)
+            );
+
+            const count = this.selectedItems.length;
+            this.selectedItems = [];
+            CoopMaps.state.data.selectedItem = null;
+            this.render();
+
+            CoopMaps.showNotification(`Deleted ${count} items`, 'success');
+        },
+
+        // Move all selected items
+        moveSelectedItems(dx, dy) {
+            if (this.selectedItems.length === 0) return;
+
+            this.selectedItems.forEach(item => {
+                item.x += dx;
+                item.y += dy;
+            });
+
+            this.render();
+        },
+
+        // Draw selection rectangle
+        drawSelectionRect() {
+            if (!this.isMultiSelecting || !this.selectionRect) return;
+
+            this.ctx.save();
+            this.ctx.strokeStyle = '#3498db';
+            this.ctx.lineWidth = 2;
+            this.ctx.setLineDash([5, 5]);
+            this.ctx.fillStyle = 'rgba(52, 152, 219, 0.1)';
+
+            this.ctx.beginPath();
+            this.ctx.rect(
+                this.selectionRect.x,
+                this.selectionRect.y,
+                this.selectionRect.width,
+                this.selectionRect.height
+            );
+            this.ctx.fill();
+            this.ctx.stroke();
+
+            this.ctx.restore();
+        },
+
+        // Draw highlights for multi-selected items
+        drawMultiSelectHighlights() {
+            if (this.selectedItems.length <= 1) return;
+
+            this.ctx.save();
+            this.ctx.strokeStyle = '#3498db';
+            this.ctx.lineWidth = 3;
+            this.ctx.setLineDash([8, 4]);
+
+            this.selectedItems.forEach(item => {
+                this.ctx.beginPath();
+                this.ctx.rect(item.x - 5, item.y - 5, item.width + 10, item.height + 10);
+                this.ctx.stroke();
+            });
+
+            this.ctx.restore();
         }
     });
 

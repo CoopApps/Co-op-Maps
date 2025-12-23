@@ -442,6 +442,21 @@
                 <button onclick="CoopMaps.modules.canvas?.zoomOut()">-</button>
                 <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
                 <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.printCanvas()" title="Print Diagram">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 8V2h10v6M5 14H3V9h14v5h-2" stroke="currentColor" stroke-width="2"/>
+                        <rect x="5" y="12" width="10" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                    <span>Print</span>
+                </button>
+                <input type="text" id="searchInput" placeholder="Search..." style="
+                    width: 120px;
+                    padding: 6px 10px;
+                    border: 1px solid var(--border-color);
+                    border-radius: 6px;
+                    font-size: 12px;
+                " oninput="CoopMaps.modules.canvas?.searchEnterprises(this.value)">
+                <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
                 <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
                 <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Key</button>
@@ -667,6 +682,24 @@
                 const description = document.getElementById('submitDescription').value;
                 const tagsInput = document.getElementById('submitTags').value;
                 const password = document.getElementById('submitPassword').value;
+
+                // Password complexity validation
+                if (password.length < 8) {
+                    this.showNotification('Password must be at least 8 characters long.', 'error');
+                    return;
+                }
+                if (!/[A-Z]/.test(password)) {
+                    this.showNotification('Password must contain at least one uppercase letter.', 'error');
+                    return;
+                }
+                if (!/[a-z]/.test(password)) {
+                    this.showNotification('Password must contain at least one lowercase letter.', 'error');
+                    return;
+                }
+                if (!/[0-9]/.test(password)) {
+                    this.showNotification('Password must contain at least one number.', 'error');
+                    return;
+                }
 
                 // Parse tags
                 const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];

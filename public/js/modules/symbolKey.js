@@ -1064,23 +1064,171 @@
                 format: 'a4'
             });
 
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            let yOffset = 40;
+
             // Add title
             pdf.setFontSize(24);
             pdf.setTextColor(102, 126, 234);
-            pdf.text('Co-opMaps Symbol Key', pdf.internal.pageSize.getWidth() / 2, 40, { align: 'center' });
+            pdf.text('Co-opMaps Symbol Key', pageWidth / 2, yOffset, { align: 'center' });
+            yOffset += 35;
 
             // Add diagram info
             const metadata = CoopMaps.state.data.diagramProperties;
             pdf.setFontSize(14);
             pdf.setTextColor(44, 62, 80);
-            pdf.text(`Diagram: ${metadata.title || 'Untitled'}`, 40, 70);
+            pdf.text(`Diagram: ${metadata.title || 'Untitled'}`, 40, yOffset);
+            yOffset += 20;
 
             pdf.setFontSize(12);
             pdf.setTextColor(127, 140, 141);
-            pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 40, 90);
+            pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 40, yOffset);
+            yOffset += 40;
 
-            // TODO: Add visual elements to PDF
-            // This would require converting canvas elements to images
+            // Enterprise Types section
+            pdf.setFontSize(16);
+            pdf.setTextColor(44, 62, 80);
+            pdf.text('Enterprise Types', 40, yOffset);
+            yOffset += 25;
+
+            const types = [
+                { id: 'cooperative', name: 'Co-operative', desc: 'Member-owned, democratically controlled', shape: 'rectangle', fill: '#ffffff' },
+                { id: 'ncm', name: 'Non-co-operative Mutual', desc: 'Mutual benefit organization', shape: 'roundedRect', fill: '#ffffff' },
+                { id: 'social', name: 'Social Enterprise', desc: 'Business with social objectives', shape: 'pill', fill: '#FFFF00' },
+                { id: 'private', name: 'Private Enterprise', desc: 'Privately owned for-profit', shape: 'ellipse', fill: '#f0f0f0' },
+                { id: 'state', name: 'State Enterprise', desc: 'Government-owned', shape: 'diamond', fill: '#f0f0f0' },
+                { id: 'excluded', name: 'Excluded from Analysis', desc: 'Not part of co-op analysis', shape: 'rectangle', fill: '#ffffff' }
+            ];
+
+            types.forEach(type => {
+                // Draw shape
+                const shapeX = 50;
+                const shapeY = yOffset;
+                const shapeW = 60;
+                const shapeH = 30;
+
+                pdf.setDrawColor(44, 62, 80);
+                pdf.setLineWidth(1);
+
+                // Parse fill color
+                const fillColor = type.fill === '#ffffff' ? [255, 255, 255] :
+                                  type.fill === '#FFFF00' ? [255, 255, 0] :
+                                  type.fill === '#f0f0f0' ? [240, 240, 240] : [255, 255, 255];
+                pdf.setFillColor(...fillColor);
+
+                switch (type.shape) {
+                    case 'rectangle':
+                        pdf.rect(shapeX, shapeY, shapeW, shapeH, 'FD');
+                        break;
+                    case 'roundedRect':
+                        pdf.roundedRect(shapeX, shapeY, shapeW, shapeH, 5, 5, 'FD');
+                        break;
+                    case 'pill':
+                        pdf.roundedRect(shapeX, shapeY, shapeW, shapeH, shapeH/2, shapeH/2, 'FD');
+                        break;
+                    case 'ellipse':
+                        pdf.ellipse(shapeX + shapeW/2, shapeY + shapeH/2, shapeW/2, shapeH/2, 'FD');
+                        break;
+                    case 'diamond':
+                        const cx = shapeX + shapeW/2;
+                        const cy = shapeY + shapeH/2;
+                        pdf.setFillColor(...fillColor);
+                        pdf.triangle(cx, shapeY, shapeX + shapeW, cy, cx, shapeY + shapeH, 'F');
+                        pdf.triangle(cx, shapeY, shapeX, cy, cx, shapeY + shapeH, 'F');
+                        pdf.setDrawColor(44, 62, 80);
+                        pdf.line(cx, shapeY, shapeX + shapeW, cy);
+                        pdf.line(shapeX + shapeW, cy, cx, shapeY + shapeH);
+                        pdf.line(cx, shapeY + shapeH, shapeX, cy);
+                        pdf.line(shapeX, cy, cx, shapeY);
+                        break;
+                }
+
+                // Add text
+                pdf.setFontSize(12);
+                pdf.setTextColor(44, 62, 80);
+                pdf.text(type.name, shapeX + shapeW + 15, shapeY + 12);
+
+                pdf.setFontSize(10);
+                pdf.setTextColor(127, 140, 141);
+                pdf.text(type.desc, shapeX + shapeW + 15, shapeY + 25);
+
+                yOffset += 45;
+
+                // Check for page break
+                if (yOffset > pageHeight - 100) {
+                    pdf.addPage();
+                    yOffset = 40;
+                }
+            });
+
+            yOffset += 20;
+
+            // Relationship Types section
+            pdf.setFontSize(16);
+            pdf.setTextColor(44, 62, 80);
+            pdf.text('Relationship Types', 40, yOffset);
+            yOffset += 25;
+
+            const relationships = [
+                { letter: 'G', name: 'Governance', color: [231, 76, 60] },
+                { letter: 'I', name: 'Investment', color: [39, 174, 96] },
+                { letter: 'L', name: 'Asset Lock', color: [243, 156, 18] },
+                { letter: 'M', name: 'Member', color: [155, 89, 182] },
+                { letter: 'O', name: 'Owns', color: [52, 73, 94] },
+                { letter: 'P', name: 'Partner', color: [52, 152, 219] },
+                { letter: 'S', name: 'Supplies', color: [22, 160, 133] }
+            ];
+
+            relationships.forEach(rel => {
+                // Draw colored circle with letter
+                pdf.setFillColor(...rel.color);
+                pdf.circle(60, yOffset + 8, 10, 'F');
+
+                pdf.setFontSize(10);
+                pdf.setTextColor(255, 255, 255);
+                pdf.text(rel.letter, 60, yOffset + 12, { align: 'center' });
+
+                // Add name
+                pdf.setFontSize(12);
+                pdf.setTextColor(44, 62, 80);
+                pdf.text(rel.name, 80, yOffset + 12);
+
+                yOffset += 28;
+
+                if (yOffset > pageHeight - 60) {
+                    pdf.addPage();
+                    yOffset = 40;
+                }
+            });
+
+            yOffset += 20;
+
+            // Participation Roles
+            pdf.setFontSize(16);
+            pdf.setTextColor(44, 62, 80);
+            pdf.text('Participation Roles', 40, yOffset);
+            yOffset += 25;
+
+            const roles = [
+                { letter: 'P', name: 'Producers', color: [231, 76, 60] },
+                { letter: 'U', name: 'Users', color: [52, 152, 219] },
+                { letter: 'I', name: 'Investors', color: [39, 174, 96] }
+            ];
+
+            roles.forEach(role => {
+                pdf.setFillColor(...role.color);
+                pdf.rect(50, yOffset, 40, 20, 'F');
+
+                pdf.setFontSize(12);
+                pdf.setTextColor(255, 255, 255);
+                pdf.text(role.letter, 70, yOffset + 14, { align: 'center' });
+
+                pdf.setTextColor(44, 62, 80);
+                pdf.text(role.name, 100, yOffset + 14);
+
+                yOffset += 28;
+            });
 
             pdf.save('coopmaps-symbol-key.pdf');
         }

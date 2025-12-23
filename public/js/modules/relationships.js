@@ -595,6 +595,10 @@
             this.previewX = 0;
             this.previewY = 0;
 
+            // Remove any open modal backdrops
+            const modals = document.querySelectorAll('.modal-backdrop');
+            modals.forEach(modal => modal.remove());
+
             const indicator = document.getElementById('relationshipModeIndicator');
             if (indicator) {
                 indicator.style.display = 'none';
