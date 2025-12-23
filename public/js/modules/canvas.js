@@ -273,6 +273,28 @@
                         return;
                     } else {
                         self.isDragging = false;
+
+                        // Shift+Click for multi-select
+                        if (e.shiftKey) {
+                            const index = self.selectedItems.findIndex(item => item.id === clickedItem.id);
+                            if (index > -1) {
+                                // Remove from selection
+                                self.selectedItems.splice(index, 1);
+                            } else {
+                                // Add to selection
+                                self.selectedItems.push(clickedItem);
+                            }
+                            CoopMaps.state.data.selectedItem = clickedItem;
+                            CoopMaps.showNotification(`${self.selectedItems.length} items selected`, 'info');
+                            self.render();
+                            return;
+                        }
+
+                        // Normal click - clear multi-select unless clicking on already selected item
+                        if (!self.selectedItems.find(item => item.id === clickedItem.id)) {
+                            self.selectedItems = [];
+                        }
+
                         // Only allow dragging if item is not locked
                         if (!clickedItem.locked) {
                             self.draggedItem = clickedItem;
