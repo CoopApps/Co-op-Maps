@@ -1,5 +1,5 @@
 /**
- * Co-opMaps - Canvas Module
+ * Co-op Maps - Canvas Module
  * Enhanced canvas with improved visuals, grid-free export support, and advanced auto-layout
  */
 
@@ -1981,7 +1981,7 @@
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Print Diagram - ${CoopMaps.state.data.diagramProperties?.title || 'Co-opMaps'}</title>
+                    <title>Print Diagram - ${CoopMaps.state.data.diagramProperties?.title || 'Co-op Maps'}</title>
                     <style>
                         @page { size: ${this.currentCanvasSize}; margin: 0.5cm; }
                         body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Co-opMaps v0.92 - Cooperative Ecosystem Mapping Tool</title>
+    <title>Co-op Maps v1.0 - Co-operative Ecosystem Mapping Tool</title>
 
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -252,14 +252,14 @@
 </head>
 <body>
     <div id="app" class="loading">
-        Loading Co-opMaps...
+        Loading Co-op Maps...
     </div>
 
     <!-- Core Framework -->
     <script>
         // Initialize CoopMaps global namespace
         window.CoopMaps = {
-            version: '0.92',
+            version: '1.0',
             modules: {},
             state: {
                 data: {
@@ -373,7 +373,7 @@
 
             // Initialize the app
             init() {
-                console.log('Co-opMaps v' + this.version + ' initializing...');
+                console.log('Co-op Maps v' + this.version + ' initializing...');
 
                 // Build UI
                 this.buildUI();
@@ -381,7 +381,7 @@
                 // Save initial state
                 this.saveState();
 
-                console.log('Co-opMaps initialized successfully');
+                console.log('Co-op Maps initialized successfully');
             },
 
             // Build the main UI
@@ -390,7 +390,7 @@
                 app.className = 'app-container';
                 app.innerHTML = `
                     <div class="header">
-                        <h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>Co-opMaps v${this.version}</h1>
+                        <h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>Co-op Maps v${this.version}</h1>
                         <div class="header-actions">
                             <button class="btn btn-secondary" onclick="CoopMaps.modules.manuals?.showManualDialog()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Help</button>
                             <button class="btn btn-secondary" onclick="CoopMaps.modules.productInfo?.showInfoDialog()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>About</button>

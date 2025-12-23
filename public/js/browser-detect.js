@@ -124,7 +124,7 @@
             warning.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff6b6b;color:white;padding:15px;text-align:center;z-index:99999;font-family:Arial,sans-serif;';
             warning.innerHTML =
                 '<strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Browser Not Supported</strong><br>' +
-                'Your browser is too old to run Co-opMaps. Please upgrade to:<br>' +
+                'Your browser is too old to run Co-op Maps. Please upgrade to:<br>' +
                 'Chrome 49+, Firefox 52+, Safari 10+, or Edge 14+';
             document.body.insertBefore(warning, document.body.firstChild);
             return;
@@ -153,7 +153,7 @@
     // Log browser capabilities for debugging
     function logCapabilities() {
         if (window.console && console.log) {
-            console.log('Co-opMaps Browser Detection:');
+            console.log('Co-op Maps Browser Detection:');
             console.log('- Modern Browser:', window.BrowserCapabilities.isModern);
             console.log('- Legacy Browser:', window.BrowserCapabilities.isLegacy);
             console.log('- Too Old:', window.BrowserCapabilities.isTooOld);

@@ -136,7 +136,7 @@
                             font-size: 13px;
                             color: #7f8c8d;
                         ">
-                            Co-opMaps v${CoopMaps.version} - © Principle 5 Yorkshire Co-operative Resource Centre
+                            Co-op Maps v${CoopMaps.version} - © Principle 5 Yorkshire Co-operative Resource Centre
                         </div>
                         <a href="https://www.principle5.coop" target="_blank" style="
                             padding: 10px 20px;
@@ -253,18 +253,18 @@
 
         getTermsContent() {
             return `
-                <h3 style="color: #2c3e50; margin-bottom: 20px;">All Co-opMaps Products: Terms & Conditions of Use</h3>
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">All Co-op Maps Products: Terms & Conditions of Use</h3>
 
                 <ol style="line-height: 1.8; color: #546e7a;">
-                    <li>These Terms & Conditions are derived directly from the Secondary Rules of the co-operative society Principle 5 Co-operative Resource Centre, which is the exclusive supplier of the Co-opMaps suite of products. The Secondary Rules are democratically determined by the members of the society.</li>
+                    <li>These Terms & Conditions are derived directly from the Secondary Rules of the co-operative society Principle 5 Co-operative Resource Centre, which is the exclusive supplier of the Co-op Maps suite of products. The Secondary Rules are democratically determined by the members of the society.</li>
 
                     <li>In these Terms & Conditions, "Principle 5" means "Principle 5 Co-operative Resource Centre".</li>
 
-                    <li>These Terms & Conditions apply to all Co-opMaps software modules, all sections of the Co-opMaps User Guide, and any associated documents or facilities specifically for use in conjunction with the Co-opMaps suite or with a Co-opMaps product.</li>
+                    <li>These Terms & Conditions apply to all Co-op Maps software modules, all sections of the Co-op Maps User Guide, and any associated documents or facilities specifically for use in conjunction with the Co-op Maps suite or with a Co-op Maps product.</li>
 
-                    <li>Co-opMaps products cannot be purchased by anyone. Instead, they may be licensed for use by members of Principle 5, in the following way.</li>
+                    <li>Co-op Maps products cannot be purchased by anyone. Instead, they may be licensed for use by members of Principle 5, in the following way.</li>
 
-                    <li>Some Co-opMaps products are available for viewing by any person, whether or not she/he is a member. Such products are accessed via links in the public area of www.principle5.coop.</li>
+                    <li>Some Co-op Maps products are available for viewing by any person, whether or not she/he is a member. Such products are accessed via links in the public area of www.principle5.coop.</li>
 
                     <li>Principle 5 has a range of member service levels: service level 1, service level 2, service level 3, and so on. Each level provides the services which are provided at all lower levels, plus a further range of products and/or services for that level.</li>
 
@@ -274,29 +274,29 @@
 
                     <li>As long as such person or organisation continues to be paid-up at the required subscription level, they continue to be licensed to use the products and/or services for that level. Where applicable, this license includes the right to retain a copy of the product, in electronic form, for her/his own use, or potential use, and the right to retain one separately stored electronic back-up copy.</li>
 
-                    <li>Member service levels and subscription amounts are specified in Schedule 1 of the Secondary Rules. Where the member is an organisation, Schedule 2 specifies a tariff for the maximum number of instances of Co-opMaps products which may be stored and/or used by persons working within that organisation.</li>
+                    <li>Member service levels and subscription amounts are specified in Schedule 1 of the Secondary Rules. Where the member is an organisation, Schedule 2 specifies a tariff for the maximum number of instances of Co-op Maps products which may be stored and/or used by persons working within that organisation.</li>
 
-                    <li>Principle 5 may, from time to time, re-arrange and/or re-define its service levels, or change annual subscription amounts, which may result in changes in the right to use a Co-opMaps product. However, a member who is paid-up in advance at the product's service level remains entitled to use the product until the member ceases to be paid-up.</li>
+                    <li>Principle 5 may, from time to time, re-arrange and/or re-define its service levels, or change annual subscription amounts, which may result in changes in the right to use a Co-op Maps product. However, a member who is paid-up in advance at the product's service level remains entitled to use the product until the member ceases to be paid-up.</li>
 
-                    <li>Co-opMaps products are upgraded from time to time, to provide enhancements and/or error corrections, through the issue of new versions. A member who is licensed to use a product and whose subscription remains paid-up at the product's service level will be able to access all upgrades at no further charge, except to cover any costs of supply (medium and/or delivery).</li>
+                    <li>Co-op Maps products are upgraded from time to time, to provide enhancements and/or error corrections, through the issue of new versions. A member who is licensed to use a product and whose subscription remains paid-up at the product's service level will be able to access all upgrades at no further charge, except to cover any costs of supply (medium and/or delivery).</li>
 
-                    <li>Each upgrade (ie. a change to a new version) of any Co-opMaps product will be made available on (or via) www.principle5.coop.</li>
+                    <li>Each upgrade (ie. a change to a new version) of any Co-op Maps product will be made available on (or via) www.principle5.coop.</li>
 
-                    <li>Where an upgrade of a Co-opMaps product becomes available less than 1 month before the member's paid-up period is due to end, Principle 5 may withhold the upgrade from that member pending renewal of the paid-up period.</li>
+                    <li>Where an upgrade of a Co-op Maps product becomes available less than 1 month before the member's paid-up period is due to end, Principle 5 may withhold the upgrade from that member pending renewal of the paid-up period.</li>
 
-                    <li>A member who ceases to be paid-up at the service level of a Co-opMaps product immediately loses the right to use the product and loses the right to retain any copy of the product.</li>
+                    <li>A member who ceases to be paid-up at the service level of a Co-op Maps product immediately loses the right to use the product and loses the right to retain any copy of the product.</li>
 
-                    <li>The right to use a Co-opMaps product is not transferable to any other person or organisation. It is against the Secondary Rules for any member of Principle 5 to transfer, pass, lend or sell any copy of a Co-opMaps product or component of a Co-opMaps product to any other person or organisation, whether or not that person or organisation is a member of Principle 5.</li>
+                    <li>The right to use a Co-op Maps product is not transferable to any other person or organisation. It is against the Secondary Rules for any member of Principle 5 to transfer, pass, lend or sell any copy of a Co-op Maps product or component of a Co-op Maps product to any other person or organisation, whether or not that person or organisation is a member of Principle 5.</li>
 
-                    <li>Principle 5 accepts no liability for any consequence of using a Co-opMaps product.</li>
+                    <li>Principle 5 accepts no liability for any consequence of using a Co-op Maps product.</li>
 
-                    <li>Like all software, Co-opMaps products may contain errors and/or inconsistencies. No form of compensation will be due from Principle 5 for any result of such error or inconsistency. Principle 5 will apply its best endeavours to include corrections in subsequent versions.</li>
+                    <li>Like all software, Co-op Maps products may contain errors and/or inconsistencies. No form of compensation will be due from Principle 5 for any result of such error or inconsistency. Principle 5 will apply its best endeavours to include corrections in subsequent versions.</li>
 
-                    <li>Principle 5 retains the right to temporarily or permanently withdraw any Co-opMaps product from availability, at any time.</li>
+                    <li>Principle 5 retains the right to temporarily or permanently withdraw any Co-op Maps product from availability, at any time.</li>
 
                     <li>These Terms & Conditions of Use are part of Principle 5's Secondary Rules. As such, they may be amended by Principle 5's Board of Directors at any time, but the amendment must be ratified at a General Meeting of Principle 5. In the event of a contradiction between the Secondary Rules and Principle 5's constitution, the constitution prevails.</li>
 
-                    <li>If you do not agree to abide by these Terms & Conditions of Use, you are not entitled to use any Co-opMaps product, regardless of your member services level (if any).</li>
+                    <li>If you do not agree to abide by these Terms & Conditions of Use, you are not entitled to use any Co-op Maps product, regardless of your member services level (if any).</li>
                 </ol>
             `;
         },
@@ -313,7 +313,7 @@
 
                 <h4 style="color: #34495e; margin-top: 30px; margin-bottom: 15px;">Our Mission</h4>
                 <p style="line-height: 1.8; color: #546e7a;">
-                    We provide resources, tools, and support to help co-operatives thrive. The Co-opMaps suite is one of our key offerings, designed to help visualize and understand co-operative ecosystems and relationships.
+                    We provide resources, tools, and support to help co-operatives thrive. The Co-op Maps suite is one of our key offerings, designed to help visualize and understand co-operative ecosystems and relationships.
                 </p>
 
                 <h4 style="color: #34495e; margin-top: 30px; margin-bottom: 15px;">Co-operative Principles</h4>
@@ -327,9 +327,9 @@
                     <li>Building tools that help co-operatives work together more effectively</li>
                 </ul>
 
-                <h4 style="color: #34495e; margin-top: 30px; margin-bottom: 15px;">The Co-opMaps Project</h4>
+                <h4 style="color: #34495e; margin-top: 30px; margin-bottom: 15px;">The Co-op Maps Project</h4>
                 <p style="line-height: 1.8; color: #546e7a;">
-                    Co-opMaps was developed to address the need for better visualization tools in the co-operative sector. It allows users to:
+                    Co-op Maps was developed to address the need for better visualization tools in the co-operative sector. It allows users to:
                 </p>
                 <ul style="line-height: 1.8; color: #546e7a;">
                     <li>Map relationships between different types of enterprises</li>
@@ -346,7 +346,7 @@
 
                 <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                     <p style="font-size: 16px; color: #1565c0; margin: 0; font-weight: 600;">
-                        Join Principle 5 to access the full Co-opMaps suite and support co-operative development!
+                        Join Principle 5 to access the full Co-op Maps suite and support co-operative development!
                     </p>
                 </div>
 
@@ -363,12 +363,12 @@
 
                     <div style="padding: 20px; background: white; border: 2px solid #e9ecef; border-radius: 8px;">
                         <h5 style="color: #2c3e50; margin: 0 0 10px 0;">Service Level 2</h5>
-                        <p style="color: #7f8c8d; margin: 0;">Enhanced access including Co-opMaps basic features</p>
+                        <p style="color: #7f8c8d; margin: 0;">Enhanced access including Co-op Maps basic features</p>
                     </div>
 
                     <div style="padding: 20px; background: white; border: 2px solid #e9ecef; border-radius: 8px;">
                         <h5 style="color: #2c3e50; margin: 0 0 10px 0;">Service Level 3+</h5>
-                        <p style="color: #7f8c8d; margin: 0;">Full access to all Co-opMaps features and priority support</p>
+                        <p style="color: #7f8c8d; margin: 0;">Full access to all Co-op Maps features and priority support</p>
                     </div>
                 </div>
 
@@ -406,12 +406,12 @@
 
                 <h4 style="color: #34495e; margin-top: 30px; margin-bottom: 15px;">Get Support</h4>
                 <p style="line-height: 1.8; color: #546e7a;">
-                    For technical support with Co-opMaps or membership enquiries, please visit our website or contact us through the member portal.
+                    For technical support with Co-op Maps or membership enquiries, please visit our website or contact us through the member portal.
                 </p>
 
                 <h4 style="color: #34495e; margin-top: 30px; margin-bottom: 15px;">Report Issues</h4>
                 <p style="line-height: 1.8; color: #546e7a;">
-                    If you encounter any bugs or have suggestions for improving Co-opMaps, please report them through the member area on our website. We value your feedback and use it to improve our products.
+                    If you encounter any bugs or have suggestions for improving Co-op Maps, please report them through the member area on our website. We value your feedback and use it to improve our products.
                 </p>
 
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
@@ -455,7 +455,7 @@
                         margin-bottom: 20px;
                     ">
                         <p style="color: #546e7a; line-height: 1.6; margin-bottom: 20px;">
-                            Co-opMaps is exclusively provided by Principle 5 Yorkshire Co-operative Resource Centre.
+                            Co-op Maps is exclusively provided by Principle 5 Yorkshire Co-operative Resource Centre.
                             Access and usage are subject to membership and terms of use.
                         </p>
 

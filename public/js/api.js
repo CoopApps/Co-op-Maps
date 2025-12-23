@@ -1,5 +1,5 @@
 /**
- * API Client for Co-opMaps Community Maps
+ * API Client for Co-op Maps Community Maps
  * Handles all backend API calls
  */
 

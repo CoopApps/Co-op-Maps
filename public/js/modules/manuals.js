@@ -1,5 +1,5 @@
 /**
- * Co-opMaps - Manuals Module
+ * Co-op Maps - Manuals Module
  * User documentation and help system with modal dialog and comprehensive content
  */
 
@@ -77,7 +77,7 @@
                                 margin: 0;
                                 opacity: 0.9;
                                 font-size: 15px;
-                            ">Learn how to use Co-opMaps effectively</p>
+                            ">Learn how to use Co-op Maps effectively</p>
                         </div>
                         <button onclick="CoopMaps.modules.manuals.closeManualDialog()" style="
                             background: rgba(255, 255, 255, 0.2);
@@ -142,7 +142,7 @@
                             font-size: 13px;
                             color: #7f8c8d;
                         ">
-                            Co-opMaps v${CoopMaps.version} User Manual
+                            Co-op Maps v${CoopMaps.version} User Manual
                         </div>
                         <button onclick="CoopMaps.modules.manuals.printManual()" style="
                             padding: 10px 20px;
@@ -258,7 +258,7 @@
                             margin: 0;
                             opacity: 0.9;
                             font-size: 14px;
-                        ">Learn how to use Co-opMaps effectively</p>
+                        ">Learn how to use Co-op Maps effectively</p>
                     </div>
 
                     <!-- Section Tabs -->
@@ -309,7 +309,7 @@
                             margin: 0 0 12px 0;
                             line-height: 1.6;
                         ">
-                            This manual covers the basics of using Co-opMaps.
+                            This manual covers the basics of using Co-op Maps.
                             For additional support or to report issues, please visit our support page.
                         </p>
                         <button onclick="CoopMaps.modules.manuals.showManualDialog()" style="
@@ -434,9 +434,9 @@
 
         getGettingStartedContent() {
             return `
-                <h4>Welcome to Co-opMaps</h4>
+                <h4>Welcome to Co-op Maps</h4>
                 <p>
-                    Co-opMaps is a powerful tool for mapping and visualizing cooperative ecosystems.
+                    Co-op Maps is a powerful tool for mapping and visualizing co-operative ecosystems.
                     This manual will help you get started with creating your first diagram.
                 </p>
 
@@ -484,7 +484,7 @@
         getEnterprisesContent() {
             return `
                 <h4>Enterprise Types</h4>
-                <p>Co-opMaps supports six different enterprise types:</p>
+                <p>Co-op Maps supports six different enterprise types:</p>
 
                 <ul>
                     <li><strong>Co-operative (Rectangle):</strong> Member-owned and democratically controlled organizations</li>
@@ -492,7 +492,7 @@
                     <li><strong>Social Enterprise (Pill Shape):</strong> Businesses with social or environmental objectives</li>
                     <li><strong>Private Enterprise (Ellipse):</strong> Privately owned for-profit business</li>
                     <li><strong>State Enterprise (Diamond):</strong> Government-owned and operated enterprises</li>
-                    <li><strong>Excluded Business (Rectangle):</strong> Businesses not part of the cooperative analysis</li>
+                    <li><strong>Excluded Business (Rectangle):</strong> Businesses not part of the co-operative analysis</li>
                 </ul>
 
                 <h4>Adding Enterprises</h4>
@@ -748,7 +748,7 @@
                 </ul>
 
                 <h4>Connector Styles</h4>
-                <p>Co-opMaps supports two connector styles for relationships:</p>
+                <p>Co-op Maps supports two connector styles for relationships:</p>
                 <ul>
                     <li><strong>Orthogonal (Default):</strong> Connectors use right angles, creating clean paths that route around enterprises. Best for professional diagrams and complex layouts.</li>
                     <li><strong>Direct:</strong> Connectors use straight lines between enterprises. Best for simple diagrams or when showing direct connections.</li>
@@ -806,9 +806,9 @@
                 </ul>
 
                 <h4>Diagram Types</h4>
-                <p>Co-opMaps can be used to create various diagram types:</p>
+                <p>Co-op Maps can be used to create various diagram types:</p>
                 <ul>
-                    <li><strong>Ecosystem Maps:</strong> Show all enterprises in a cooperative ecosystem</li>
+                    <li><strong>Ecosystem Maps:</strong> Show all enterprises in a co-operative ecosystem</li>
                     <li><strong>Value Chain Analysis:</strong> Use tiers to show production flow</li>
                     <li><strong>Ownership Structures:</strong> Use ownership relationships to show control</li>
                     <li><strong>Network Analysis:</strong> Show complex inter-relationships</li>

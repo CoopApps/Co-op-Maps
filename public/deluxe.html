@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Co-opMaps v0.92 - Cooperative Ecosystem Mapping Tool</title>
+    <title>Co-op Maps v1.0 - Co-operative Ecosystem Mapping Tool</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
@@ -507,7 +507,7 @@
             </svg>
             <span style="font-size: 14px; font-weight: 500;">Home</span>
         </a>
-        <h1>Co-opMaps</h1>
+        <h1>Co-op Maps v1.0 - Deluxe Edition</h1>
     </div>
 
     <!-- Main Container -->
@@ -685,7 +685,7 @@
     <script src="./js/api.js"></script>
     <script>
         window.CoopMaps = {
-            version: '0.92',
+            version: '1.0',
             modules: {},
             state: {
                 data: {
@@ -1341,7 +1341,7 @@
                             // Update title in header
                             const header = document.querySelector('.header h1');
                             if (header) {
-                                header.textContent = 'Co-opMaps - ' + mapData.title;
+                                header.textContent = 'Co-op Maps - ' + mapData.title;
                             }
 
                             this.showNotification('Map loaded successfully!', 'success');
@@ -1358,7 +1358,7 @@
             },
 
             async init() {
-                console.log('Co-opMaps v' + this.version + ' initializing...');
+                console.log('Co-op Maps v' + this.version + ' initializing...');
 
                 // 1. Save initial state BEFORE initializing modules
                 this.saveState();
@@ -1398,9 +1398,9 @@
                 // 6. Load map from URL if specified
                 const mapLoaded = await this.loadMapFromUrl();
 
-                console.log('[OK] Co-opMaps ready!');
+                console.log('[OK] Co-op Maps ready!');
                 if (!mapLoaded) {
-                    this.showNotification('Co-opMaps ready!', 'success');
+                    this.showNotification('Co-op Maps ready!', 'success');
                 }
 
                 // Hide context menu on click outside

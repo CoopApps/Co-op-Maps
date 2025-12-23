@@ -1,5 +1,5 @@
 /**
- * Co-opMaps - Export Module
+ * Co-op Maps - Export Module
  * Enhanced export with jsPDF integration and orthogonal connector support
  */
 
@@ -335,7 +335,7 @@
     <!-- Watermark -->
     <text x="${canvas.width - 20}" y="${canvas.height - 20}"
           font-family="Arial" font-size="12" text-anchor="end" fill="rgba(0,0,0,0.3)">
-        Created with Co-opMaps v${CoopMaps.version}
+        Created with Co-op Maps v${CoopMaps.version}
     </text>
 </svg>`;
 
@@ -399,9 +399,9 @@
                 pdf.setProperties({
                     title: metadata.title || 'Co-op Diagram',
                     subject: 'Co-operative Enterprise Diagram',
-                    author: metadata.author || 'Co-opMaps User',
-                    keywords: 'cooperative, diagram, enterprise, relationship',
-                    creator: 'Co-opMaps v' + CoopMaps.version
+                    author: metadata.author || 'Co-op Maps User',
+                    keywords: 'co-operative, diagram, enterprise, relationship',
+                    creator: 'Co-op Maps v' + CoopMaps.version
                 });
 
                 // Get page dimensions in mm
@@ -449,7 +449,7 @@
                 }
 
                 // Right footer - created with
-                pdf.text('Created with Co-opMaps v' + CoopMaps.version, pageWidth - margin, pageHeight - 5, { align: 'right' });
+                pdf.text('Created with Co-op Maps v' + CoopMaps.version, pageWidth - margin, pageHeight - 5, { align: 'right' });
 
                 // Save the PDF
                 const filename = this.generateFilename(metadata.title, 'pdf');

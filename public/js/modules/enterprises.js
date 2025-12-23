@@ -72,7 +72,7 @@
                 name: 'Business Excluded from Analysis',
                 category: 'other',
                 fill: 'white',
-                description: 'Not part of the cooperative analysis'
+                description: 'Not part of the co-operative analysis'
             }
         ],
 

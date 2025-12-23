@@ -1,5 +1,5 @@
 /**
- * Configuration for Co-opMaps
+ * Configuration for Co-op Maps
  * Set API_BASE_URL to your deployed backend URL
  */
 

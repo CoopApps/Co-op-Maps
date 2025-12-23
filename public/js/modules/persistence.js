@@ -1,5 +1,5 @@
 /**
- * Co-opMaps - Persistence Module
+ * Co-op Maps - Persistence Module
  * Handles saving and loading diagrams from localStorage with enhanced features
  */
 

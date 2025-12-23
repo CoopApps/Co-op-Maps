@@ -1090,7 +1090,7 @@
             // Add title
             pdf.setFontSize(24);
             pdf.setTextColor(102, 126, 234);
-            pdf.text('Co-opMaps Symbol Key', pageWidth / 2, yOffset, { align: 'center' });
+            pdf.text('Co-op Maps Symbol Key', pageWidth / 2, yOffset, { align: 'center' });
             yOffset += 35;
 
             // Add diagram info

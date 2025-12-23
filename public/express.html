@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Co-opMaps v0.92 Express</title>
+    <title>Co-op Maps v1.0 - Express Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -261,7 +261,7 @@
     <!-- Header -->
     <div class="header">
         <button class="home-btn" onclick="window.location.href='index.html'">← Home</button>
-        <h1>Co-opMaps v0.92 - Express Edition</h1>
+        <h1>Co-op Maps v1.0 - Express Edition</h1>
     </div>
 
     <!-- Main Container -->
@@ -375,7 +375,7 @@
     <script src="./js/api.js"></script>
     <script>
         window.CoopMaps = {
-            version: '0.92',
+            version: '1.0',
             isExpressMode: true,  // Flag to indicate Express mode (no animations, simplified UI)
             modules: {},
             selectedSymbolType: null,
@@ -665,7 +665,7 @@
                             // Update title in header
                             const header = document.querySelector('.header h1');
                             if (header) {
-                                header.textContent = 'Co-opMaps Express - ' + mapData.title;
+                                header.textContent = 'Co-op Maps Express - ' + mapData.title;
                             }
 
                             console.log('Map loaded successfully');
@@ -681,7 +681,7 @@
             },
 
             async init() {
-                console.log('Co-opMaps Express v' + this.version + ' initializing...');
+                console.log('Co-op Maps Express v' + this.version + ' initializing...');
 
                 // Save initial state
                 this.saveState();
