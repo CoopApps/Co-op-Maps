@@ -640,6 +640,35 @@
             }
         },
 
+        // Check if a relationship should be visible based on layer filters
+        isRelationshipVisible(rel) {
+            // Check if relationship type is visible
+            if (CoopMaps.modules.layers && !CoopMaps.modules.layers.isRelationshipVisible(rel.type)) {
+                return false;
+            }
+
+            // Check if both connected enterprises are visible
+            const enterprises = CoopMaps.state.data.enterprises || [];
+            const startEnt = enterprises.find(e => e.id === rel.startEnterpriseId);
+            const endEnt = enterprises.find(e => e.id === rel.endEnterpriseId);
+
+            if (!startEnt || !endEnt) return false;
+
+            // Check if enterprise types are visible
+            if (CoopMaps.modules.layers) {
+                if (!CoopMaps.modules.layers.isEnterpriseVisible(startEnt.type)) return false;
+                if (!CoopMaps.modules.layers.isEnterpriseVisible(endEnt.type)) return false;
+            }
+
+            // Check if enterprises are hidden in collapsed groups
+            if (CoopMaps.modules.groups) {
+                if (CoopMaps.modules.groups.isEnterpriseHidden(startEnt.id)) return false;
+                if (CoopMaps.modules.groups.isEnterpriseHidden(endEnt.id)) return false;
+            }
+
+            return true;
+        },
+
         // Draw all relationships using direct (straight line) style
         drawDirectRelationships(ctx) {
             const relationships = CoopMaps.state.data.relationships || [];
@@ -649,6 +678,9 @@
             const relationshipGroups = new Map();
 
             relationships.forEach(rel => {
+                // Check if relationship should be visible based on layer filters
+                if (!this.isRelationshipVisible(rel)) return;
+
                 const startEnt = enterprises.find(e => e.id === rel.startEnterpriseId);
                 const endEnt = enterprises.find(e => e.id === rel.endEnterpriseId);
 
@@ -784,6 +816,9 @@
             const relationshipGroups = new Map();
 
             relationships.forEach(rel => {
+                // Check if relationship should be visible based on layer filters
+                if (!this.isRelationshipVisible(rel)) return;
+
                 const startEnt = enterprises.find(e => e.id === rel.startEnterpriseId);
                 const endEnt = enterprises.find(e => e.id === rel.endEnterpriseId);
 

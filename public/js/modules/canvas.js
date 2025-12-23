@@ -656,10 +656,14 @@
                 CoopMaps.modules.relationships.drawRelationships(this.ctx);
             }
 
-            // Draw enterprises with enhanced visuals (skip those in collapsed groups)
+            // Draw enterprises with enhanced visuals (skip those in collapsed groups or filtered layers)
             CoopMaps.state.data.enterprises.forEach(enterprise => {
                 // Check if enterprise is hidden in a collapsed group
                 if (CoopMaps.modules.groups && CoopMaps.modules.groups.isEnterpriseHidden(enterprise.id)) {
+                    return; // Skip this enterprise
+                }
+                // Check if enterprise type is hidden by layer filter
+                if (CoopMaps.modules.layers && !CoopMaps.modules.layers.isEnterpriseVisible(enterprise.type)) {
                     return; // Skip this enterprise
                 }
                 this.drawEnterprise(enterprise);
