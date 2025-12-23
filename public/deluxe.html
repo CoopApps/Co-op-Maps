@@ -589,6 +589,7 @@
                 <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
                 <button onclick="CoopMaps.modules.canvas?.zoomOut()">-</button>
                 <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
+                <button onclick="CoopMaps.modules.canvas?.fitToContent()" title="Fit to Content">Fit</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.printCanvas()" title="Print Diagram">
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
@@ -626,6 +627,8 @@
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.duplicateSelected(); CoopMaps.hideContextMenu();">Duplicate</div>
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.deleteSelected(); CoopMaps.hideContextMenu();">Delete</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.toggleLockSelected(); CoopMaps.hideContextMenu();" id="lockMenuItem">Lock/Unlock</div>
         <div class="context-menu-divider"></div>
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.bringToFront(); CoopMaps.hideContextMenu();">Bring to Front</div>
         <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.sendToBack(); CoopMaps.hideContextMenu();">Send to Back</div>

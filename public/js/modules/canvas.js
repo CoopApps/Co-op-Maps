@@ -273,14 +273,19 @@
                         return;
                     } else {
                         self.isDragging = false;
-                        self.draggedItem = clickedItem;
-                        self.dragOffset = {
-                            x: x - clickedItem.x,
-                            y: y - clickedItem.y
-                        };
+                        // Only allow dragging if item is not locked
+                        if (!clickedItem.locked) {
+                            self.draggedItem = clickedItem;
+                            self.dragOffset = {
+                                x: x - clickedItem.x,
+                                y: y - clickedItem.y
+                            };
 
-                        self.draggedItem.originalX = clickedItem.x;
-                        self.draggedItem.originalY = clickedItem.y;
+                            self.draggedItem.originalX = clickedItem.x;
+                            self.draggedItem.originalY = clickedItem.y;
+                        } else {
+                            self.draggedItem = null;
+                        }
 
                         CoopMaps.state.data.selectedItem = clickedItem;
                     }
@@ -869,6 +874,25 @@
                 );
             });
 
+            // Draw lock icon if item is locked
+            if (enterprise.locked) {
+                const lockX = enterprise.x + enterprise.width + padding - 5;
+                const lockY = enterprise.y - padding - 5;
+
+                // Lock icon background
+                this.ctx.fillStyle = '#e74c3c';
+                this.ctx.beginPath();
+                this.ctx.arc(lockX, lockY, 10, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Lock icon (simple padlock shape)
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = 'bold 12px sans-serif';
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText('🔒', lockX, lockY);
+            }
+
             this.ctx.restore();
         },
 
@@ -1165,6 +1189,126 @@
             };
 
             animate();
+        },
+
+        // Fit zoom to show all content
+        fitToContent() {
+            const enterprises = CoopMaps.state.data.enterprises;
+            if (enterprises.length === 0) {
+                CoopMaps.showNotification('No items on canvas', 'info');
+                return;
+            }
+
+            // Calculate bounding box of all enterprises
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+            enterprises.forEach(e => {
+                minX = Math.min(minX, e.x);
+                minY = Math.min(minY, e.y);
+                maxX = Math.max(maxX, e.x + e.width);
+                maxY = Math.max(maxY, e.y + e.height);
+            });
+
+            // Add padding
+            const padding = 50;
+            minX -= padding;
+            minY -= padding;
+            maxX += padding;
+            maxY += padding;
+
+            const contentWidth = maxX - minX;
+            const contentHeight = maxY - minY;
+
+            // Get container size
+            const container = document.querySelector('.canvas-area');
+            if (!container) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+
+            // Calculate zoom to fit content
+            const zoomX = containerRect.width / contentWidth;
+            const zoomY = containerRect.height / contentHeight;
+            const targetZoom = Math.min(zoomX, zoomY, 2); // Max 200%
+
+            // Animate zoom
+            const startZoom = CoopMaps.state.ui.zoom;
+            const duration = 300;
+            const startTime = Date.now();
+            const self = this;
+
+            // Calculate pan to center content
+            const contentCenterX = (minX + maxX) / 2;
+            const contentCenterY = (minY + maxY) / 2;
+            const canvasCenterX = canvasSize.width / 2;
+            const canvasCenterY = canvasSize.height / 2;
+
+            const targetPanX = (canvasCenterX - contentCenterX) * targetZoom;
+            const targetPanY = (canvasCenterY - contentCenterY) * targetZoom;
+
+            const startPanX = this.panOffset.x;
+            const startPanY = this.panOffset.y;
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+                CoopMaps.state.ui.zoom = startZoom + (targetZoom - startZoom) * easeProgress;
+                this.panOffset.x = startPanX + (targetPanX - startPanX) * easeProgress;
+                this.panOffset.y = startPanY + (targetPanY - startPanY) * easeProgress;
+
+                // Update CSS dimensions
+                self.canvas.style.width = (canvasSize.width * CoopMaps.state.ui.zoom) + 'px';
+                self.canvas.style.height = (canvasSize.height * CoopMaps.state.ui.zoom) + 'px';
+
+                // Update zoom display
+                const zoomDisplay = document.getElementById('zoomLevel');
+                if (zoomDisplay) {
+                    zoomDisplay.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
+                }
+
+                self.render();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    CoopMaps.showNotification('Zoomed to fit content', 'success');
+                }
+            };
+
+            animate();
+        },
+
+        // Lock/Unlock selected item
+        toggleLockSelected() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (!selected) {
+                CoopMaps.showNotification('No item selected', 'info');
+                return;
+            }
+
+            selected.locked = !selected.locked;
+            this.render();
+            CoopMaps.showNotification(selected.locked ? 'Item locked' : 'Item unlocked', 'success');
+        },
+
+        lockSelected() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected) {
+                selected.locked = true;
+                this.render();
+                CoopMaps.showNotification('Item locked', 'success');
+            }
+        },
+
+        unlockSelected() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected) {
+                selected.locked = false;
+                this.render();
+                CoopMaps.showNotification('Item unlocked', 'success');
+            }
         },
 
         autoLayout() {

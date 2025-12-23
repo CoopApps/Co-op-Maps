@@ -518,6 +518,46 @@
                                 </div>
                             </label>
                         </div>
+
+                        <div class="property-field" style="margin-top: 16px;">
+                            <label style="
+                                display: block;
+                                font-size: 13px;
+                                color: #546e7a;
+                                margin-bottom: 8px;
+                                font-weight: 500;
+                            ">Fill Color</label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="color"
+                                       value="${selected.fill || '#ffffff'}"
+                                       onchange="CoopMaps.modules.properties.updateProperty('fill', this.value)"
+                                       style="
+                                           width: 50px;
+                                           height: 40px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           cursor: pointer;
+                                           padding: 2px;
+                                       ">
+                                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                    ${['#ffffff', '#f8f9fa', '#e3f2fd', '#e8f5e9', '#fff9c4', '#ffccbc', '#f8bbd0', '#e1bee7'].map(color => `
+                                        <button onclick="CoopMaps.modules.properties.updateProperty('fill', '${color}')"
+                                                style="
+                                                    width: 28px;
+                                                    height: 28px;
+                                                    background: ${color};
+                                                    border: 2px solid ${selected.fill === color ? '#3498db' : '#dee2e6'};
+                                                    border-radius: 6px;
+                                                    cursor: pointer;
+                                                    transition: all 0.2s;
+                                                "
+                                                onmouseover="this.style.transform='scale(1.1)'"
+                                                onmouseout="this.style.transform='scale(1)'">
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     ${showRolesAndTiers ? `
