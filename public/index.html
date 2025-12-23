@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-opMaps Deluxe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #ec4899;
+            --background-dark: #1e1e2e;
+            --background-light: #2a2a3e;
+            --surface: #313244;
+            --text-primary: #cdd6f4;
+            --text-secondary: #a6adc8;
+            --border-color: #45475a;
+            --success: #a6e3a1;
+            --warning: #f9e2af;
+            --error: #f38ba8;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.2s;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .header-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .save-status {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-status.saved::before {
+            content: '✓';
+            color: var(--success);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            height: 48px;
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 8px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0 8px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+        }
+
+        .toolbar-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--background-light);
+            color: var(--text-primary);
+        }
+
+        .toolbar-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .toolbar-select {
+            background: var(--background-light);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .toolbar-select:hover,
+        .toolbar-select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .toolbar-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-right: 8px;
+        }
+
+        .zoom-control {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--background-light);
+            border-radius: 8px;
+            padding: 2px;
+        }
+
+        .zoom-value {
+            width: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 104px);
+        }
+
+        /* Left Tool Panel */
+        .tool-panel {
+            width: 56px;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border-color);
+            padding: 12px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 18px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-btn:hover {
+            background: var(--background-light);
+            color: var(--text-primary);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+        }
+
+        .tool-separator {
+            height: 1px;
+            background: var(--border-color);
+            margin: 8px 0;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
+            overflow: auto;
+            padding: 40px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        /* ============================================
+           CANVAS STYLES - A4, A3, A2, A1
+           All sizes have consistent border styling
+           with centered, appropriately-sized titles
+           ============================================ */
+
+        .map-canvas {
+            background-color: #ffffff;
+            position: relative;
+            /* Consistent border style for all sizes */
+            border: 3px solid #2a2a3e;
+            border-radius: 4px;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .map-canvas:hover {
+            box-shadow:
+                0 0 0 1px rgba(99, 102, 241, 0.3),
+                0 25px 70px rgba(0, 0, 0, 0.6),
+                0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Inner border effect - consistent for all sizes */
+        .map-canvas::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border: 1px solid #e5e7eb;
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        /* Canvas Title - Always Centered */
+        .canvas-title {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: #1f2937;
+            background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 100%);
+            border-bottom: 1px solid #e5e7eb;
+            z-index: 100;
+            letter-spacing: -0.025em;
+        }
+
+        /* A4 Canvas - 210mm x 297mm (Base reference) */
+        .map-canvas.size-A4 {
+            width: 595px;   /* 210mm at 72dpi */
+            height: 842px;  /* 297mm at 72dpi */
+        }
+
+        .map-canvas.size-A4 .canvas-title {
+            padding: 16px 24px;
+            font-size: 18px;
+        }
+
+        /* A3 Canvas - 297mm x 420mm */
+        .map-canvas.size-A3 {
+            width: 842px;   /* 297mm at 72dpi */
+            height: 1191px; /* 420mm at 72dpi */
+        }
+
+        .map-canvas.size-A3 .canvas-title {
+            padding: 18px 28px;
+            font-size: 20px;
+        }
+
+        /* A2 Canvas - 420mm x 594mm */
+        .map-canvas.size-A2 {
+            width: 1191px;  /* 420mm at 72dpi */
+            height: 1684px; /* 594mm at 72dpi */
+        }
+
+        .map-canvas.size-A2 .canvas-title {
+            padding: 20px 32px;
+            font-size: 22px;
+        }
+
+        /* A1 Canvas - 594mm x 841mm */
+        .map-canvas.size-A1 {
+            width: 1684px;  /* 594mm at 72dpi */
+            height: 2384px; /* 841mm at 72dpi */
+        }
+
+        .map-canvas.size-A1 .canvas-title {
+            padding: 24px 40px;
+            font-size: 26px;
+        }
+
+        /* Letter Canvas - 8.5" x 11" */
+        .map-canvas.size-Letter {
+            width: 612px;   /* 8.5" at 72dpi */
+            height: 792px;  /* 11" at 72dpi */
+        }
+
+        .map-canvas.size-Letter .canvas-title {
+            padding: 16px 24px;
+            font-size: 18px;
+        }
+
+        /* Legal Canvas - 8.5" x 14" */
+        .map-canvas.size-Legal {
+            width: 612px;   /* 8.5" at 72dpi */
+            height: 1008px; /* 14" at 72dpi */
+        }
+
+        .map-canvas.size-Legal .canvas-title {
+            padding: 16px 24px;
+            font-size: 18px;
+        }
+
+        /* Landscape Orientation Modifiers */
+        .map-canvas.landscape.size-A4 {
+            width: 842px;
+            height: 595px;
+        }
+
+        .map-canvas.landscape.size-A3 {
+            width: 1191px;
+            height: 842px;
+        }
+
+        .map-canvas.landscape.size-A2 {
+            width: 1684px;
+            height: 1191px;
+        }
+
+        .map-canvas.landscape.size-A1 {
+            width: 2384px;
+            height: 1684px;
+        }
+
+        .map-canvas.landscape.size-Letter {
+            width: 792px;
+            height: 612px;
+        }
+
+        .map-canvas.landscape.size-Legal {
+            width: 1008px;
+            height: 612px;
+        }
+
+        /* Canvas Content Area (below title) */
+        .canvas-content {
+            position: absolute;
+            top: 60px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            overflow: hidden;
+        }
+
+        .map-canvas.size-A3 .canvas-content {
+            top: 70px;
+        }
+
+        .map-canvas.size-A2 .canvas-content {
+            top: 75px;
+        }
+
+        .map-canvas.size-A1 .canvas-content {
+            top: 85px;
+        }
+
+        /* Right Panel - Properties */
+        .properties-panel {
+            width: 280px;
+            background-color: var(--surface);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .panel-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            font-size: 14px;
+            padding: 10px 12px;
+            background: var(--background-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Symbol Key */
+        .symbol-key {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 180px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .symbol-key-title {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 12px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .symbol-key-title::before {
+            content: '🔑';
+        }
+
+        .symbol-key-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            font-size: 12px;
+            color: #4b5563;
+        }
+
+        .symbol-key-swatch {
+            width: 24px;
+            height: 18px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Enterprise Nodes - Modern Style */
+        .enterprise {
+            position: absolute;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px;
+            min-width: 100px;
+            min-height: 60px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .enterprise:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .enterprise.cooperative {
+            background: linear-gradient(135deg, #86efac, #4ade80);
+            color: #166534;
+        }
+
+        .enterprise.for-profit {
+            background: linear-gradient(135deg, #93c5fd, #60a5fa);
+            color: #1e40af;
+        }
+
+        .enterprise.npo {
+            background: linear-gradient(135deg, #fda4af, #fb7185);
+            color: #9f1239;
+            border-radius: 50%;
+        }
+
+        .enterprise.government {
+            background: linear-gradient(135deg, #d8b4fe, #c084fc);
+            color: #6b21a8;
+            border-width: 3px;
+        }
+
+        .enterprise.informal {
+            background: linear-gradient(135deg, #fde047, #facc15);
+            color: #854d0e;
+            border-style: dashed;
+        }
+
+        .enterprise.generic-set {
+            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+            color: #374151;
+            border-style: dotted;
+        }
+
+        .enterprise.selected {
+            outline: 3px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Version Badge */
+        .version-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Canvas Size Chip */
+        .size-chip {
+            background: var(--background-light);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-left: 12px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .map-canvas {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <button class="menu-toggle" title="Menu">≡</button>
+            <div class="logo">
+                <span>🗺️</span>
+                <span>Co-opMaps</span>
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="save-status saved" id="save-status">Saved</div>
+        </div>
+        <div class="header-right">
+            <button class="header-btn" title="Notifications">🔔</button>
+            <button class="header-btn" title="Settings">⚙️</button>
+            <div class="user-avatar" title="User">U</div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <button class="toolbar-btn" title="Undo">↶</button>
+            <button class="toolbar-btn" title="Redo">↷</button>
+        </div>
+        <div class="toolbar-group">
+            <span class="toolbar-label">Canvas</span>
+            <select id="canvas-size" class="toolbar-select" onchange="changeCanvasSize(this.value)">
+                <option value="A4" selected>A4</option>
+                <option value="A3">A3</option>
+                <option value="A2">A2</option>
+                <option value="A1">A1</option>
+                <option value="Letter">Letter</option>
+                <option value="Legal">Legal</option>
+            </select>
+            <select id="canvas-orientation" class="toolbar-select" onchange="changeOrientation(this.value)">
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+            </select>
+            <span class="size-chip" id="size-chip">210 × 297 mm</span>
+        </div>
+        <div class="toolbar-group">
+            <div class="zoom-control">
+                <button class="toolbar-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+                <span class="zoom-value" id="zoom-level">100%</span>
+                <button class="toolbar-btn" onclick="zoomIn()" title="Zoom In">+</button>
+            </div>
+        </div>
+        <div class="toolbar-group" style="margin-left: auto;">
+            <button class="toolbar-btn" title="Export">📤</button>
+            <button class="toolbar-btn" title="Share">🔗</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Tool Panel -->
+        <div class="tool-panel">
+            <button class="tool-btn active" title="Select (V)" onclick="setTool('select')">🖱️</button>
+            <button class="tool-btn" title="Add Enterprise (E)" onclick="setTool('enterprise')">⊕</button>
+            <button class="tool-btn" title="Add Relationship (R)" onclick="setTool('relationship')">↔</button>
+            <button class="tool-btn" title="Add Text (T)" onclick="setTool('text')">T</button>
+            <div class="tool-separator"></div>
+            <button class="tool-btn" title="Pan (Space)" onclick="setTool('pan')">✋</button>
+            <button class="tool-btn" title="Zoom to Fit">⤢</button>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-area" id="canvas-area">
+            <div id="map-canvas" class="map-canvas size-A4">
+                <div class="canvas-title" id="canvas-title">Untitled Co-op Map</div>
+                <div class="canvas-content" id="canvas-content">
+                    <!-- Enterprises and relationships will be rendered here -->
+                </div>
+
+                <!-- Symbol Key -->
+                <div class="symbol-key">
+                    <div class="symbol-key-title">Symbol Key</div>
+                    <div class="symbol-key-item">
+                        <div class="symbol-key-swatch" style="background: linear-gradient(135deg, #86efac, #4ade80);"></div>
+                        <span>Cooperative</span>
+                    </div>
+                    <div class="symbol-key-item">
+                        <div class="symbol-key-swatch" style="background: linear-gradient(135deg, #93c5fd, #60a5fa);"></div>
+                        <span>For-Profit</span>
+                    </div>
+                    <div class="symbol-key-item">
+                        <div class="symbol-key-swatch" style="background: linear-gradient(135deg, #fda4af, #fb7185); border-radius: 50%;"></div>
+                        <span>Non-Profit</span>
+                    </div>
+                    <div class="symbol-key-item">
+                        <div class="symbol-key-swatch" style="background: linear-gradient(135deg, #d8b4fe, #c084fc);"></div>
+                        <span>Government</span>
+                    </div>
+                    <div class="symbol-key-item">
+                        <div class="symbol-key-swatch" style="background: linear-gradient(135deg, #fde047, #facc15); border-style: dashed;"></div>
+                        <span>Informal</span>
+                    </div>
+                    <div class="symbol-key-item">
+                        <div class="symbol-key-swatch" style="background: linear-gradient(135deg, #d1d5db, #9ca3af); border-style: dotted;"></div>
+                        <span>Generic Set</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Properties Panel -->
+        <div class="properties-panel">
+            <div class="panel-header">
+                <h3>Properties</h3>
+            </div>
+            <div class="panel-content">
+                <div class="form-group">
+                    <label>Map Title</label>
+                    <input type="text" id="prop-title" value="Untitled Co-op Map" onchange="updateTitle(this.value)">
+                </div>
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text" id="prop-author" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="prop-description" rows="3" placeholder="Add a description..."></textarea>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 20px 0;">
+                <div id="selection-properties" style="display: none;">
+                    <div class="form-group">
+                        <label>Enterprise Name</label>
+                        <input type="text" id="ent-name">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="ent-type">
+                            <option value="cooperative">Cooperative</option>
+                            <option value="for-profit">For-Profit</option>
+                            <option value="npo">Non-Profit</option>
+                            <option value="government">Government</option>
+                            <option value="informal">Informal</option>
+                            <option value="generic-set">Generic Set</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tier</label>
+                        <select id="ent-tier">
+                            <option value="primary">Primary</option>
+                            <option value="secondary">Secondary</option>
+                            <option value="tertiary">Tertiary</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="no-selection" style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 20px;">
+                    Select an enterprise to view its properties
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Version Badge -->
+    <div class="version-badge">Deluxe</div>
+
+    <script>
+        // Co-opMaps Deluxe - Main Application Script (ES6+)
+
+        // Application State
+        const appState = {
+            currentTool: 'select',
+            canvasSize: 'A4',
+            orientation: 'portrait',
+            zoom: 100,
+            enterprises: [],
+            relationships: [],
+            selectedEnterprise: null,
+            diagramTitle: 'Untitled Co-op Map',
+            isDirty: false
+        };
+
+        // Canvas size definitions (in pixels at 72dpi)
+        const canvasSizes = {
+            'A4': { width: 595, height: 842, label: '210 × 297 mm' },
+            'A3': { width: 842, height: 1191, label: '297 × 420 mm' },
+            'A2': { width: 1191, height: 1684, label: '420 × 594 mm' },
+            'A1': { width: 1684, height: 2384, label: '594 × 841 mm' },
+            'Letter': { width: 612, height: 792, label: '8.5 × 11 in' },
+            'Legal': { width: 612, height: 1008, label: '8.5 × 14 in' }
+        };
+
+        // Initialize application
+        function init() {
+            loadFromLocalStorage();
+            updateSizeChip();
+        }
+
+        // Tool selection
+        function setTool(tool) {
+            appState.currentTool = tool;
+
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Canvas size change
+        function changeCanvasSize(size) {
+            const canvas = document.getElementById('map-canvas');
+
+            canvas.classList.remove('size-A4', 'size-A3', 'size-A2', 'size-A1', 'size-Letter', 'size-Legal');
+            canvas.classList.add(`size-${size}`);
+            appState.canvasSize = size;
+
+            updateSizeChip();
+            markDirty();
+        }
+
+        // Orientation change
+        function changeOrientation(orientation) {
+            const canvas = document.getElementById('map-canvas');
+
+            if (orientation === 'landscape') {
+                canvas.classList.add('landscape');
+            } else {
+                canvas.classList.remove('landscape');
+            }
+
+            appState.orientation = orientation;
+            markDirty();
+        }
+
+        // Update size chip
+        function updateSizeChip() {
+            const chip = document.getElementById('size-chip');
+            const sizeInfo = canvasSizes[appState.canvasSize];
+            chip.textContent = sizeInfo.label;
+        }
+
+        // Update map title
+        function updateTitle(title) {
+            appState.diagramTitle = title;
+            document.getElementById('canvas-title').textContent = title;
+            document.title = `${title} - Co-opMaps Deluxe`;
+            markDirty();
+        }
+
+        // Zoom functions
+        function zoomIn() {
+            if (appState.zoom < 200) {
+                appState.zoom += 10;
+                applyZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (appState.zoom > 25) {
+                appState.zoom -= 10;
+                applyZoom();
+            }
+        }
+
+        function applyZoom() {
+            const canvas = document.getElementById('map-canvas');
+            canvas.style.transform = `scale(${appState.zoom / 100})`;
+            canvas.style.transformOrigin = 'top center';
+            document.getElementById('zoom-level').textContent = `${appState.zoom}%`;
+        }
+
+        // Dirty state
+        function markDirty() {
+            appState.isDirty = true;
+            const status = document.getElementById('save-status');
+            status.textContent = 'Unsaved changes';
+            status.classList.remove('saved');
+        }
+
+        function markSaved() {
+            appState.isDirty = false;
+            const status = document.getElementById('save-status');
+            status.textContent = 'Saved';
+            status.classList.add('saved');
+        }
+
+        // LocalStorage operations
+        function saveDiagram() {
+            const data = {
+                version: '0.92',
+                metadata: {
+                    title: appState.diagramTitle,
+                    canvasSize: appState.canvasSize,
+                    orientation: appState.orientation,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                enterprises: appState.enterprises,
+                relationships: appState.relationships
+            };
+
+            try {
+                localStorage.setItem('coopmaps_current', JSON.stringify(data));
+                markSaved();
+            } catch (e) {
+                console.error('Error saving diagram:', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const data = localStorage.getItem('coopmaps_current');
+                if (data) {
+                    const diagram = JSON.parse(data);
+                    if (diagram.metadata) {
+                        appState.canvasSize = diagram.metadata.canvasSize || 'A4';
+                        document.getElementById('canvas-size').value = appState.canvasSize;
+                        changeCanvasSize(appState.canvasSize);
+                    }
+                }
+            } catch (e) {
+                // Ignore errors on initial load
+            }
+        }
+
+        // Auto-save
+        setInterval(() => {
+            if (appState.isDirty) {
+                saveDiagram();
+            }
+        }, 30000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    saveDiagram();
+                }
+            }
+
+            if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'v': setTool('select'); break;
+                    case 'e': setTool('enterprise'); break;
+                    case 'r': setTool('relationship'); break;
+                    case 't': setTool('text'); break;
+                }
+            }
+        });
+
+        // Initialize on load
+        window.addEventListener('load', init);
+
+        // Warn before leaving with unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (appState.isDirty) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
