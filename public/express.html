@@ -310,6 +310,11 @@
                     <option value="distH">Distribute H</option>
                     <option value="distV">Distribute V</option>
                 </select>
+                <select id="groupsSelect" onchange="CoopMaps.handleGroups(this.value); this.selectedIndex=0;">
+                    <option value="">Groups</option>
+                    <option value="create">Create Group</option>
+                    <option value="manage">Manage Groups</option>
+                </select>
                 <button id="snapBtn" onclick="CoopMaps.toggleSnap()">Snap</button>
                 <button id="orthoBtn" onclick="CoopMaps.toggleOrtho()">Ortho</button>
                 <div class="separator"></div>
@@ -508,6 +513,14 @@
                     case 'bottom': this.modules.canvas.alignBottom(); break;
                     case 'distH': this.modules.canvas.distributeHorizontally(); break;
                     case 'distV': this.modules.canvas.distributeVertically(); break;
+                }
+            },
+
+            handleGroups(action) {
+                if (!action || !this.modules.groups) return;
+                switch(action) {
+                    case 'create': this.modules.groups.showCreateGroupDialog(); break;
+                    case 'manage': this.modules.groups.showGroupsPanel(); break;
                 }
             },
 
@@ -812,6 +825,7 @@
     <script src="./js/modules/manuals.js"></script>
     <script src="./js/modules/productInfo.js"></script>
     <script src="./js/modules/timeline.js"></script>
+    <script src="./js/modules/groups.js"></script>
 
     <!-- Initialize after modules load -->
     <script>

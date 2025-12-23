@@ -574,6 +574,13 @@
                         <button onclick="CoopMaps.modules.canvas?.distributeVertically()">Distribute V</button>
                     </div>
                 </div>
+                <div class="align-dropdown">
+                    <button>Groups</button>
+                    <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.groups?.showCreateGroupDialog()">Create Group</button>
+                        <button onclick="CoopMaps.modules.groups?.showGroupsPanel()">Manage Groups</button>
+                    </div>
+                </div>
                 <button id="snapToggleBtn" onclick="CoopMaps.modules.canvas?.toggleSnapToGrid(); this.classList.toggle('active', CoopMaps.modules.canvas?.snapToGrid)" title="Snap to Grid">Snap</button>
                 <button onclick="CoopMaps.toggleConnectorStyle()">
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
@@ -1454,6 +1461,7 @@
     <script src="./js/modules/manuals.js"></script>
     <script src="./js/modules/productInfo.js"></script>
     <script src="./js/modules/timeline.js"></script>
+    <script src="./js/modules/groups.js"></script>
 
     <!-- Initialize app AFTER all modules loaded -->
     <script>

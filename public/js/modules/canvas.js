@@ -286,18 +286,24 @@
                             if (index > -1) {
                                 // Remove from selection
                                 self.selectedItems.splice(index, 1);
+                                clickedItem.multiSelected = false;
                             } else {
                                 // Add to selection
                                 self.selectedItems.push(clickedItem);
+                                clickedItem.multiSelected = true;
                             }
                             CoopMaps.state.data.selectedItem = clickedItem;
-                            CoopMaps.showNotification(`${self.selectedItems.length} items selected`, 'info');
+                            if (CoopMaps.showNotification) {
+                                CoopMaps.showNotification(`${self.selectedItems.length} items selected`, 'info');
+                            }
                             self.render();
                             return;
                         }
 
                         // Normal click - clear multi-select unless clicking on already selected item
                         if (!self.selectedItems.find(item => item.id === clickedItem.id)) {
+                            // Clear multiSelected flags
+                            self.selectedItems.forEach(item => item.multiSelected = false);
                             self.selectedItems = [];
                         }
 
@@ -650,10 +656,20 @@
                 CoopMaps.modules.relationships.drawRelationships(this.ctx);
             }
 
-            // Draw enterprises with enhanced visuals
+            // Draw enterprises with enhanced visuals (skip those in collapsed groups)
             CoopMaps.state.data.enterprises.forEach(enterprise => {
+                // Check if enterprise is hidden in a collapsed group
+                if (CoopMaps.modules.groups && CoopMaps.modules.groups.isEnterpriseHidden(enterprise.id)) {
+                    return; // Skip this enterprise
+                }
                 this.drawEnterprise(enterprise);
             });
+
+            // Draw groups (boundaries and collapsed icons)
+            if (CoopMaps.modules.groups) {
+                const zoom = CoopMaps.state.ui.zoom || 1;
+                CoopMaps.modules.groups.renderGroups(this.ctx, 1, { x: 0, y: 0 });
+            }
 
             // Draw relationship creation preview
             if (CoopMaps.modules.relationships && CoopMaps.modules.relationships.drawCreationPreview) {
@@ -944,8 +960,25 @@
             }
 
             const isSelected = CoopMaps.state.data.selectedItem === enterprise;
+            const isMultiSelected = enterprise.multiSelected === true;
             const isHighlighted = CoopMaps.modules.relationships &&
                                 CoopMaps.modules.relationships.highlightedEnterprise === enterprise;
+
+            // Draw multi-select highlight
+            if (isMultiSelected && !this.isExporting) {
+                this.ctx.save();
+                this.ctx.strokeStyle = '#9b59b6';
+                this.ctx.lineWidth = 3;
+                this.ctx.setLineDash([]);
+                this.ctx.globalAlpha = 0.8;
+                this.ctx.strokeRect(
+                    enterprise.x - 4,
+                    enterprise.y - 4,
+                    (enterprise.width || 140) + 8,
+                    (enterprise.height || 84) + 8
+                );
+                this.ctx.restore();
+            }
 
             // Draw highlight for relationship mode
             if (isHighlighted && !this.isExporting) {
