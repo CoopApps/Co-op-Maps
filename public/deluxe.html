@@ -607,6 +607,8 @@
                 " oninput="CoopMaps.modules.canvas?.searchEnterprises(this.value)">
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.showAddNoteDialog()" title="Add Note">Note</button>
+                <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()" title="Add Logo to Selected Enterprise">Logo</button>
+                <button onclick="CoopMaps.modules.canvas?.toggleMinimap()" title="Toggle Minimap">Map</button>
                 <button id="darkModeBtn" onclick="CoopMaps.modules.canvas?.toggleDarkMode(); document.getElementById('darkModeBtn').textContent = CoopMaps.modules.canvas?.darkMode ? 'Light' : 'Dark'" title="Toggle Dark Mode">Dark</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>

@@ -647,6 +647,9 @@
 
             // Reset export state
             this.isExporting = false;
+
+            // Update minimap if visible
+            this.renderMinimap();
         },
 
         drawEnhancedGrid() {
@@ -1000,6 +1003,9 @@
                 );
             }
 
+            // Draw logo if present
+            this.drawEnterpriseLogo(enterprise);
+
             // Enhanced label with better typography
             this.ctx.save();
             this.ctx.fillStyle = '#2c3e50';
@@ -1008,7 +1014,10 @@
             this.ctx.textBaseline = 'middle';
 
             let textX = enterprise.x + enterprise.width / 2;
-            let textY = enterprise.y + enterprise.height / 2;
+            // Shift text down if logo present
+            let textY = enterprise.logo
+                ? enterprise.y + enterprise.height * 0.7
+                : enterprise.y + enterprise.height / 2;
 
             // Wrap text if it's too long
             const maxWidth = enterprise.width - 12;
@@ -2485,6 +2494,323 @@
                 this.darkMode = true;
                 document.body.classList.add('dark-mode');
             }
+        },
+
+        // ===== MINIMAP =====
+
+        minimapCanvas: null,
+        minimapCtx: null,
+        minimapVisible: false,
+
+        initMinimap() {
+            // Create minimap container
+            const container = document.createElement('div');
+            container.id = 'minimapContainer';
+            container.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 200px;
+                height: 150px;
+                background: white;
+                border: 2px solid #3498db;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                overflow: hidden;
+                display: none;
+            `;
+
+            // Create minimap canvas
+            this.minimapCanvas = document.createElement('canvas');
+            this.minimapCanvas.width = 200;
+            this.minimapCanvas.height = 150;
+            this.minimapCanvas.style.cssText = 'width: 100%; height: 100%; cursor: pointer;';
+            container.appendChild(this.minimapCanvas);
+
+            // Create close button
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 2px;
+                right: 2px;
+                width: 20px;
+                height: 20px;
+                border: none;
+                background: rgba(0, 0, 0, 0.3);
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                line-height: 1;
+            `;
+            closeBtn.onclick = () => this.toggleMinimap();
+            container.appendChild(closeBtn);
+
+            document.body.appendChild(container);
+            this.minimapCtx = this.minimapCanvas.getContext('2d');
+
+            // Click on minimap to navigate
+            this.minimapCanvas.addEventListener('click', (e) => {
+                const rect = this.minimapCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                this.navigateFromMinimap(x, y);
+            });
+        },
+
+        toggleMinimap() {
+            const container = document.getElementById('minimapContainer');
+            if (!container) {
+                this.initMinimap();
+                this.minimapVisible = true;
+                document.getElementById('minimapContainer').style.display = 'block';
+                this.renderMinimap();
+            } else {
+                this.minimapVisible = !this.minimapVisible;
+                container.style.display = this.minimapVisible ? 'block' : 'none';
+                if (this.minimapVisible) {
+                    this.renderMinimap();
+                }
+            }
+            CoopMaps.showNotification(`Minimap ${this.minimapVisible ? 'shown' : 'hidden'}`, 'info');
+        },
+
+        renderMinimap() {
+            if (!this.minimapVisible || !this.minimapCtx) return;
+
+            const ctx = this.minimapCtx;
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            const scale = Math.min(200 / canvasSize.width, 150 / canvasSize.height);
+
+            // Clear
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, 200, 150);
+
+            // Draw canvas border
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, 0, canvasSize.width * scale, canvasSize.height * scale);
+
+            // Draw enterprises
+            CoopMaps.state.data.enterprises.forEach(e => {
+                ctx.fillStyle = e.fill || '#e3f2fd';
+                ctx.strokeStyle = '#3498db';
+                ctx.lineWidth = 1;
+                ctx.fillRect(e.x * scale, e.y * scale, e.width * scale, e.height * scale);
+                ctx.strokeRect(e.x * scale, e.y * scale, e.width * scale, e.height * scale);
+            });
+
+            // Draw relationships as lines
+            ctx.strokeStyle = '#95a5a6';
+            ctx.lineWidth = 1;
+            CoopMaps.state.data.relationships.forEach(rel => {
+                const start = CoopMaps.state.data.enterprises.find(e => e.id === rel.startId);
+                const end = CoopMaps.state.data.enterprises.find(e => e.id === rel.endId);
+                if (start && end) {
+                    ctx.beginPath();
+                    ctx.moveTo((start.x + start.width / 2) * scale, (start.y + start.height / 2) * scale);
+                    ctx.lineTo((end.x + end.width / 2) * scale, (end.y + end.height / 2) * scale);
+                    ctx.stroke();
+                }
+            });
+
+            // Draw viewport indicator
+            const container = document.querySelector('.canvas-area');
+            if (container) {
+                const containerRect = container.getBoundingClientRect();
+                const viewX = (-this.panOffset.x / CoopMaps.state.ui.zoom) * scale;
+                const viewY = (-this.panOffset.y / CoopMaps.state.ui.zoom) * scale;
+                const viewW = (containerRect.width / CoopMaps.state.ui.zoom) * scale;
+                const viewH = (containerRect.height / CoopMaps.state.ui.zoom) * scale;
+
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(viewX, viewY, viewW, viewH);
+            }
+        },
+
+        navigateFromMinimap(clickX, clickY) {
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            const scale = Math.min(200 / canvasSize.width, 150 / canvasSize.height);
+            const container = document.querySelector('.canvas-area');
+            if (!container) return;
+
+            const containerRect = container.getBoundingClientRect();
+
+            // Convert click to canvas coordinates
+            const targetX = clickX / scale;
+            const targetY = clickY / scale;
+
+            // Calculate pan offset to center on clicked point
+            const viewW = containerRect.width / CoopMaps.state.ui.zoom;
+            const viewH = containerRect.height / CoopMaps.state.ui.zoom;
+
+            this.panOffset.x = -(targetX - viewW / 2) * CoopMaps.state.ui.zoom;
+            this.panOffset.y = -(targetY - viewH / 2) * CoopMaps.state.ui.zoom;
+
+            this.render();
+            this.renderMinimap();
+        },
+
+        // ===== LOGO/IMAGE IMPORT =====
+
+        showLogoImportDialog() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (!selected) {
+                CoopMaps.showNotification('Select an enterprise first', 'info');
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'logoImportModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 450px;">
+                    <h2>Add Logo/Image</h2>
+                    <div class="form-group">
+                        <label>Select Image</label>
+                        <input type="file" id="logoFileInput" accept="image/*" style="
+                            width: 100%;
+                            padding: 12px;
+                            border: 2px dashed #dee2e6;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        ">
+                    </div>
+                    <div class="form-group">
+                        <label>Or paste image URL</label>
+                        <input type="text" id="logoUrlInput" placeholder="https://example.com/logo.png" style="
+                            width: 100%;
+                            padding: 12px;
+                            border: 2px solid #e9ecef;
+                            border-radius: 8px;
+                        ">
+                    </div>
+                    <div id="logoPreview" style="
+                        margin: 15px 0;
+                        text-align: center;
+                        min-height: 100px;
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #95a5a6;
+                    ">Preview will appear here</div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn-primary" id="applyLogoBtn" disabled onclick="
+                            CoopMaps.modules.canvas.applyLogoToEnterprise();
+                            document.getElementById('logoImportModal').remove();
+                        ">Apply Logo</button>
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('logoImportModal').remove()">Cancel</button>
+                        <button type="button" class="btn-secondary" onclick="
+                            CoopMaps.modules.canvas.removeLogoFromEnterprise();
+                            document.getElementById('logoImportModal').remove();
+                        " style="background: #e74c3c; color: white;">Remove Logo</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // File input handler
+            document.getElementById('logoFileInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        this.previewLogo(ev.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // URL input handler
+            document.getElementById('logoUrlInput').addEventListener('input', (e) => {
+                const url = e.target.value.trim();
+                if (url) {
+                    this.previewLogo(url);
+                }
+            });
+        },
+
+        pendingLogoData: null,
+
+        previewLogo(src) {
+            const preview = document.getElementById('logoPreview');
+            const applyBtn = document.getElementById('applyLogoBtn');
+
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                preview.innerHTML = '';
+                img.style.maxWidth = '150px';
+                img.style.maxHeight = '100px';
+                img.style.borderRadius = '4px';
+                preview.appendChild(img);
+                this.pendingLogoData = src;
+                applyBtn.disabled = false;
+            };
+            img.onerror = () => {
+                preview.innerHTML = '<span style="color: #e74c3c;">Failed to load image</span>';
+                this.pendingLogoData = null;
+                applyBtn.disabled = true;
+            };
+            img.src = src;
+        },
+
+        applyLogoToEnterprise() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected && this.pendingLogoData) {
+                CoopMaps.saveState();
+                selected.logo = this.pendingLogoData;
+                this.pendingLogoData = null;
+                this.render();
+                CoopMaps.showNotification('Logo applied', 'success');
+            }
+        },
+
+        removeLogoFromEnterprise() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected) {
+                CoopMaps.saveState();
+                delete selected.logo;
+                this.render();
+                CoopMaps.showNotification('Logo removed', 'success');
+            }
+        },
+
+        // Logo image cache
+        logoCache: {},
+
+        drawEnterpriseLogo(enterprise) {
+            if (!enterprise.logo) return;
+
+            const padding = 8;
+            const maxLogoWidth = enterprise.width - padding * 2;
+            const maxLogoHeight = enterprise.height * 0.4; // Use top 40% for logo
+
+            // Check cache
+            if (!this.logoCache[enterprise.logo]) {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    this.logoCache[enterprise.logo] = img;
+                    this.render();
+                };
+                img.src = enterprise.logo;
+                return;
+            }
+
+            const img = this.logoCache[enterprise.logo];
+            const scale = Math.min(maxLogoWidth / img.width, maxLogoHeight / img.height, 1);
+            const logoW = img.width * scale;
+            const logoH = img.height * scale;
+            const logoX = enterprise.x + (enterprise.width - logoW) / 2;
+            const logoY = enterprise.y + padding;
+
+            this.ctx.drawImage(img, logoX, logoY, logoW, logoH);
         }
     });
 
