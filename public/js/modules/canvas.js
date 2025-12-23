@@ -945,6 +945,9 @@
                 const self = this;
                 const canvasSize = this.canvasSizes[this.currentCanvasSize];
 
+                // Reset pan offset when zooming to keep canvas centered
+                this.panOffset = { x: 0, y: 0 };
+
                 const animate = () => {
                     const elapsed = Date.now() - startTime;
                     const progress = Math.min(elapsed / duration, 1);
