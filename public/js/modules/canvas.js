@@ -50,8 +50,12 @@
             // Set initial canvas size
             this.setCanvasSize('A4');
 
+            // Initialize dark mode from stored preference
+            this.initDarkMode();
+
             this.bindCanvasEvents();
             this.setupDragAndDrop();
+            this.setupKeyboardShortcuts();
             this.render();
         },
 
@@ -472,10 +476,84 @@
                 }
             });
 
-            // Keyboard events
+        },
+
+        setupKeyboardShortcuts() {
+            const self = this;
+
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Delete' && CoopMaps.state.data.selectedItem) {
-                    self.deleteSelected();
+                // Ignore if typing in an input
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+
+                const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                const modKey = isMac ? e.metaKey : e.ctrlKey;
+
+                // Delete selected
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    if (CoopMaps.state.data.selectedItem || self.selectedItems.length > 0) {
+                        e.preventDefault();
+                        self.deleteSelectedItems();
+                    }
+                }
+
+                // Copy (Ctrl/Cmd+C)
+                if (modKey && e.key === 'c') {
+                    e.preventDefault();
+                    self.copySelected();
+                }
+
+                // Paste (Ctrl/Cmd+V)
+                if (modKey && e.key === 'v') {
+                    e.preventDefault();
+                    self.pasteFromClipboard();
+                }
+
+                // Duplicate (Ctrl/Cmd+D)
+                if (modKey && e.key === 'd') {
+                    e.preventDefault();
+                    self.duplicateSelected();
+                }
+
+                // Select all (Ctrl/Cmd+A)
+                if (modKey && e.key === 'a') {
+                    e.preventDefault();
+                    self.selectedItems = [...CoopMaps.state.data.enterprises];
+                    if (self.selectedItems.length > 0) {
+                        CoopMaps.showNotification(`Selected ${self.selectedItems.length} items`, 'info');
+                    }
+                    self.render();
+                }
+
+                // Escape - deselect all
+                if (e.key === 'Escape') {
+                    self.selectedItems = [];
+                    CoopMaps.state.data.selectedItem = null;
+                    if (CoopMaps.modules.relationships) {
+                        CoopMaps.modules.relationships.cancelRelationshipCreation();
+                    }
+                    self.render();
+                }
+
+                // Arrow keys - nudge selected items
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    const items = self.selectedItems.length > 0
+                        ? self.selectedItems
+                        : (CoopMaps.state.data.selectedItem ? [CoopMaps.state.data.selectedItem] : []);
+
+                    if (items.length > 0) {
+                        e.preventDefault();
+                        const distance = e.shiftKey ? 10 : 1;
+                        const dx = e.key === 'ArrowLeft' ? -distance : (e.key === 'ArrowRight' ? distance : 0);
+                        const dy = e.key === 'ArrowUp' ? -distance : (e.key === 'ArrowDown' ? distance : 0);
+
+                        items.forEach(item => {
+                            item.x += dx;
+                            item.y += dy;
+                        });
+                        self.render();
+                    }
                 }
             });
         },
@@ -549,10 +627,16 @@
                 CoopMaps.modules.relationships.drawCreationPreview(this.ctx);
             }
 
+            // Draw annotations/notes
+            this.drawAnnotations();
+
             // Draw selection highlight
             if (CoopMaps.state.data.selectedItem && !this.isExporting) {
                 this.drawSelectionHighlight(CoopMaps.state.data.selectedItem);
             }
+
+            // Draw multi-select highlights
+            this.drawMultiSelectHighlights();
 
             this.ctx.restore();
 
@@ -1603,26 +1687,6 @@
             }
         },
 
-        duplicateSelected() {
-            const selected = CoopMaps.state.data.selectedItem;
-            if (selected) {
-                CoopMaps.saveState();
-
-                const duplicate = {
-                    ...selected,
-                    id: CoopMaps.generateId(),
-                    x: selected.x + 50,
-                    y: selected.y + 50
-                };
-
-                CoopMaps.state.data.enterprises.push(duplicate);
-                CoopMaps.state.data.selectedItem = duplicate;
-                this.render();
-
-                document.getElementById('contextMenu').style.display = 'none';
-            }
-        },
-
         bringToFront() {
             const selected = CoopMaps.state.data.selectedItem;
             if (selected) {
@@ -1759,6 +1823,16 @@
             this.render();
         },
 
+        // Clipboard for copy/paste
+        clipboard: null,
+
+        // Snap-to-grid settings
+        snapToGrid: false,
+        gridSnapSize: 20,
+
+        // Notes/annotations
+        annotations: [],
+
         // Multi-select support
         selectedItems: [],
         isMultiSelecting: false,
@@ -1888,6 +1962,385 @@
             });
 
             this.ctx.restore();
+        },
+
+        // ===== COPY/PASTE FUNCTIONALITY =====
+
+        copySelected() {
+            const items = this.selectedItems.length > 0
+                ? this.selectedItems
+                : (CoopMaps.state.data.selectedItem ? [CoopMaps.state.data.selectedItem] : []);
+
+            if (items.length === 0) {
+                CoopMaps.showNotification('No items selected to copy', 'info');
+                return;
+            }
+
+            // Deep copy the items
+            this.clipboard = items.map(item => JSON.parse(JSON.stringify(item)));
+            CoopMaps.showNotification(`Copied ${items.length} item(s)`, 'success');
+        },
+
+        pasteFromClipboard() {
+            if (!this.clipboard || this.clipboard.length === 0) {
+                CoopMaps.showNotification('Nothing to paste', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+
+            // Calculate offset for pasted items
+            const offset = 30;
+            const newItems = [];
+
+            this.clipboard.forEach(item => {
+                const newItem = {
+                    ...JSON.parse(JSON.stringify(item)),
+                    id: CoopMaps.generateId(),
+                    x: item.x + offset,
+                    y: item.y + offset
+                };
+                CoopMaps.state.data.enterprises.push(newItem);
+                newItems.push(newItem);
+            });
+
+            // Select the newly pasted items
+            this.selectedItems = newItems;
+            if (newItems.length === 1) {
+                CoopMaps.state.data.selectedItem = newItems[0];
+            }
+
+            this.render();
+            CoopMaps.showNotification(`Pasted ${newItems.length} item(s)`, 'success');
+        },
+
+        duplicateSelected() {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (selected) {
+                CoopMaps.saveState();
+
+                const duplicate = {
+                    ...JSON.parse(JSON.stringify(selected)),
+                    id: CoopMaps.generateId(),
+                    x: selected.x + 30,
+                    y: selected.y + 30
+                };
+
+                CoopMaps.state.data.enterprises.push(duplicate);
+                CoopMaps.state.data.selectedItem = duplicate;
+                this.render();
+
+                document.getElementById('contextMenu').style.display = 'none';
+                CoopMaps.showNotification('Duplicated item', 'success');
+            }
+        },
+
+        // ===== ALIGNMENT TOOLS =====
+
+        alignLeft() {
+            const items = this.selectedItems.length > 1 ? this.selectedItems : [];
+            if (items.length < 2) {
+                CoopMaps.showNotification('Select multiple items to align', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+            const minX = Math.min(...items.map(item => item.x));
+            items.forEach(item => { item.x = minX; });
+            this.render();
+            CoopMaps.showNotification('Aligned left', 'success');
+        },
+
+        alignCenter() {
+            const items = this.selectedItems.length > 1 ? this.selectedItems : [];
+            if (items.length < 2) {
+                CoopMaps.showNotification('Select multiple items to align', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+            const centers = items.map(item => item.x + item.width / 2);
+            const avgCenter = centers.reduce((a, b) => a + b, 0) / centers.length;
+            items.forEach(item => { item.x = avgCenter - item.width / 2; });
+            this.render();
+            CoopMaps.showNotification('Aligned center', 'success');
+        },
+
+        alignRight() {
+            const items = this.selectedItems.length > 1 ? this.selectedItems : [];
+            if (items.length < 2) {
+                CoopMaps.showNotification('Select multiple items to align', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+            const maxRight = Math.max(...items.map(item => item.x + item.width));
+            items.forEach(item => { item.x = maxRight - item.width; });
+            this.render();
+            CoopMaps.showNotification('Aligned right', 'success');
+        },
+
+        alignTop() {
+            const items = this.selectedItems.length > 1 ? this.selectedItems : [];
+            if (items.length < 2) {
+                CoopMaps.showNotification('Select multiple items to align', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+            const minY = Math.min(...items.map(item => item.y));
+            items.forEach(item => { item.y = minY; });
+            this.render();
+            CoopMaps.showNotification('Aligned top', 'success');
+        },
+
+        alignMiddle() {
+            const items = this.selectedItems.length > 1 ? this.selectedItems : [];
+            if (items.length < 2) {
+                CoopMaps.showNotification('Select multiple items to align', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+            const middles = items.map(item => item.y + item.height / 2);
+            const avgMiddle = middles.reduce((a, b) => a + b, 0) / middles.length;
+            items.forEach(item => { item.y = avgMiddle - item.height / 2; });
+            this.render();
+            CoopMaps.showNotification('Aligned middle', 'success');
+        },
+
+        alignBottom() {
+            const items = this.selectedItems.length > 1 ? this.selectedItems : [];
+            if (items.length < 2) {
+                CoopMaps.showNotification('Select multiple items to align', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+            const maxBottom = Math.max(...items.map(item => item.y + item.height));
+            items.forEach(item => { item.y = maxBottom - item.height; });
+            this.render();
+            CoopMaps.showNotification('Aligned bottom', 'success');
+        },
+
+        distributeHorizontally() {
+            const items = this.selectedItems.length > 2 ? this.selectedItems : [];
+            if (items.length < 3) {
+                CoopMaps.showNotification('Select 3+ items to distribute', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+
+            // Sort by x position
+            const sorted = [...items].sort((a, b) => a.x - b.x);
+            const first = sorted[0];
+            const last = sorted[sorted.length - 1];
+            const totalWidth = (last.x + last.width) - first.x;
+            const itemsWidth = sorted.reduce((sum, item) => sum + item.width, 0);
+            const spacing = (totalWidth - itemsWidth) / (sorted.length - 1);
+
+            let currentX = first.x;
+            sorted.forEach((item, i) => {
+                if (i > 0) {
+                    item.x = currentX;
+                }
+                currentX = item.x + item.width + spacing;
+            });
+
+            this.render();
+            CoopMaps.showNotification('Distributed horizontally', 'success');
+        },
+
+        distributeVertically() {
+            const items = this.selectedItems.length > 2 ? this.selectedItems : [];
+            if (items.length < 3) {
+                CoopMaps.showNotification('Select 3+ items to distribute', 'info');
+                return;
+            }
+
+            CoopMaps.saveState();
+
+            // Sort by y position
+            const sorted = [...items].sort((a, b) => a.y - b.y);
+            const first = sorted[0];
+            const last = sorted[sorted.length - 1];
+            const totalHeight = (last.y + last.height) - first.y;
+            const itemsHeight = sorted.reduce((sum, item) => sum + item.height, 0);
+            const spacing = (totalHeight - itemsHeight) / (sorted.length - 1);
+
+            let currentY = first.y;
+            sorted.forEach((item, i) => {
+                if (i > 0) {
+                    item.y = currentY;
+                }
+                currentY = item.y + item.height + spacing;
+            });
+
+            this.render();
+            CoopMaps.showNotification('Distributed vertically', 'success');
+        },
+
+        // ===== SNAP TO GRID =====
+
+        toggleSnapToGrid() {
+            this.snapToGrid = !this.snapToGrid;
+            CoopMaps.showNotification(`Snap to grid ${this.snapToGrid ? 'enabled' : 'disabled'}`, 'info');
+            return this.snapToGrid;
+        },
+
+        snapPosition(value) {
+            if (!this.snapToGrid) return value;
+            return Math.round(value / this.gridSnapSize) * this.gridSnapSize;
+        },
+
+        // ===== NOTES/ANNOTATIONS =====
+
+        addAnnotation(x, y, text = '') {
+            const annotation = {
+                id: CoopMaps.generateId(),
+                x: x,
+                y: y,
+                text: text || 'New Note',
+                width: 150,
+                height: 80,
+                color: '#fff9c4',
+                fontSize: 12
+            };
+
+            if (!CoopMaps.state.data.annotations) {
+                CoopMaps.state.data.annotations = [];
+            }
+            CoopMaps.state.data.annotations.push(annotation);
+            this.render();
+            CoopMaps.showNotification('Note added', 'success');
+            return annotation;
+        },
+
+        drawAnnotations() {
+            const annotations = CoopMaps.state.data.annotations || [];
+            if (annotations.length === 0) return;
+
+            this.ctx.save();
+
+            annotations.forEach(note => {
+                // Draw note background
+                this.ctx.fillStyle = note.color || '#fff9c4';
+                this.ctx.strokeStyle = '#e6d85e';
+                this.ctx.lineWidth = 1;
+
+                // Rounded rectangle
+                this.drawRoundedRect(note.x, note.y, note.width, note.height, 4);
+                this.ctx.fill();
+                this.ctx.stroke();
+
+                // Draw fold effect
+                this.ctx.fillStyle = '#e6d85e';
+                this.ctx.beginPath();
+                this.ctx.moveTo(note.x + note.width - 15, note.y);
+                this.ctx.lineTo(note.x + note.width, note.y + 15);
+                this.ctx.lineTo(note.x + note.width - 15, note.y + 15);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // Draw text
+                this.ctx.fillStyle = '#333';
+                this.ctx.font = `${note.fontSize || 12}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+                this.ctx.textAlign = 'left';
+                this.ctx.textBaseline = 'top';
+
+                // Word wrap
+                const words = note.text.split(' ');
+                const lines = [];
+                let currentLine = '';
+                const maxWidth = note.width - 16;
+
+                words.forEach(word => {
+                    const testLine = currentLine ? currentLine + ' ' + word : word;
+                    const metrics = this.ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && currentLine) {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = testLine;
+                    }
+                });
+                lines.push(currentLine);
+
+                const lineHeight = (note.fontSize || 12) + 4;
+                lines.slice(0, Math.floor((note.height - 16) / lineHeight)).forEach((line, i) => {
+                    this.ctx.fillText(line, note.x + 8, note.y + 8 + i * lineHeight);
+                });
+            });
+
+            this.ctx.restore();
+        },
+
+        showAddNoteDialog() {
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            const x = canvasSize.width / 2 - 75;
+            const y = canvasSize.height / 2 - 40;
+
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'addNoteModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <h2>Add Note</h2>
+                    <div class="form-group">
+                        <label>Note Text</label>
+                        <textarea id="noteText" rows="4" placeholder="Enter your note..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <select id="noteColor">
+                            <option value="#fff9c4">Yellow</option>
+                            <option value="#c8e6c9">Green</option>
+                            <option value="#bbdefb">Blue</option>
+                            <option value="#ffccbc">Orange</option>
+                            <option value="#f8bbd0">Pink</option>
+                        </select>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn-primary" onclick="
+                            const text = document.getElementById('noteText').value;
+                            const color = document.getElementById('noteColor').value;
+                            const annotation = CoopMaps.modules.canvas.addAnnotation(${x}, ${y}, text);
+                            annotation.color = color;
+                            CoopMaps.modules.canvas.render();
+                            document.getElementById('addNoteModal').remove();
+                        ">Add Note</button>
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('addNoteModal').remove()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('noteText').focus();
+        },
+
+        // ===== DARK MODE =====
+
+        darkMode: false,
+
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            document.body.classList.toggle('dark-mode', this.darkMode);
+
+            // Store preference
+            localStorage.setItem('coopMaps-darkMode', this.darkMode);
+
+            this.render();
+            CoopMaps.showNotification(`Dark mode ${this.darkMode ? 'enabled' : 'disabled'}`, 'info');
+            return this.darkMode;
+        },
+
+        initDarkMode() {
+            // Check stored preference
+            const stored = localStorage.getItem('coopMaps-darkMode');
+            if (stored === 'true') {
+                this.darkMode = true;
+                document.body.classList.add('dark-mode');
+            }
         }
     });
 

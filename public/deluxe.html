@@ -352,6 +352,140 @@
         .modal-buttons .btn-secondary:hover {
             background: #d5dbdb;
         }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+        body.dark-mode .header {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+        }
+        body.dark-mode .toolbar {
+            background: linear-gradient(to right, #1e1e2e 0%, #252538 100%);
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+        body.dark-mode .toolbar button {
+            background: #2a2a3e;
+            color: #e0e0e0;
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .toolbar button:hover {
+            background: #3a3a4e;
+            border-color: var(--primary);
+        }
+        body.dark-mode .toolbar button.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        body.dark-mode .toolbar select {
+            background: #2a2a3e;
+            color: #e0e0e0;
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .sidebar {
+            background: rgba(30, 30, 46, 0.95);
+        }
+        body.dark-mode .sidebar-tabs {
+            background: #1e1e2e;
+        }
+        body.dark-mode .sidebar-tab {
+            color: #888;
+        }
+        body.dark-mode .sidebar-tab.active {
+            color: var(--primary);
+            background: rgba(52, 152, 219, 0.1);
+        }
+        body.dark-mode .sidebar-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0e0e0;
+        }
+        body.dark-mode .sidebar-content {
+            background: linear-gradient(to bottom, #1e1e2e 0%, #252538 100%);
+        }
+        body.dark-mode .canvas-area {
+            background: #12121e;
+        }
+        body.dark-mode #canvas {
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .context-menu {
+            background: #2a2a3e;
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .context-menu-item {
+            color: #e0e0e0;
+        }
+        body.dark-mode .context-menu-item:hover {
+            background: var(--primary);
+        }
+        body.dark-mode .modal-content {
+            background: #2a2a3e;
+            color: #e0e0e0;
+        }
+        body.dark-mode .modal h2 {
+            color: #e0e0e0;
+        }
+        body.dark-mode .form-group label {
+            color: #e0e0e0;
+        }
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group textarea,
+        body.dark-mode .form-group select {
+            background: #1e1e2e;
+            color: #e0e0e0;
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .form-group small {
+            color: #888;
+        }
+        body.dark-mode .modal-buttons .btn-secondary {
+            background: #3a3a4e;
+            color: #e0e0e0;
+        }
+
+        /* Alignment dropdown menu */
+        .align-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .align-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 140px;
+        }
+        body.dark-mode .align-dropdown-content {
+            background: #2a2a3e;
+            border-color: #3a3a4e;
+        }
+        .align-dropdown:hover .align-dropdown-content {
+            display: block;
+        }
+        .align-dropdown-content button {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--dark);
+        }
+        body.dark-mode .align-dropdown-content button {
+            color: #e0e0e0;
+        }
+        .align-dropdown-content button:hover {
+            background: var(--primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -427,6 +561,20 @@
                 </button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto</button>
+                <div class="align-dropdown">
+                    <button>Align</button>
+                    <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.canvas?.alignLeft()">Align Left</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignCenter()">Align Center</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignRight()">Align Right</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignTop()">Align Top</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignMiddle()">Align Middle</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignBottom()">Align Bottom</button>
+                        <button onclick="CoopMaps.modules.canvas?.distributeHorizontally()">Distribute H</button>
+                        <button onclick="CoopMaps.modules.canvas?.distributeVertically()">Distribute V</button>
+                    </div>
+                </div>
+                <button id="snapToggleBtn" onclick="CoopMaps.modules.canvas?.toggleSnapToGrid(); this.classList.toggle('active', CoopMaps.modules.canvas?.snapToGrid)" title="Snap to Grid">Snap</button>
                 <button onclick="CoopMaps.toggleConnectorStyle()">
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
                         <path id="connectorStylePath" d="M3 3 L10 3 L10 10 L17 10" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -456,6 +604,9 @@
                     border-radius: 6px;
                     font-size: 12px;
                 " oninput="CoopMaps.modules.canvas?.searchEnterprises(this.value)">
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.showAddNoteDialog()" title="Add Note">Note</button>
+                <button id="darkModeBtn" onclick="CoopMaps.modules.canvas?.toggleDarkMode(); document.getElementById('darkModeBtn').textContent = CoopMaps.modules.canvas?.darkMode ? 'Light' : 'Dark'" title="Toggle Dark Mode">Dark</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
                 <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
@@ -784,45 +935,80 @@
                     z-index: 5000;
                 `;
 
+                const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                const modKey = isMac ? '⌘' : 'Ctrl';
+
                 modal.innerHTML = `
                     <div style="
                         background: white;
                         border-radius: 12px;
                         padding: 30px;
-                        max-width: 600px;
+                        max-width: 700px;
                         width: 90%;
+                        max-height: 80vh;
+                        overflow-y: auto;
                         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
                     ">
                         <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 24px;">
-                            ⌨️ Keyboard Shortcuts
+                            Keyboard Shortcuts
                         </h2>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                             <div>
+                                <h3 style="font-size: 14px; color: #7f8c8d; margin: 0 0 10px 0;">General</h3>
                                 <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
                                     <span style="color: #2c3e50; font-weight: 600;">Undo</span>
-                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Ctrl+Z</kbd>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+Z</kbd>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
                                     <span style="color: #2c3e50; font-weight: 600;">Redo</span>
-                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Ctrl+Shift+Z</kbd>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+Shift+Z</kbd>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
                                     <span style="color: #2c3e50; font-weight: 600;">Save</span>
-                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Ctrl+S</kbd>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+S</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Exit Mode/Deselect</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">ESC</kbd>
                                 </div>
                             </div>
                             <div>
+                                <h3 style="font-size: 14px; color: #7f8c8d; margin: 0 0 10px 0;">Editing</h3>
                                 <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
-                                    <span style="color: #2c3e50; font-weight: 600;">Relationship Mode</span>
-                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">R</kbd>
+                                    <span style="color: #2c3e50; font-weight: 600;">Copy</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+C</kbd>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
-                                    <span style="color: #2c3e50; font-weight: 600;">Exit Mode</span>
-                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">ESC</kbd>
+                                    <span style="color: #2c3e50; font-weight: 600;">Paste</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+V</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Duplicate</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+D</kbd>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
                                     <span style="color: #2c3e50; font-weight: 600;">Delete Selected</span>
                                     <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Delete</kbd>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                            <div>
+                                <h3 style="font-size: 14px; color: #7f8c8d; margin: 0 0 10px 0;">Selection</h3>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Select All</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+A</kbd>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 14px; color: #7f8c8d; margin: 0 0 10px 0;">Movement</h3>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Nudge (1px)</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Arrow Keys</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Nudge (10px)</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Shift+Arrows</kbd>
                                 </div>
                             </div>
                         </div>
