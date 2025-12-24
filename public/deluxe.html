@@ -144,53 +144,31 @@
             z-index: 10;
         }
 
-        /* Right Spacer (balances sidebar) */
+        /* Right Spacer (balances sidebar, extends to edge) */
         .right-spacer {
-            width: 320px;
-            flex-shrink: 0;
+            flex: 0 0 320px;
         }
 
-        /* Floating Zoom Controls */
+        /* Zoom Controls (in header) */
         .zoom-controls {
-            position: absolute;
-            left: 20px;
-            top: 20px;
             display: flex;
             flex-direction: row;
             gap: 4px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 8px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            z-index: 100;
         }
 
         .zoom-controls button {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 6px;
+            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
+            color: white;
             transition: all 0.2s;
         }
 
         .zoom-controls button:hover {
-            background: #f0f0f0;
-        }
-
-        body.dark-mode .zoom-controls {
-            background: rgba(45, 55, 72, 0.95);
-        }
-
-        body.dark-mode .zoom-controls button {
-            background: #374151;
-            border-color: #4b5563;
-            color: #e5e7eb;
-        }
-
-        body.dark-mode .zoom-controls button:hover {
-            background: #4b5563;
+            background: rgba(255,255,255,0.2);
         }
 
         .sidebar-tabs {
@@ -202,8 +180,8 @@
         }
 
         .sidebar-tab {
-            flex: 1 1 0;
-            min-width: 0;
+            width: 25%;
+            flex: none;
             padding: 16px 4px;
             text-align: center;
             cursor: pointer;
@@ -214,6 +192,9 @@
             color: var(--gray);
             transition: all 0.2s ease;
             position: relative;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .sidebar-tab::before {
@@ -563,6 +544,13 @@
         <h1>Co-op Maps v1.0 - Deluxe Edition</h1>
         <div style="flex: 1;"></div>
         <div style="display: flex; align-items: center; gap: 12px;">
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <button onclick="CoopMaps.modules.canvas?.zoomOut()">−</button>
+                <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
+                <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
+                <button onclick="CoopMaps.modules.canvas?.fitToContent()" title="Fit to Content">Fit</button>
+            </div>
             <div style="position: relative;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);">
                     <circle cx="11" cy="11" r="8"/>
@@ -711,13 +699,6 @@
             
             <!-- Canvas Area -->
             <div class="canvas-area">
-                <!-- Floating Zoom Controls (left side) -->
-                <div class="zoom-controls">
-                    <button onclick="CoopMaps.modules.canvas?.zoomOut()">−</button>
-                    <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
-                    <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
-                    <button onclick="CoopMaps.modules.canvas?.fitToContent()" title="Fit to Content">Fit</button>
-                </div>
                 <canvas id="canvas"></canvas>
             </div>
         </div>
