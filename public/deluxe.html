@@ -45,7 +45,10 @@
             font-size: 20px;
             font-weight: 600;
         }
-        
+        .header input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         /* Toolbar */
         .toolbar {
             height: 50px;
@@ -508,6 +511,28 @@
             <span style="font-size: 14px; font-weight: 500;">Home</span>
         </a>
         <h1>Co-op Maps v1.0 - Deluxe Edition</h1>
+        <div style="flex: 1;"></div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="position: relative;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search enterprises..." style="
+                    width: 200px;
+                    padding: 8px 12px 8px 34px;
+                    border: 1px solid rgba(255,255,255,0.2);
+                    border-radius: 8px;
+                    font-size: 13px;
+                    background: rgba(255,255,255,0.1);
+                    color: white;
+                    outline: none;
+                    transition: all 0.2s;
+                " oninput="CoopMaps.modules.canvas?.searchEnterprises(this.value)"
+                  onfocus="this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='rgba(255,255,255,0.4)'"
+                  onblur="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)'">
+            </div>
+        </div>
     </div>
 
     <!-- Main Container -->
@@ -605,13 +630,6 @@
                     </svg>
                     <span>Print</span>
                 </button>
-                <input type="text" id="searchInput" placeholder="Search..." style="
-                    width: 120px;
-                    padding: 6px 10px;
-                    border: 1px solid var(--border-color);
-                    border-radius: 6px;
-                    font-size: 12px;
-                " oninput="CoopMaps.modules.canvas?.searchEnterprises(this.value)">
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.showAddNoteDialog()" title="Add Note">Note</button>
                 <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()" title="Add Logo to Selected Enterprise">Logo</button>
