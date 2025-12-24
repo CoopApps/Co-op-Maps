@@ -1,15 +1,18 @@
 # Multi-stage build for optimized production image
+# Build date: 2025-12-20
 
 # Stage 1: Dependencies
 FROM node:18-alpine AS dependencies
 WORKDIR /app
 COPY package*.json ./
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 RUN npm ci --only=production && npm cache clean --force
 
 # Stage 2: Build
 FROM node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 RUN npm ci
 COPY server ./server
 COPY public ./public

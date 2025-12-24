@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-op Maps v1.0 - Co-operative Ecosystem Mapping Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --light-gray: #ecf0f1;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            box-shadow: 0 4px 20px rgba(44, 62, 80, 0.3);
+            z-index: 1000;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        /* Toolbar */
+        .toolbar {
+            height: 50px;
+            background: linear-gradient(to right, white 0%, #fafafa 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0 10px;
+            box-shadow: var(--shadow-sm);
+            z-index: 5;
+        }
+        .toolbar button {
+            padding: 4px 8px;
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+        .toolbar button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .toolbar button.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        .toolbar button.primary:hover {
+            background: var(--primary-dark);
+        }
+        .toolbar .separator {
+            width: 1px;
+            height: 30px;
+            background: linear-gradient(to bottom, transparent, var(--light-gray), transparent);
+            margin: 0 2px;
+        }
+        
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            padding: 6px 0;
+            z-index: 2000;
+            display: none;
+            min-width: 160px;
+        }
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--dark);
+            transition: all 0.1s;
+        }
+        .context-menu-item:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .context-menu-divider {
+            height: 1px;
+            background: var(--light-gray);
+            margin: 4px 0;
+        }
+
+        /* Container */
+        .container { display: flex; height: 100vh; padding-top: 50px; overflow: hidden; }
+        
+        /* Main area */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Left Sidebar with Tabs */
+        .sidebar {
+            width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            background: white;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .sidebar-tab::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-tab.active {
+            color: var(--primary);
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .sidebar-tab.active::before {
+            transform: translateY(0);
+        }
+
+        .sidebar-tab:hover:not(.active) {
+            background: rgba(0, 0, 0, 0.03);
+            color: var(--dark);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            background: linear-gradient(to bottom, white 0%, #fafafa 100%);
+        }
+
+        .sidebar-content::-webkit-scrollbar { width: 8px; }
+        .sidebar-content::-webkit-scrollbar-track { background: #f1f1f1; }
+        .sidebar-content::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .sidebar-content::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            background: #f8f9fa;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #canvas {
+            cursor: grab;
+            background: white;
+            border: 1px solid #2c3e50;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-secondary { background: var(--light-gray); color: var(--dark); }
+        .btn-secondary:hover { background: #d5dbdb; }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            max-width: 400px;
+        }
+        .notification.success { background: var(--secondary); }
+        .notification.error { background: var(--danger); }
+        .notification.info { background: var(--primary); }
+
+        /* Symbol Key Sliding Panel styles */
+        .symbol-key-panel.visible {
+            right: 0 !important;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--dark);
+            font-size: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .form-group small {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--gray);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .modal-buttons .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        .modal-buttons .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+        .modal-buttons .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+        .modal-buttons .btn-secondary:hover {
+            background: #d5dbdb;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+        body.dark-mode .header {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+        }
+        body.dark-mode .toolbar {
+            background: linear-gradient(to right, #1e1e2e 0%, #252538 100%);
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+        body.dark-mode .toolbar button {
+            background: #2a2a3e;
+            color: #e0e0e0;
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .toolbar button:hover {
+            background: #3a3a4e;
+            border-color: var(--primary);
+        }
+        body.dark-mode .toolbar button.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        body.dark-mode .toolbar select {
+            background: #2a2a3e;
+            color: #e0e0e0;
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .sidebar {
+            background: rgba(30, 30, 46, 0.95);
+        }
+        body.dark-mode .sidebar-tabs {
+            background: #1e1e2e;
+        }
+        body.dark-mode .sidebar-tab {
+            color: #888;
+        }
+        body.dark-mode .sidebar-tab.active {
+            color: var(--primary);
+            background: rgba(52, 152, 219, 0.1);
+        }
+        body.dark-mode .sidebar-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0e0e0;
+        }
+        body.dark-mode .sidebar-content {
+            background: linear-gradient(to bottom, #1e1e2e 0%, #252538 100%);
+        }
+        body.dark-mode .canvas-area {
+            background: #12121e;
+        }
+        body.dark-mode #canvas {
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .context-menu {
+            background: #2a2a3e;
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .context-menu-item {
+            color: #e0e0e0;
+        }
+        body.dark-mode .context-menu-item:hover {
+            background: var(--primary);
+        }
+        body.dark-mode .modal-content {
+            background: #2a2a3e;
+            color: #e0e0e0;
+        }
+        body.dark-mode .modal h2 {
+            color: #e0e0e0;
+        }
+        body.dark-mode .form-group label {
+            color: #e0e0e0;
+        }
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group textarea,
+        body.dark-mode .form-group select {
+            background: #1e1e2e;
+            color: #e0e0e0;
+            border-color: #3a3a4e;
+        }
+        body.dark-mode .form-group small {
+            color: #888;
+        }
+        body.dark-mode .modal-buttons .btn-secondary {
+            background: #3a3a4e;
+            color: #e0e0e0;
+        }
+
+        /* Alignment dropdown menu */
+        .align-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .align-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 140px;
+        }
+        body.dark-mode .align-dropdown-content {
+            background: #2a2a3e;
+            border-color: #3a3a4e;
+        }
+        .align-dropdown:hover .align-dropdown-content {
+            display: block;
+        }
+        .align-dropdown-content button {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--dark);
+        }
+        body.dark-mode .align-dropdown-content button {
+            color: #e0e0e0;
+        }
+        .align-dropdown-content button:hover {
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <a href="index.html" style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-right: 15px;
+        " onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            <span style="font-size: 14px; font-weight: 500;">Home</span>
+        </a>
+        <h1>Co-op Maps v1.0 - Deluxe Edition</h1>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Sidebar with Tabs -->
+        <div class="sidebar">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="symbols">Symbols</button>
+                <button class="sidebar-tab" data-tab="properties">Properties</button>
+                <button class="sidebar-tab" data-tab="diagrams">Diagrams</button>
+                <button class="sidebar-tab" data-tab="business">Business</button>
+            </div>
+            <div class="sidebar-content" id="sidebar-content">
+                <!-- Tab content loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Main Area -->
+        <div class="main">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button onclick="CoopMaps.undo()">↶ Undo</button>
+                <button onclick="CoopMaps.redo()">↷ Redo</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.newDiagram()">New</button>
+                <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear</button>
+                <div class="separator"></div>
+                <select id="canvasSizeSelector" onchange="CoopMaps.changeCanvasSize(this.value)" style="
+                    padding: 4px 8px;
+                    background: white;
+                    color: var(--dark);
+                    border: 1px solid var(--light-gray);
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 11px;
+                    font-weight: 500;
+                ">
+                    <option value="A4">A4</option>
+                    <option value="A3">A3</option>
+                    <option value="A2">A2</option>
+                    <option value="A1">A1</option>
+                </select>
+                <button id="gridToggleBtn" onclick="CoopMaps.toggleGrid()" title="Toggle Grid">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                        <rect x="2" y="2" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="12" y="2" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="2" y="12" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="12" y="12" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                    <span>Grid</span>
+                </button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto</button>
+                <div class="align-dropdown">
+                    <button>Align</button>
+                    <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.canvas?.alignLeft()">Align Left</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignCenter()">Align Center</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignRight()">Align Right</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignTop()">Align Top</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignMiddle()">Align Middle</button>
+                        <button onclick="CoopMaps.modules.canvas?.alignBottom()">Align Bottom</button>
+                        <button onclick="CoopMaps.modules.canvas?.distributeHorizontally()">Distribute H</button>
+                        <button onclick="CoopMaps.modules.canvas?.distributeVertically()">Distribute V</button>
+                    </div>
+                </div>
+                <div class="align-dropdown">
+                    <button>Groups</button>
+                    <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.groups?.showCreateGroupDialog()">Create Group</button>
+                        <button onclick="CoopMaps.modules.groups?.showGroupsPanel()">Manage Groups</button>
+                    </div>
+                </div>
+                <button id="snapToggleBtn" onclick="CoopMaps.modules.canvas?.toggleSnapToGrid(); this.classList.toggle('active', CoopMaps.modules.canvas?.snapToGrid)" title="Snap to Grid">Snap</button>
+                <button onclick="CoopMaps.toggleConnectorStyle()">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                        <path id="connectorStylePath" d="M3 3 L10 3 L10 10 L17 10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <circle cx="3" cy="3" r="2" fill="currentColor"/>
+                        <circle cx="17" cy="10" r="2" fill="currentColor"/>
+                    </svg>
+                    <span id="connectorStyleText">Ortho</span>
+                </button>
+                <div class="separator"></div>
+                <button class="primary" id="relationshipModeBtn" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Relationship</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
+                <button onclick="CoopMaps.modules.canvas?.zoomOut()">-</button>
+                <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
+                <button onclick="CoopMaps.modules.canvas?.fitToContent()" title="Fit to Content">Fit</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.printCanvas()" title="Print Diagram">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 8V2h10v6M5 14H3V9h14v5h-2" stroke="currentColor" stroke-width="2"/>
+                        <rect x="5" y="12" width="10" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                    <span>Print</span>
+                </button>
+                <input type="text" id="searchInput" placeholder="Search..." style="
+                    width: 120px;
+                    padding: 6px 10px;
+                    border: 1px solid var(--border-color);
+                    border-radius: 6px;
+                    font-size: 12px;
+                " oninput="CoopMaps.modules.canvas?.searchEnterprises(this.value)">
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.canvas?.showAddNoteDialog()" title="Add Note">Note</button>
+                <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()" title="Add Logo to Selected Enterprise">Logo</button>
+                <button onclick="CoopMaps.modules.canvas?.toggleMinimap()" title="Toggle Minimap">Map</button>
+                <button id="darkModeBtn" onclick="CoopMaps.modules.canvas?.toggleDarkMode(); document.getElementById('darkModeBtn').textContent = CoopMaps.modules.canvas?.darkMode ? 'Light' : 'Dark'" title="Toggle Dark Mode">Dark</button>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.timeline?.showAddSnapshotDialog()" title="Add Timeline Snapshot">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span>+ Snapshot</span>
+                </button>
+                <button onclick="CoopMaps.modules.timeline?.showTimelinePanel()" title="View Timeline">Timeline</button>
+                <button onclick="CoopMaps.modules.layers?.showLayersPanel()" title="Filter Layers">Layers</button>
+                <div class="align-dropdown">
+                    <button>Analysis</button>
+                    <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.statistics?.showStatisticsPanel()">Statistics</button>
+                        <button onclick="CoopMaps.modules.comparison?.showComparisonDialog()">Compare</button>
+                        <button onclick="CoopMaps.modules.reports?.showReportsDialog()">Reports</button>
+                        <button onclick="CoopMaps.modules.dependency?.showDependencyPanel()">Dependencies</button>
+                    </div>
+                </div>
+                <div class="separator"></div>
+                <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
+                <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
+                <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Key</button>
+                <button onclick="CoopMaps.showKeyboardShortcuts()">Shortcuts</button>
+                <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
+                <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms</button>
+            </div>
+            
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+        
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.duplicateSelected(); CoopMaps.hideContextMenu();">Duplicate</div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.deleteSelected(); CoopMaps.hideContextMenu();">Delete</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.toggleLockSelected(); CoopMaps.hideContextMenu();" id="lockMenuItem">Lock/Unlock</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.bringToFront(); CoopMaps.hideContextMenu();">Bring to Front</div>
+        <div class="context-menu-item" onclick="CoopMaps.modules.canvas?.sendToBack(); CoopMaps.hideContextMenu();">Send to Back</div>
+    </div>
+
+    <!-- Submit Map Modal -->
+    <div id="submitModal" class="modal">
+        <div class="modal-content">
+            <h2>Submit Map to Community Gallery</h2>
+            <form id="submitForm" onsubmit="CoopMaps.handleSubmit(event)">
+                <div class="form-group">
+                    <label>Map Title *</label>
+                    <input type="text" id="submitTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Your Name *</label>
+                    <input type="text" id="submitAuthor" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="submitEmail" required>
+                    <small>Used for approval notifications and editing</small>
+                </div>
+                <div class="form-group">
+                    <label>Organization (optional)</label>
+                    <input type="text" id="submitOrganization">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="submitDescription"></textarea>
+                    <small>Brief description of your map</small>
+                </div>
+                <div class="form-group">
+                    <label>Tags (comma-separated)</label>
+                    <input type="text" id="submitTags" placeholder="e.g., energy, UK, housing">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="submitPassword" required>
+                    <small>Create a password to edit your map later. Keep it safe!</small>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-primary">Submit for Review</button>
+                    <button type="button" class="btn-secondary" onclick="CoopMaps.closeSubmitDialog()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <script src="./config.js"></script>
+    <script src="./js/api.js"></script>
+    <script>
+        window.CoopMaps = {
+            version: '1.0',
+            modules: {},
+            state: {
+                data: {
+                    diagramProperties: {
+                        title: 'New Diagram',
+                        author: '',
+                        date: new Date().toISOString().split('T')[0],
+                        wdr: '',
+                        canvasSize: 'A4',
+                        connectorStyle: 'orthogonal',
+                        scope: { geographic: '', timePeriod: '', economicSectors: '' }
+                    },
+                    enterprises: [],
+                    relationships: [],
+                    groups: [],
+                    timeline: [],
+                    selectedItem: null,
+                    selectedItemType: null
+                },
+                ui: { zoom: 1, panX: 0, panY: 0, activeTab: 'symbols', showGrid: true },
+                history: { states: [], currentIndex: -1 }
+            },
+
+            registerModule(name, module) {
+                this.modules[name] = module;
+                console.log(`[OK] Module registered: ${name}`);
+            },
+
+            generateId() {
+                return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            },
+
+            saveState() {
+                const state = JSON.parse(JSON.stringify(this.state.data));
+                if (this.state.history.states.length > 50) {
+                    this.state.history.states.shift();
+                    this.state.history.currentIndex--;
+                }
+                this.state.history.states = this.state.history.states.slice(0, this.state.history.currentIndex + 1);
+                this.state.history.states.push(state);
+                this.state.history.currentIndex++;
+            },
+
+            undo() {
+                if (this.state.history.currentIndex > 0) {
+                    this.state.history.currentIndex--;
+                    this.state.data = JSON.parse(JSON.stringify(this.state.history.states[this.state.history.currentIndex]));
+                    if (this.modules.canvas) this.modules.canvas.render();
+                    this.showNotification('Undo successful', 'info');
+                }
+            },
+
+            redo() {
+                if (this.state.history.currentIndex < this.state.history.states.length - 1) {
+                    this.state.history.currentIndex++;
+                    this.state.data = JSON.parse(JSON.stringify(this.state.history.states[this.state.history.currentIndex]));
+                    if (this.modules.canvas) this.modules.canvas.render();
+                    this.showNotification('Redo successful', 'info');
+                }
+            },
+
+            toggleConnectorStyle() {
+                const currentStyle = this.state.data.diagramProperties.connectorStyle || 'orthogonal';
+                const newStyle = currentStyle === 'orthogonal' ? 'direct' : 'orthogonal';
+                this.state.data.diagramProperties.connectorStyle = newStyle;
+
+                // Update button UI
+                const textSpan = document.getElementById('connectorStyleText');
+                const pathElement = document.getElementById('connectorStylePath');
+                if (textSpan && pathElement) {
+                    if (newStyle === 'orthogonal') {
+                        textSpan.textContent = 'Ortho';
+                        pathElement.setAttribute('d', 'M3 3 L10 3 L10 10 L17 10');
+                    } else {
+                        textSpan.textContent = 'Direct';
+                        pathElement.setAttribute('d', 'M3 3 L17 10');
+                    }
+                }
+
+                // Re-render
+                if (this.modules.canvas) this.modules.canvas.render();
+                this.showNotification(`Connector style: ${newStyle}`, 'info');
+            },
+
+            hideContextMenu() {
+                const menu = document.getElementById('contextMenu');
+                if (menu) menu.style.display = 'none';
+            },
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            },
+
+            renderBusinessTab() {
+                const enterprises = this.state.data.enterprises || [];
+                const selected = this.state.data.selectedItem;
+
+                // Count enterprises with business info
+                const withInfo = enterprises.filter(e => e.businessInfo &&
+                    (e.businessInfo.description || e.businessInfo.website || e.businessInfo.location)).length;
+
+                return `
+                    <div style="animation: fadeIn 0.3s ease;">
+                        <!-- Header -->
+                        <div style="
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            padding: 25px;
+                            margin: -25px -25px 25px -25px;
+                            border-radius: 0 0 16px 16px;
+                            color: white;
+                            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+                        ">
+                            <h3 style="font-size: 20px; margin: 0 0 8px 0; font-weight: 600;">
+                                Business Information
+                            </h3>
+                            <p style="margin: 0; opacity: 0.9; font-size: 14px;">
+                                Add details for Explore mode viewing
+                            </p>
+                        </div>
+
+                        <!-- Stats -->
+                        <div style="
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 12px;
+                            margin-bottom: 20px;
+                        ">
+                            <div style="
+                                background: white;
+                                padding: 16px;
+                                border-radius: 12px;
+                                text-align: center;
+                                border: 1px solid #e9ecef;
+                            ">
+                                <div style="font-size: 28px; font-weight: bold; color: #3498db;">
+                                    ${enterprises.length}
+                                </div>
+                                <div style="font-size: 12px; color: #7f8c8d;">Enterprises</div>
+                            </div>
+                            <div style="
+                                background: white;
+                                padding: 16px;
+                                border-radius: 12px;
+                                text-align: center;
+                                border: 1px solid #e9ecef;
+                            ">
+                                <div style="font-size: 28px; font-weight: bold; color: #27ae60;">
+                                    ${withInfo}
+                                </div>
+                                <div style="font-size: 12px; color: #7f8c8d;">With Info</div>
+                            </div>
+                        </div>
+
+                        ${selected ? this.renderSelectedBusinessInfo(selected) : `
+                            <!-- Enterprise List -->
+                            <div style="
+                                background: white;
+                                border-radius: 12px;
+                                border: 1px solid #e9ecef;
+                                overflow: hidden;
+                            ">
+                                <div style="
+                                    padding: 16px;
+                                    background: #f8f9fa;
+                                    border-bottom: 1px solid #e9ecef;
+                                    font-weight: 600;
+                                    color: #2c3e50;
+                                ">
+                                    Enterprise Directory
+                                </div>
+                                <div style="max-height: 400px; overflow-y: auto;">
+                                    ${enterprises.length === 0 ? `
+                                        <div style="padding: 40px; text-align: center; color: #7f8c8d;">
+                                            <div style="margin-bottom: 12px;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/></svg></div>
+                                            <p>No enterprises yet.<br>Add some from the Symbols tab.</p>
+                                        </div>
+                                    ` : enterprises.map(ent => {
+                                        const hasInfo = ent.businessInfo && (ent.businessInfo.description || ent.businessInfo.website);
+                                        const typeColors = {
+                                            cooperative: '#3498db',
+                                            ncm: '#9b59b6',
+                                            social: '#f1c40f',
+                                            private: '#e74c3c',
+                                            state: '#27ae60',
+                                            excluded: '#95a5a6'
+                                        };
+                                        return `
+                                            <div onclick="CoopMaps.selectAndEditBusiness('${ent.id}')" style="
+                                                padding: 14px 16px;
+                                                border-bottom: 1px solid #f0f0f0;
+                                                cursor: pointer;
+                                                display: flex;
+                                                align-items: center;
+                                                gap: 12px;
+                                                transition: background 0.2s;
+                                            " onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                                                <div style="
+                                                    width: 10px;
+                                                    height: 10px;
+                                                    border-radius: 50%;
+                                                    background: ${typeColors[ent.type] || '#95a5a6'};
+                                                "></div>
+                                                <div style="flex: 1;">
+                                                    <div style="font-weight: 500; color: #2c3e50; font-size: 14px;">
+                                                        ${ent.name || 'Unnamed'}
+                                                    </div>
+                                                    <div style="font-size: 11px; color: #7f8c8d;">
+                                                        ${hasInfo ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="3" style="vertical-align: middle; margin-right: 4px;"><polyline points="20 6 9 17 4 12"/></svg>Has business info' : 'No info yet'}
+                                                    </div>
+                                                </div>
+                                                <div style="color: #bdc3c7;">→</div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `}
+
+                        <!-- Help Text -->
+                        <div style="
+                            margin-top: 20px;
+                            padding: 16px;
+                            background: #e3f2fd;
+                            border-radius: 12px;
+                            font-size: 13px;
+                            color: #1565c0;
+                        ">
+                            <strong>Tip:</strong> Click an enterprise above or on the canvas to edit its business information. This data appears in Explore mode.
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderSelectedBusinessInfo(selected) {
+                const info = selected.businessInfo || {};
+                return `
+                    <div style="
+                        background: white;
+                        border-radius: 12px;
+                        border: 1px solid #e9ecef;
+                        padding: 20px;
+                        margin-bottom: 16px;
+                    ">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <h4 style="margin: 0; color: #2c3e50; font-size: 16px;">
+                                ${selected.name || 'Unnamed Enterprise'}
+                            </h4>
+                            <button onclick="CoopMaps.state.data.selectedItem = null; CoopMaps.updateSidebar();" style="
+                                background: none;
+                                border: 1px solid #e9ecef;
+                                border-radius: 6px;
+                                padding: 6px 12px;
+                                cursor: pointer;
+                                font-size: 12px;
+                                color: #7f8c8d;
+                            ">← Back to list</button>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 6px;">Description</label>
+                            <textarea
+                                onchange="CoopMaps.modules.properties.updateBusinessInfo('description', this.value)"
+                                placeholder="Brief description..."
+                                style="width: 100%; padding: 10px; border: 1px solid #e9ecef; border-radius: 8px; font-size: 13px; min-height: 80px; resize: vertical; font-family: inherit;"
+                            >${info.description || ''}</textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 6px;">Website</label>
+                                <input type="url" value="${info.website || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('website', this.value)"
+                                    placeholder="https://..."
+                                    style="width: 100%; padding: 10px; border: 1px solid #e9ecef; border-radius: 8px; font-size: 13px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 6px;">Location</label>
+                                <input type="text" value="${info.location || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('location', this.value)"
+                                    placeholder="City, Country"
+                                    style="width: 100%; padding: 10px; border: 1px solid #e9ecef; border-radius: 8px; font-size: 13px;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 6px;">Year Founded</label>
+                                <input type="number" value="${info.yearFounded || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('yearFounded', this.value)"
+                                    placeholder="e.g., 1995"
+                                    style="width: 100%; padding: 10px; border: 1px solid #e9ecef; border-radius: 8px; font-size: 13px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 6px;">Members/Employees</label>
+                                <input type="text" value="${info.members || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('members', this.value)"
+                                    placeholder="e.g., 500 members"
+                                    style="width: 100%; padding: 10px; border: 1px solid #e9ecef; border-radius: 8px; font-size: 13px;">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 6px;">Products/Services</label>
+                            <input type="text" value="${info.products || ''}"
+                                onchange="CoopMaps.modules.properties.updateBusinessInfo('products', this.value)"
+                                placeholder="e.g., Organic produce, Fair trade coffee"
+                                style="width: 100%; padding: 10px; border: 1px solid #e9ecef; border-radius: 8px; font-size: 13px;">
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #7f8c8d; margin-bottom: 6px;">Contact Email</label>
+                            <input type="email" value="${info.email || ''}"
+                                onchange="CoopMaps.modules.properties.updateBusinessInfo('email', this.value)"
+                                placeholder="contact@example.coop"
+                                style="width: 100%; padding: 10px; border: 1px solid #e9ecef; border-radius: 8px; font-size: 13px;">
+                        </div>
+                    </div>
+                `;
+            },
+
+            selectAndEditBusiness(id) {
+                const enterprise = this.state.data.enterprises.find(e => e.id === id);
+                if (enterprise) {
+                    this.state.data.selectedItem = enterprise;
+                    if (this.modules.canvas) this.modules.canvas.render();
+                    this.updateSidebar();
+                }
+            },
+
+            toggleGrid() {
+                this.state.ui.showGrid = !this.state.ui.showGrid;
+                const btn = document.getElementById('gridToggleBtn');
+                if (btn) {
+                    if (this.state.ui.showGrid) {
+                        btn.style.background = '';
+                        btn.style.color = '';
+                    } else {
+                        btn.style.background = 'var(--light-gray)';
+                        btn.style.color = 'var(--gray)';
+                    }
+                }
+                if (this.modules.canvas) this.modules.canvas.render();
+                this.showNotification(`Grid ${this.state.ui.showGrid ? 'shown' : 'hidden'}`, 'info');
+            },
+
+            changeCanvasSize(size) {
+                this.state.data.diagramProperties.canvasSize = size;
+                if (this.modules.canvas) {
+                    this.modules.canvas.updateCanvasSize();
+                    this.modules.canvas.render();
+                }
+                this.showNotification(`Canvas size changed to ${size}`, 'success');
+                this.saveState();
+            },
+
+            showSubmitDialog() {
+                // Pre-fill title if set
+                const titleInput = document.getElementById('submitTitle');
+                if (titleInput && this.state.data.diagramProperties.title !== 'New Diagram') {
+                    titleInput.value = this.state.data.diagramProperties.title;
+                }
+                document.getElementById('submitModal').classList.add('active');
+            },
+
+            closeSubmitDialog() {
+                document.getElementById('submitModal').classList.remove('active');
+                document.getElementById('submitForm').reset();
+            },
+
+            async handleSubmit(event) {
+                event.preventDefault();
+
+                // Validate we have something to submit
+                if (this.state.data.enterprises.length === 0) {
+                    this.showNotification('Your map is empty. Please add some enterprises before submitting.', 'error');
+                    return;
+                }
+
+                // Get form values
+                const title = document.getElementById('submitTitle').value;
+                const author = document.getElementById('submitAuthor').value;
+                const email = document.getElementById('submitEmail').value;
+                const organization = document.getElementById('submitOrganization').value;
+                const description = document.getElementById('submitDescription').value;
+                const tagsInput = document.getElementById('submitTags').value;
+                const password = document.getElementById('submitPassword').value;
+
+                // Password complexity validation
+                if (password.length < 8) {
+                    this.showNotification('Password must be at least 8 characters long.', 'error');
+                    return;
+                }
+                if (!/[A-Z]/.test(password)) {
+                    this.showNotification('Password must contain at least one uppercase letter.', 'error');
+                    return;
+                }
+                if (!/[a-z]/.test(password)) {
+                    this.showNotification('Password must contain at least one lowercase letter.', 'error');
+                    return;
+                }
+                if (!/[0-9]/.test(password)) {
+                    this.showNotification('Password must contain at least one number.', 'error');
+                    return;
+                }
+
+                // Parse tags
+                const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+                // Generate thumbnail
+                const thumbnail = this.generateThumbnail();
+
+                // Prepare diagram data
+                const diagramData = {
+                    enterprises: this.state.data.enterprises,
+                    relationships: this.state.data.relationships,
+                    diagramProperties: this.state.data.diagramProperties
+                };
+
+                // Submit via API
+                try {
+                    this.showNotification('Submitting map...', 'info');
+                    const response = await CoopMapsAPI.submitMap({
+                        title,
+                        author,
+                        email,
+                        organization,
+                        description,
+                        tags,
+                        password,
+                        diagramData,
+                        thumbnail
+                    });
+
+                    this.showNotification('Map submitted successfully! You will receive an email when it is approved.', 'success');
+                    this.closeSubmitDialog();
+                } catch (error) {
+                    this.showNotification('Error submitting map: ' + error.message, 'error');
+                }
+            },
+
+            generateThumbnail() {
+                // Generate a thumbnail from the canvas
+                const canvas = document.getElementById('canvas');
+                if (!canvas) return null;
+
+                try {
+                    // Create a smaller canvas for thumbnail
+                    const thumbCanvas = document.createElement('canvas');
+                    thumbCanvas.width = 400;
+                    thumbCanvas.height = 300;
+                    const ctx = thumbCanvas.getContext('2d');
+
+                    // Draw white background
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, thumbCanvas.width, thumbCanvas.height);
+
+                    // Scale and draw the main canvas
+                    const scale = Math.min(
+                        thumbCanvas.width / canvas.width,
+                        thumbCanvas.height / canvas.height
+                    );
+                    const offsetX = (thumbCanvas.width - canvas.width * scale) / 2;
+                    const offsetY = (thumbCanvas.height - canvas.height * scale) / 2;
+
+                    ctx.drawImage(canvas, offsetX, offsetY, canvas.width * scale, canvas.height * scale);
+
+                    return thumbCanvas.toDataURL('image/png');
+                } catch (error) {
+                    console.error('Error generating thumbnail:', error);
+                    return null;
+                }
+            },
+
+            showKeyboardShortcuts() {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 5000;
+                `;
+
+                const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                const modKey = isMac ? '⌘' : 'Ctrl';
+
+                modal.innerHTML = `
+                    <div style="
+                        background: white;
+                        border-radius: 12px;
+                        padding: 30px;
+                        max-width: 700px;
+                        width: 90%;
+                        max-height: 80vh;
+                        overflow-y: auto;
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                    ">
+                        <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 24px;">
+                            Keyboard Shortcuts
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                            <div>
+                                <h3 style="font-size: 14px; color: #7f8c8d; margin: 0 0 10px 0;">General</h3>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Undo</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+Z</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Redo</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+Shift+Z</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Save</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+S</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Exit Mode/Deselect</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">ESC</kbd>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 14px; color: #7f8c8d; margin: 0 0 10px 0;">Editing</h3>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Copy</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+C</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Paste</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+V</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Duplicate</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+D</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Delete Selected</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Delete</kbd>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                            <div>
+                                <h3 style="font-size: 14px; color: #7f8c8d; margin: 0 0 10px 0;">Selection</h3>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Select All</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">${modKey}+A</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Multi-Select</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Shift+Click</kbd>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 14px; color: #7f8c8d; margin: 0 0 10px 0;">Movement</h3>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Nudge (1px)</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Arrow Keys</kbd>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                    <span style="color: #2c3e50; font-weight: 600;">Nudge (10px)</span>
+                                    <kbd style="background: white; padding: 4px 8px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">Shift+Arrows</kbd>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="
+                            width: 100%;
+                            padding: 12px;
+                            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 14px;
+                        ">Close</button>
+                    </div>
+                `;
+
+                modal.onclick = (e) => {
+                    if (e.target === modal) modal.remove();
+                };
+
+                document.body.appendChild(modal);
+            },
+
+            updateSidebar() {
+                const content = document.getElementById('sidebar-content');
+                if (!content) return;
+
+                const tab = this.state.ui.activeTab;
+
+                if (tab === 'symbols' && this.modules.enterprises && this.modules.enterprises.renderSymbolGallery) {
+                    content.innerHTML = this.modules.enterprises.renderSymbolGallery();
+                    // Draw previews after DOM is updated
+                    setTimeout(() => {
+                        if (this.modules.enterprises.drawPreviews) {
+                            this.modules.enterprises.drawPreviews();
+                        }
+                        if (this.modules.enterprises.bindDragEvents) {
+                            this.modules.enterprises.bindDragEvents();
+                        }
+                    }, 0);
+                } else if (tab === 'properties' && this.modules.properties && this.modules.properties.render) {
+                    content.innerHTML = this.modules.properties.render();
+                } else if (tab === 'diagrams' && this.modules.persistence && this.modules.persistence.render) {
+                    content.innerHTML = this.modules.persistence.render();
+                } else if (tab === 'business') {
+                    content.innerHTML = this.renderBusinessTab();
+                }
+            },
+
+            async loadMapFromUrl() {
+                // Check for map ID in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const mapId = urlParams.get('map');
+
+                if (!mapId) return false;
+
+                try {
+                    console.log('Loading map:', mapId);
+                    this.showNotification('Loading map...', 'info');
+
+                    const response = await CoopMapsAPI.getMap(mapId);
+
+                    if (response && response.map) {
+                        const mapData = response.map;
+
+                        // Load diagram data
+                        if (mapData.diagram_data) {
+                            this.state.data = {
+                                ...this.state.data,
+                                enterprises: mapData.diagram_data.enterprises || [],
+                                relationships: mapData.diagram_data.relationships || [],
+                                diagramProperties: {
+                                    ...this.state.data.diagramProperties,
+                                    ...mapData.diagram_data.diagramProperties
+                                }
+                            };
+
+                            // Save to history
+                            this.saveState();
+
+                            // Render
+                            if (this.modules.canvas) this.modules.canvas.render();
+
+                            // Update title in header
+                            const header = document.querySelector('.header h1');
+                            if (header) {
+                                header.textContent = 'Co-op Maps - ' + mapData.title;
+                            }
+
+                            this.showNotification('Map loaded successfully!', 'success');
+                            console.log('Map loaded successfully');
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading map:', error);
+                    this.showNotification('Error loading map: ' + error.message, 'error');
+                }
+
+                return false;
+            },
+
+            async init() {
+                console.log('Co-op Maps v' + this.version + ' initializing...');
+
+                // 1. Save initial state BEFORE initializing modules
+                this.saveState();
+
+                // 2. Initialize modules (in correct order)
+                const initOrder = ['shapes', 'canvas', 'enterprises', 'relationships', 'properties', 'export', 'symbolKey', 'persistence', 'manuals', 'productInfo'];
+                initOrder.forEach(name => {
+                    if (this.modules[name] && this.modules[name].init) {
+                        try {
+                            console.log(`Initializing ${name}...`);
+                            this.modules[name].init();
+                        } catch (e) {
+                            console.error(`Error initializing ${name}:`, e);
+                        }
+                    }
+                });
+
+                // 3. Set up tab switching
+                document.querySelectorAll('.sidebar-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.state.ui.activeTab = e.currentTarget.dataset.tab;
+                        this.updateSidebar();
+                    });
+                });
+
+                // 4. Render initial sidebar content
+                this.updateSidebar();
+
+                // 5. Sync canvas size selector with current state
+                const sizeSelector = document.getElementById('canvasSizeSelector');
+                if (sizeSelector) {
+                    sizeSelector.value = this.state.data.diagramProperties.canvasSize || 'A4';
+                }
+
+                // 6. Load map from URL if specified
+                const mapLoaded = await this.loadMapFromUrl();
+
+                console.log('[OK] Co-op Maps ready!');
+                if (!mapLoaded) {
+                    this.showNotification('Co-op Maps ready!', 'success');
+                }
+
+                // Hide context menu on click outside
+                document.addEventListener('click', () => this.hideContextMenu());
+            }
+        };
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                CoopMaps.undo();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+                e.preventDefault();
+                CoopMaps.redo();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (CoopMaps.modules.persistence) CoopMaps.modules.persistence.saveToLocalStorage();
+            }
+        });
+
+        // Listen for diagram changes
+        document.addEventListener('diagram-changed', () => {
+            if (CoopMaps.modules.persistence) CoopMaps.modules.persistence.autoSave();
+            CoopMaps.updateSidebar();
+        });
+    </script>
+
+    <!-- Load modules (they will register but NOT initialize yet) -->
+    <script src="./js/modules/shapes.js"></script>
+    <script src="./js/modules/canvas.js"></script>
+    <script src="./js/modules/enterprises.js"></script>
+    <script src="./js/modules/relationships.js"></script>
+    <script src="./js/modules/properties.js"></script>
+    <script src="./js/modules/export.js"></script>
+    <script src="./js/modules/symbolKey.js"></script>
+    <script src="./js/modules/persistence.js"></script>
+    <script src="./js/modules/manuals.js"></script>
+    <script src="./js/modules/productInfo.js"></script>
+    <script src="./js/modules/timeline.js"></script>
+    <script src="./js/modules/groups.js"></script>
+    <script src="./js/modules/layers.js"></script>
+    <script src="./js/modules/statistics.js"></script>
+    <script src="./js/modules/comparison.js"></script>
+    <script src="./js/modules/reports.js"></script>
+    <script src="./js/modules/dependency.js"></script>
+    <script src="./js/modules/collaboration.js"></script>
+
+    <!-- Initialize app AFTER all modules loaded -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => CoopMaps.init(), 100);
+        });
+    </script>
+</body>
+</html>

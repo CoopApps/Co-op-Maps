@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Co-opMaps - Deluxe</title>
+    <title>Co-op Maps - Co-operative Ecosystem Mapping Tool</title>
     <style>
         * {
             margin: 0;
@@ -11,374 +11,673 @@
             box-sizing: border-box;
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .app-container {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #6B8DD6, #8E54E9);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
             display: flex;
-            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        /* Header */
-        .header {
+        /* Subtle pattern overlay */
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .header h1 {
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
-            font-size: 1.4em;
-            font-weight: 600;
-        }
-
-        .header .badge {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.7em;
-            margin-left: 10px;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 280px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
-            padding-top: 60px;
-            overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-        }
-
-        .sidebar-section {
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .sidebar-section h3 {
-            font-size: 0.85em;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-
-        .symbol-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .symbol-item {
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 12px 8px;
+            padding: 35px 25px;
             text-align: center;
-            cursor: grab;
-            transition: all 0.2s ease;
-            user-select: none;
-        }
-
-        .symbol-item:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-        }
-
-        .symbol-item:active {
-            cursor: grabbing;
-        }
-
-        .symbol-item .icon {
-            font-size: 1.8em;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        .symbol-item .label {
-            font-size: 0.75em;
-            color: #555;
-            font-weight: 500;
-        }
-
-        /* Main canvas area */
-        .main-content {
-            flex: 1;
-            padding-top: 50px;
             position: relative;
             overflow: hidden;
         }
 
-        .canvas-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            background: #e8eaed;
-            overflow: auto;
-        }
-
-        #canvas {
-            background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            margin: 20px;
-        }
-
-        /* Drop indicator */
-        .drop-indicator {
+        .header::before {
+            content: '';
             position: absolute;
-            width: 120px;
-            height: 72px;
-            border: 3px dashed #3498db;
-            border-radius: 8px;
-            background: rgba(52, 152, 219, 0.1);
-            pointer-events: none;
-            z-index: 1000;
-            display: none;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: float 6s ease-in-out infinite;
         }
 
-        .drop-indicator.active {
-            display: block;
-        }
-
-        /* Properties panel */
-        .properties-panel {
-            width: 300px;
-            background: white;
-            border-left: 1px solid #e0e0e0;
-            padding-top: 60px;
-            overflow-y: auto;
-        }
-
-        .properties-panel h3 {
-            padding: 15px;
-            font-size: 0.9em;
-            color: #333;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .property-group {
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .property-group label {
-            display: block;
-            font-size: 0.8em;
-            color: #666;
-            margin-bottom: 6px;
-        }
-
-        .property-group input,
-        .property-group select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 0.9em;
-        }
-
-        .property-group input:focus,
-        .property-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        /* Enterprise on canvas */
-        .enterprise {
-            position: absolute;
-            background: white;
-            border: 2px solid #333;
-            border-radius: 8px;
+        .logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            font-size: 12px;
-            cursor: move;
-            user-select: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            animation: float 4s ease-in-out infinite;
+            position: relative;
         }
 
-        .enterprise:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        .logo svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 2;
+            fill: none;
         }
 
-        .enterprise.selected {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
         }
 
-        /* Enterprise types */
-        .enterprise.cooperative {
-            border-color: #27ae60;
-            background: linear-gradient(135deg, #d5f5e3 0%, #abebc6 100%);
+        .header p {
+            font-size: 15px;
+            opacity: 0.9;
+            position: relative;
         }
 
-        .enterprise.private {
-            border-color: #e74c3c;
-            background: linear-gradient(135deg, #fadbd8 0%, #f5b7b1 100%);
+        .content {
+            padding: 30px;
         }
 
-        .enterprise.ngo {
-            border-color: #3498db;
-            background: linear-gradient(135deg, #d6eaf8 0%, #aed6f1 100%);
-        }
-
-        .enterprise.government {
-            border-color: #9b59b6;
-            background: linear-gradient(135deg, #e8daef 0%, #d2b4de 100%);
-        }
-
-        .enterprise.individual {
-            border-color: #f39c12;
-            background: linear-gradient(135deg, #fef9e7 0%, #fdebd0 100%);
-        }
-
-        .enterprise.note {
-            border-color: #95a5a6;
-            background: linear-gradient(135deg, #fdfefe 0%, #f4f6f6 100%);
-            border-style: dashed;
-        }
-
-        /* Note symbol specific */
-        .enterprise.note {
-            border-radius: 4px;
-        }
-
-        /* Status bar */
-        .status-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 28px;
-            background: #f8f9fa;
-            border-top: 1px solid #e0e0e0;
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
             display: flex;
             align-items: center;
-            padding: 0 15px;
-            font-size: 0.75em;
-            color: #666;
+            gap: 10px;
         }
 
-        /* Instructions overlay */
-        .instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
             text-align: center;
-            color: #999;
-            pointer-events: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #f0f0f0;
+            text-decoration: none;
+            color: #2c3e50;
+            position: relative;
+            overflow: hidden;
         }
 
-        .instructions h2 {
-            font-size: 1.5em;
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, transparent);
+            transition: all 0.3s;
+        }
+
+        .option-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            border-color: transparent;
+        }
+
+        .option-card:hover::before {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .option-card:hover .option-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .option-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .option-icon.express {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .option-icon.deluxe {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .option-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .option-description {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        .option-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #ecf0f1;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #7f8c8d;
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .option-card:first-child .option-badge {
+            background: #fff0f5;
+            color: #f5576c;
+        }
+
+        .option-card:last-child .option-badge {
+            background: #e8f8ff;
+            color: #00b4d8;
+        }
+
+        .saved-maps {
+            margin-top: 25px;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .saved-maps-list {
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid #ecf0f1;
+            border-radius: 12px;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        .saved-maps-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .saved-maps-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .saved-maps-list::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .saved-map-item {
+            padding: 12px 15px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #f0f0f0;
+        }
+
+        .saved-map-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .saved-map-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+            border-color: transparent;
+        }
+
+        .saved-map-item:hover .saved-map-date {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .saved-map-item:hover .arrow {
+            transform: translateX(5px);
+        }
+
+        .saved-map-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .saved-map-item:hover .saved-map-name {
+            color: white;
+        }
+
+        .saved-map-date {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 3px;
+        }
+
+        .arrow {
+            font-size: 18px;
+            color: #bdc3c7;
+            transition: all 0.3s;
+        }
+
+        .saved-map-item:hover .arrow {
+            color: white;
+        }
+
+        .no-maps {
+            text-align: center;
+            padding: 30px 20px;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+        .no-maps-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 12px;
+            opacity: 0.3;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 18px 25px;
+            background: linear-gradient(to right, #f8f9fa, #fff, #f8f9fa);
+            color: #95a5a6;
+            font-size: 13px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .community-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 25px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        .community-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .community-section h3 {
             margin-bottom: 10px;
-            color: #bbb;
+            font-size: 20px;
+            position: relative;
         }
 
-        .instructions p {
-            font-size: 0.95em;
+        .community-section p {
+            font-size: 14px;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        .community-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .community-btn {
+            background: white;
+            color: #667eea;
+            padding: 12px 22px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .community-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .donate-section {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
+        .donate-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .donate-section h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .donate-section p {
+            font-size: 14px;
+            margin-bottom: 18px;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        .donate-btn {
+            background: white;
+            color: #27ae60;
+            padding: 14px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .donate-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .donate-btn:hover svg {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        .donate-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            .community-buttons {
+                flex-direction: column;
+            }
+
+            .community-btn {
+                justify-content: center;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Co-opMaps</h1>
-        <span class="badge">DELUXE</span>
-    </div>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+                    <line x1="9" y1="3" x2="9" y2="18"/>
+                    <line x1="15" y1="6" x2="15" y2="21"/>
+                </svg>
+            </div>
+            <h1>Co-op Maps</h1>
+            <p>Co-operative Ecosystem Mapping Tool</p>
+        </div>
 
-    <div class="app-container">
-        <!-- Left Sidebar - Symbol Palette -->
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <h3>Enterprises</h3>
-                <div class="symbol-grid" id="enterprise-symbols">
-                    <div class="symbol-item" draggable="true" data-type="cooperative">
-                        <span class="icon">🏢</span>
-                        <span class="label">Cooperative</span>
-                    </div>
-                    <div class="symbol-item" draggable="true" data-type="private">
-                        <span class="icon">🏭</span>
-                        <span class="label">Private</span>
-                    </div>
-                    <div class="symbol-item" draggable="true" data-type="ngo">
-                        <span class="icon">🤝</span>
-                        <span class="label">NGO</span>
-                    </div>
-                    <div class="symbol-item" draggable="true" data-type="government">
-                        <span class="icon">🏛️</span>
-                        <span class="label">Government</span>
-                    </div>
-                    <div class="symbol-item" draggable="true" data-type="individual">
-                        <span class="icon">👤</span>
-                        <span class="label">Individual</span>
+        <div class="content">
+            <h2 class="section-title">Create New Map</h2>
+            <div class="options">
+                <a href="./express.html" class="option-card">
+                    <div class="option-icon express">EX</div>
+                    <div class="option-title">Express Mode</div>
+                    <div class="option-description">Quick and simple mapping with essential features for fast prototyping</div>
+                    <span class="option-badge">Simple</span>
+                </a>
+
+                <a href="./deluxe.html" class="option-card">
+                    <div class="option-icon deluxe">DX</div>
+                    <div class="option-title">Deluxe Mode</div>
+                    <div class="option-description">Full-featured mapper with advanced customization and analysis tools</div>
+                    <span class="option-badge">Full Power</span>
+                </a>
+            </div>
+
+            <div class="saved-maps">
+                <h2 class="section-title">Your Saved Maps</h2>
+                <div id="savedMapsList" class="saved-maps-list">
+                    <div class="no-maps">
+                        <svg class="no-maps-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/>
+                        </svg>
+                        <div>No saved maps found.<br>Create your first map above!</div>
                     </div>
                 </div>
             </div>
 
-            <div class="sidebar-section">
-                <h3>Annotations</h3>
-                <div class="symbol-grid" id="annotation-symbols">
-                    <div class="symbol-item" draggable="true" data-type="note">
-                        <span class="icon">📝</span>
-                        <span class="label">Note</span>
-                    </div>
+            <div class="community-section">
+                <h3>Community Maps</h3>
+                <p style="margin-bottom: 15px;">Explore maps shared by the co-operative community or share your own!</p>
+                <div class="community-buttons">
+                    <a href="./browse.html" class="community-btn">
+                        <span class="btn-icon">B</span>
+                        Browse Maps
+                    </a>
+                    <a href="./deluxe.html" class="community-btn">
+                        <span class="btn-icon">S</span>
+                        Submit Map
+                    </a>
+                    <a href="./admin.html" class="community-btn">
+                        <span class="btn-icon">A</span>
+                        Admin Panel
+                    </a>
                 </div>
+            </div>
+
+            <div class="donate-section">
+                <h3>Support Co-op Maps</h3>
+                <p>Help us keep this tool free and open for the co-operative community. All contributions are transparent.</p>
+                <a href="https://opencollective.com/co-op-maps/donate" target="_blank" rel="noopener" class="donate-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Donate via Open Collective
+                </a>
             </div>
         </div>
 
-        <!-- Main Canvas Area -->
-        <div class="main-content">
-            <div class="canvas-container" id="canvas-container">
-                <canvas id="canvas" width="1200" height="800"></canvas>
-                <div class="drop-indicator" id="drop-indicator"></div>
-                <div class="instructions" id="instructions">
-                    <h2>Drag symbols here to start</h2>
-                    <p>Select an enterprise or note from the sidebar and drag it onto the canvas</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Properties Panel -->
-        <div class="properties-panel">
-            <h3>Properties</h3>
-            <div id="properties-content">
-                <div class="property-group">
-                    <label>Select an enterprise to edit its properties</label>
-                </div>
-            </div>
+        <div class="footer">
+            <p>Co-op Maps v1.0 | By Principle 5 - Co-operation Among Co-operatives</p>
         </div>
     </div>
 
-    <div class="status-bar">
-        <span id="status-text">Ready</span>
-    </div>
-
-    <script src="js/modules/enterprises.js"></script>
-    <script src="js/modules/canvas.js"></script>
     <script>
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            CoopMaps.init();
-        });
+        // Load and display saved maps from localStorage
+        function loadSavedMaps() {
+            const savedMaps = [];
+
+            // Check localStorage for saved maps
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('coopmaps_')) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        const mapName = key.replace('coopmaps_', '');
+                        savedMaps.push({
+                            name: mapName,
+                            data: data,
+                            key: key,
+                            date: data.metadata?.lastModified || 'Unknown date'
+                        });
+                    } catch (e) {
+                        console.error('Error loading map:', key, e);
+                    }
+                }
+            }
+
+            const listElement = document.getElementById('savedMapsList');
+
+            if (savedMaps.length === 0) {
+                listElement.innerHTML = `
+                    <div class="no-maps">
+                        <svg class="no-maps-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/>
+                        </svg>
+                        <div>No saved maps found.<br>Create your first map above!</div>
+                    </div>
+                `;
+            } else {
+                listElement.innerHTML = savedMaps.map(map => `
+                    <div class="saved-map-item" onclick="loadMap('${map.key}')">
+                        <div>
+                            <div class="saved-map-name">${escapeHtml(map.name)}</div>
+                            <div class="saved-map-date">${escapeHtml(map.date)}</div>
+                        </div>
+                        <span class="arrow">→</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function loadMap(key) {
+            // Store the map key to load
+            sessionStorage.setItem('loadMapKey', key);
+            // Redirect to deluxe mode
+            window.location.href = './deluxe.html';
+        }
+
+        // Load saved maps on page load
+        document.addEventListener('DOMContentLoaded', loadSavedMaps);
     </script>
 </body>
 </html>
