@@ -228,6 +228,51 @@
             background: #667eea;
             color: white;
         }
+
+        .donate-section {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .donate-section h3 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .donate-section p {
+            font-size: 13px;
+            margin-bottom: 15px;
+            opacity: 0.95;
+        }
+
+        .donate-btn {
+            background: white;
+            color: #27ae60;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .donate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .donate-btn svg {
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 <body>
@@ -277,6 +322,17 @@
                         Admin Panel
                     </a>
                 </div>
+            </div>
+
+            <div class="donate-section">
+                <h3>Support Co-op Maps</h3>
+                <p>Help us keep this tool free and open for the co-operative community. All contributions are transparent.</p>
+                <a href="https://opencollective.com/co-op-maps/donate" target="_blank" rel="noopener" class="donate-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Donate via Open Collective
+                </a>
             </div>
         </div>
 
