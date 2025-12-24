@@ -158,8 +158,10 @@
 
                 if (enterpriseType && CoopMaps.modules.enterprises) {
                     const rect = this.canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
+                    // Scale coordinates by zoom level to convert screen pixels to canvas coordinates
+                    const scale = CoopMaps.state.ui.zoom || 1;
+                    const x = (e.clientX - rect.left) / scale;
+                    const y = (e.clientY - rect.top) / scale;
 
                     // Add drop animation
                     this.animateEnterpriseDrop(enterpriseType, x, y);
@@ -191,9 +193,20 @@
 
         updateDropZone(e) {
             if (this.dropIndicator) {
-                const rect = this.canvas.getBoundingClientRect();
-                this.dropIndicator.style.left = (e.clientX - rect.left - 60) + 'px';
-                this.dropIndicator.style.top = (e.clientY - rect.top - 36) + 'px';
+                const canvasRect = this.canvas.getBoundingClientRect();
+                const parentRect = this.canvas.parentElement.getBoundingClientRect();
+
+                // Calculate canvas offset within its parent (due to flexbox centering)
+                const canvasOffsetX = canvasRect.left - parentRect.left;
+                const canvasOffsetY = canvasRect.top - parentRect.top;
+
+                // Position relative to mouse, accounting for canvas offset in parent
+                // Center the 120x72 indicator on the cursor (subtract half dimensions)
+                const mouseXInParent = e.clientX - parentRect.left;
+                const mouseYInParent = e.clientY - parentRect.top;
+
+                this.dropIndicator.style.left = (mouseXInParent - 60) + 'px';
+                this.dropIndicator.style.top = (mouseYInParent - 36) + 'px';
             }
         },
 

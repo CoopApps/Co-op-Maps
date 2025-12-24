@@ -350,14 +350,19 @@
                         CoopMaps.modules.shapes.drawEnterprise(ctx, tempEnt, false, 1);
                     }
 
-                    // Wrap canvas in a container
+                    // Wrap canvas in a container with EXPLICIT dimensions
+                    // This is critical for correct setDragImage offset calculation
                     dragGhost = document.createElement('div');
                     dragGhost.style.position = 'absolute';
                     dragGhost.style.top = '-1000px';
+                    dragGhost.style.left = '-1000px';
+                    dragGhost.style.width = '100px';
+                    dragGhost.style.height = '60px';
                     dragGhost.style.opacity = '0.8';
                     dragGhost.appendChild(canvas);
                     document.body.appendChild(dragGhost);
 
+                    // Center the drag image on the cursor (offset = half dimensions)
                     e.dataTransfer.setDragImage(dragGhost, 50, 30);
 
                     item.classList.add('dragging');
