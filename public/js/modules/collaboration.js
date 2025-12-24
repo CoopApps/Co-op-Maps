@@ -78,10 +78,10 @@
 
             dialog.innerHTML = `
                 <h2 style="margin: 0 0 10px 0; color: #2c3e50; font-size: ${isExpress ? '18px' : '22px'};">
-                    Protect Your Map
+                    Set Map Password
                 </h2>
                 <p style="color: #7f8c8d; margin: 0 0 20px 0; font-size: 14px;">
-                    Set a password to protect this map. Share the password with collaborators to allow them to edit.
+                    A password is required to save your map. Share the password with collaborators to allow them to edit.
                 </p>
 
                 <div style="margin-bottom: 15px;">
@@ -133,7 +133,7 @@
                 </div>
 
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button id="skipPasswordBtn" style="
+                    <button id="cancelPasswordBtn" style="
                         padding: 12px 24px;
                         background: ${isExpress ? '#ecf0f1' : 'white'};
                         color: #7f8c8d;
@@ -141,7 +141,7 @@
                         border-radius: ${isExpress ? '0' : '8px'};
                         font-weight: 600;
                         cursor: pointer;
-                    ">Skip (No Protection)</button>
+                    ">Cancel</button>
                     <button id="setPasswordBtn" style="
                         padding: 12px 24px;
                         background: ${isExpress ? '#27ae60' : 'linear-gradient(135deg, #27ae60, #229954)'};
@@ -150,7 +150,7 @@
                         border-radius: ${isExpress ? '0' : '8px'};
                         font-weight: 600;
                         cursor: pointer;
-                    ">Set Password</button>
+                    ">Set Password & Save</button>
                 </div>
             `;
 
@@ -205,11 +205,13 @@
                 if (onSuccess) onSuccess();
             };
 
-            // Handle skip
-            document.getElementById('skipPasswordBtn').onclick = () => {
+            // Handle cancel (does NOT save - password is mandatory)
+            document.getElementById('cancelPasswordBtn').onclick = () => {
                 backdrop.remove();
                 dialog.remove();
-                if (onSuccess) onSuccess();
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Save cancelled - password is required', 'info');
+                }
             };
 
             // Handle enter key
@@ -219,10 +221,13 @@
                 }
             });
 
-            // Close on backdrop click
+            // Close on backdrop click (same as cancel)
             backdrop.onclick = () => {
                 backdrop.remove();
                 dialog.remove();
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Save cancelled - password is required', 'info');
+                }
             };
         },
 
