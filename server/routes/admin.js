@@ -6,6 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const { Pool } = require('pg');
 const { verifyAdminPassword } = require('../middleware/adminAuth');
 
@@ -625,6 +626,79 @@ router.post('/bulk-action', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error performing bulk action'
+        });
+    }
+});
+
+/**
+ * POST /api/admin/maps/:id/reset-password
+ * Reset password for a map
+ * Body: { newPassword }
+ */
+router.post('/maps/:id/reset-password', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { newPassword } = req.body;
+
+        if (!newPassword || newPassword.length < 4) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 4 characters'
+            });
+        }
+
+        // Hash the new password
+        const saltRounds = 10;
+        const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+        // Update the password
+        const result = await pool.query(`
+            UPDATE community_maps
+            SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $2
+            RETURNING id, title, author, email
+        `, [passwordHash, id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Map not found'
+            });
+        }
+
+        const map = result.rows[0];
+
+        // Log action
+        await pool.query(`
+            INSERT INTO moderation_history (map_id, action, performed_by, notes)
+            VALUES ($1, 'password_reset', 'Admin', 'Password was reset by admin')
+        `, [id]);
+
+        // Optionally notify the author
+        await pool.query(`
+            INSERT INTO email_queue (recipient_email, subject, body, map_id, email_type)
+            VALUES ($1, $2, $3, $4, 'password_reset')
+        `, [
+            map.email,
+            `Password Reset - "${map.title}"`,
+            `Hi ${map.author},\n\nThe password for your map "${map.title}" has been reset by an administrator.\n\nIf you did not request this change, please contact us.\n\nBest,\nPrinciple 5`,
+            id
+        ]);
+
+        res.json({
+            success: true,
+            message: 'Password reset successfully',
+            map: {
+                id: map.id,
+                title: map.title
+            }
+        });
+
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error resetting password'
         });
     }
 });

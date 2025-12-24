@@ -228,6 +228,21 @@ const CoopMapsAPI = {
                     data
                 })
             });
+        },
+
+        /**
+         * Reset map password
+         */
+        async resetMapPassword(adminPassword, mapId, newPassword) {
+            return CoopMapsAPI.request(`/admin/maps/${mapId}/reset-password`, {
+                method: 'POST',
+                headers: {
+                    'X-Admin-Password': adminPassword
+                },
+                body: JSON.stringify({
+                    newPassword
+                })
+            });
         }
     }
 };

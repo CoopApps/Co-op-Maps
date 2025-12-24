@@ -508,6 +508,29 @@
                         <label>Status</label>
                         <div class="value" id="reviewStatus"></div>
                     </div>
+                    <div class="detail-group">
+                        <label>Password</label>
+                        <div class="value" id="reviewPassword" style="display: flex; align-items: center; gap: 8px;">
+                            <span id="passwordDisplay">••••••••</span>
+                            <button onclick="AdminPanel.togglePasswordVisibility()" style="
+                                padding: 4px 8px;
+                                background: #ecf0f1;
+                                border: 1px solid #bdc3c7;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 11px;
+                            " id="togglePasswordBtn">Show</button>
+                            <button onclick="AdminPanel.resetPassword()" style="
+                                padding: 4px 8px;
+                                background: #e74c3c;
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 11px;
+                            ">Reset</button>
+                        </div>
+                    </div>
 
                     <div class="action-buttons" id="actionButtons">
                         <!-- Buttons populated dynamically -->
@@ -801,6 +824,54 @@
             formatDate(dateString) {
                 const date = new Date(dateString);
                 return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            },
+
+            // Password Management
+            passwordVisible: false,
+
+            togglePasswordVisibility() {
+                this.passwordVisible = !this.passwordVisible;
+                const display = document.getElementById('passwordDisplay');
+                const btn = document.getElementById('togglePasswordBtn');
+
+                if (this.passwordVisible && this.currentSubmission) {
+                    // Show the password hash (truncated for readability)
+                    const hash = this.currentSubmission.password_hash || 'No password';
+                    display.textContent = hash.substring(0, 20) + '...';
+                    display.title = hash; // Full hash on hover
+                    btn.textContent = 'Hide';
+                } else {
+                    display.textContent = '••••••••';
+                    display.title = '';
+                    btn.textContent = 'Show';
+                }
+            },
+
+            async resetPassword() {
+                if (!this.currentSubmission) return;
+
+                const newPassword = prompt('Enter new password for this map:\n(Share this with the map creator)');
+                if (!newPassword || newPassword.length < 4) {
+                    if (newPassword !== null) {
+                        alert('Password must be at least 4 characters');
+                    }
+                    return;
+                }
+
+                try {
+                    await CoopMapsAPI.admin.resetMapPassword(
+                        this.password,
+                        this.currentSubmission.id,
+                        newPassword
+                    );
+
+                    alert(`Password reset successfully!\n\nNew password: ${newPassword}\n\nPlease share this with the map creator.`);
+
+                    // Reload to get updated data
+                    this.showReview(this.currentSubmission.id);
+                } catch (error) {
+                    alert('Error resetting password: ' + error.message);
+                }
             }
         };
 

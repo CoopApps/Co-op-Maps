@@ -129,43 +129,57 @@
 
             if (!name) return;
 
-            const diagrams = this.getAllDiagrams();
-            const id = 'diagram_' + Date.now();
-            const thumbnail = this.generateThumbnail();
+            // Check if this map has no password yet - offer to set one
+            const hasNoPassword = !CoopMaps.state.data.security || !CoopMaps.state.data.security.passwordHash;
 
-            diagrams[id] = {
-                name: name,
-                lastModified: new Date().toISOString(),
-                enterpriseCount: CoopMaps.state.data.enterprises.length,
-                relationshipCount: CoopMaps.state.data.relationships.length,
-                thumbnail: thumbnail,
-                data: {
-                    enterprises: CoopMaps.state.data.enterprises,
-                    relationships: CoopMaps.state.data.relationships,
-                    metadata: {
-                        ...CoopMaps.state.data.diagramProperties,
-                        title: name
-                    },
-                    // Save UI preferences
-                    uiPreferences: {
-                        connectorStyle: CoopMaps.state.ui.connectorStyle || 'orthogonal',
-                        zoom: CoopMaps.state.ui.zoom,
-                        canvasSize: CoopMaps.state.ui.canvasSize
+            const doSave = () => {
+                const diagrams = this.getAllDiagrams();
+                const id = 'diagram_' + Date.now();
+                const thumbnail = this.generateThumbnail();
+
+                diagrams[id] = {
+                    name: name,
+                    lastModified: new Date().toISOString(),
+                    enterpriseCount: CoopMaps.state.data.enterprises.length,
+                    relationshipCount: CoopMaps.state.data.relationships.length,
+                    thumbnail: thumbnail,
+                    data: {
+                        enterprises: CoopMaps.state.data.enterprises,
+                        relationships: CoopMaps.state.data.relationships,
+                        metadata: {
+                            ...CoopMaps.state.data.diagramProperties,
+                            title: name
+                        },
+                        // Include security/password data
+                        security: CoopMaps.state.data.security || null,
+                        // Save UI preferences
+                        uiPreferences: {
+                            connectorStyle: CoopMaps.state.ui.connectorStyle || 'orthogonal',
+                            zoom: CoopMaps.state.ui.zoom,
+                            canvasSize: CoopMaps.state.ui.canvasSize
+                        }
+                    }
+                };
+
+                if (this.saveDiagrams(diagrams)) {
+                    this.currentDiagramId = id;
+                    CoopMaps.state.data.diagramProperties.title = name;
+                    this.lastSaveTime = new Date().toISOString();
+                    this.isDirty = false;
+                    this.updateSaveIndicator();
+                    this.showSaveAnimation();
+
+                    if (CoopMaps.state.ui.activeTab === 'diagrams') {
+                        CoopMaps.updateSidebar();
                     }
                 }
             };
 
-            if (this.saveDiagrams(diagrams)) {
-                this.currentDiagramId = id;
-                CoopMaps.state.data.diagramProperties.title = name;
-                this.lastSaveTime = new Date().toISOString();
-                this.isDirty = false;
-                this.updateSaveIndicator();
-                this.showSaveAnimation();
-
-                if (CoopMaps.state.ui.activeTab === 'diagrams') {
-                    CoopMaps.updateSidebar();
-                }
+            // If no password, offer to set one first
+            if (hasNoPassword && CoopMaps.modules.collaboration) {
+                CoopMaps.modules.collaboration.showSetPasswordDialog(doSave);
+            } else {
+                doSave();
             }
         },
 
@@ -195,6 +209,9 @@
                 scope: { geographic: 'local', economic: '', userDefined: '' },
                 period: 'present'
             };
+
+            // Load security/password data
+            CoopMaps.state.data.security = diagram.data.security || null;
 
             // Load UI preferences
             if (diagram.data.uiPreferences) {
@@ -242,6 +259,11 @@
             CoopMaps.updateSidebar();
             this.updateSaveIndicator();
             this.showLoadAnimation(diagram.name);
+
+            // Check if map is password protected
+            if (CoopMaps.modules.collaboration) {
+                CoopMaps.modules.collaboration.onMapLoaded();
+            }
         },
 
         deleteDiagram(id) {
