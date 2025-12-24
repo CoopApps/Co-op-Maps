@@ -148,6 +148,48 @@
         .right-spacer {
             width: 320px;
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            padding-top: 60px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .zoom-controls button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .zoom-controls button:hover {
+            background: #f0f0f0;
+        }
+
+        body.dark-mode .zoom-controls {
+            background: rgba(45, 55, 72, 0.95);
+        }
+
+        body.dark-mode .zoom-controls button {
+            background: #374151;
+            border-color: #4b5563;
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .zoom-controls button:hover {
+            background: #4b5563;
         }
 
         .sidebar-tabs {
@@ -626,11 +668,6 @@
                 <div class="separator"></div>
                 <button class="primary" id="relationshipModeBtn" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Relationship</button>
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
-                <button onclick="CoopMaps.modules.canvas?.zoomOut()">-</button>
-                <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
-                <button onclick="CoopMaps.modules.canvas?.fitToContent()" title="Fit to Content">Fit</button>
-                <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.printCanvas()" title="Print Diagram">
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
                         <path d="M5 8V2h10v6M5 14H3V9h14v5h-2" stroke="currentColor" stroke-width="2"/>
@@ -678,7 +715,17 @@
         </div>
 
         <!-- Right Spacer (balances left sidebar) -->
-        <div class="right-spacer"></div>
+        <div class="right-spacer">
+            <div class="zoom-controls">
+                <div style="font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px;">Zoom</div>
+                <div style="display: flex; gap: 4px;">
+                    <button onclick="CoopMaps.modules.canvas?.zoomOut()" style="flex: 1;">−</button>
+                    <button onclick="CoopMaps.modules.canvas?.zoomReset()" style="flex: 2;"><span id="zoomLevel">100%</span></button>
+                    <button onclick="CoopMaps.modules.canvas?.zoomIn()" style="flex: 1;">+</button>
+                </div>
+                <button onclick="CoopMaps.modules.canvas?.fitToContent()" title="Fit to Content">Fit to Content</button>
+            </div>
+        </div>
     </div>
 
     <!-- Context Menu -->
