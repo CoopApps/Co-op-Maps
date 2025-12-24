@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-opMaps - Deluxe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .header .badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            margin-left: 10px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding-top: 60px;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-section {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sidebar-section h3 {
+            font-size: 0.85em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .symbol-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .symbol-item:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .symbol-item:active {
+            cursor: grabbing;
+        }
+
+        .symbol-item .icon {
+            font-size: 1.8em;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .symbol-item .label {
+            font-size: 0.75em;
+            color: #555;
+            font-weight: 500;
+        }
+
+        /* Main canvas area */
+        .main-content {
+            flex: 1;
+            padding-top: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #e8eaed;
+            overflow: auto;
+        }
+
+        #canvas {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            margin: 20px;
+        }
+
+        /* Drop indicator */
+        .drop-indicator {
+            position: absolute;
+            width: 120px;
+            height: 72px;
+            border: 3px dashed #3498db;
+            border-radius: 8px;
+            background: rgba(52, 152, 219, 0.1);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        .drop-indicator.active {
+            display: block;
+        }
+
+        /* Properties panel */
+        .properties-panel {
+            width: 300px;
+            background: white;
+            border-left: 1px solid #e0e0e0;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+
+        .properties-panel h3 {
+            padding: 15px;
+            font-size: 0.9em;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .property-group {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .property-group label {
+            display: block;
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .property-group input,
+        .property-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .property-group input:focus,
+        .property-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Enterprise on canvas */
+        .enterprise {
+            position: absolute;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 12px;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .enterprise:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .enterprise.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Enterprise types */
+        .enterprise.cooperative {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #d5f5e3 0%, #abebc6 100%);
+        }
+
+        .enterprise.private {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #fadbd8 0%, #f5b7b1 100%);
+        }
+
+        .enterprise.ngo {
+            border-color: #3498db;
+            background: linear-gradient(135deg, #d6eaf8 0%, #aed6f1 100%);
+        }
+
+        .enterprise.government {
+            border-color: #9b59b6;
+            background: linear-gradient(135deg, #e8daef 0%, #d2b4de 100%);
+        }
+
+        .enterprise.individual {
+            border-color: #f39c12;
+            background: linear-gradient(135deg, #fef9e7 0%, #fdebd0 100%);
+        }
+
+        .enterprise.note {
+            border-color: #95a5a6;
+            background: linear-gradient(135deg, #fdfefe 0%, #f4f6f6 100%);
+            border-style: dashed;
+        }
+
+        /* Note symbol specific */
+        .enterprise.note {
+            border-radius: 4px;
+        }
+
+        /* Status bar */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 0.75em;
+            color: #666;
+        }
+
+        /* Instructions overlay */
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #999;
+            pointer-events: none;
+        }
+
+        .instructions h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #bbb;
+        }
+
+        .instructions p {
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Co-opMaps</h1>
+        <span class="badge">DELUXE</span>
+    </div>
+
+    <div class="app-container">
+        <!-- Left Sidebar - Symbol Palette -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>Enterprises</h3>
+                <div class="symbol-grid" id="enterprise-symbols">
+                    <div class="symbol-item" draggable="true" data-type="cooperative">
+                        <span class="icon">🏢</span>
+                        <span class="label">Cooperative</span>
+                    </div>
+                    <div class="symbol-item" draggable="true" data-type="private">
+                        <span class="icon">🏭</span>
+                        <span class="label">Private</span>
+                    </div>
+                    <div class="symbol-item" draggable="true" data-type="ngo">
+                        <span class="icon">🤝</span>
+                        <span class="label">NGO</span>
+                    </div>
+                    <div class="symbol-item" draggable="true" data-type="government">
+                        <span class="icon">🏛️</span>
+                        <span class="label">Government</span>
+                    </div>
+                    <div class="symbol-item" draggable="true" data-type="individual">
+                        <span class="icon">👤</span>
+                        <span class="label">Individual</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Annotations</h3>
+                <div class="symbol-grid" id="annotation-symbols">
+                    <div class="symbol-item" draggable="true" data-type="note">
+                        <span class="icon">📝</span>
+                        <span class="label">Note</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Canvas Area -->
+        <div class="main-content">
+            <div class="canvas-container" id="canvas-container">
+                <canvas id="canvas" width="1200" height="800"></canvas>
+                <div class="drop-indicator" id="drop-indicator"></div>
+                <div class="instructions" id="instructions">
+                    <h2>Drag symbols here to start</h2>
+                    <p>Select an enterprise or note from the sidebar and drag it onto the canvas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Properties Panel -->
+        <div class="properties-panel">
+            <h3>Properties</h3>
+            <div id="properties-content">
+                <div class="property-group">
+                    <label>Select an enterprise to edit its properties</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span id="status-text">Ready</span>
+    </div>
+
+    <script src="js/modules/enterprises.js"></script>
+    <script src="js/modules/canvas.js"></script>
+    <script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            CoopMaps.init();
+        });
+    </script>
+</body>
+</html>
