@@ -172,8 +172,9 @@
         }
 
         .sidebar-tabs {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: grid !important;
+            grid-template-columns: 1fr 1fr 1fr 1fr !important;
+            width: 100% !important;
             background: white;
             box-shadow: var(--shadow-sm);
             position: relative;
@@ -181,7 +182,10 @@
         }
 
         .sidebar-tab {
-            padding: 16px 4px;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            padding: 16px 2px;
             text-align: center;
             cursor: pointer;
             background: transparent;
