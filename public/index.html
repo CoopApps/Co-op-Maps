@@ -563,16 +563,34 @@
                 </a>
             </div>
 
-            <a href="./tutorial.html" class="option-card" style="margin-top: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
-                <div class="option-icon" style="background: white;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a href="./tutorial.html" style="
+                display: block;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 12px;
+                padding: 18px;
+                text-align: center;
+                text-decoration: none;
+                margin-top: 15px;
+                transition: all 0.3s;
+            " onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 30px rgba(102,126,234,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                <div style="
+                    width: 44px;
+                    height: 44px;
+                    margin: 0 auto 10px;
+                    background: white;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
                         <polygon points="10 8 16 12 10 16 10 8" fill="#667eea"/>
                     </svg>
                 </div>
-                <div class="option-title" style="color: white;">Interactive Tutorial</div>
-                <div class="option-description" style="color: rgba(255,255,255,0.9);">Learn how to use Co-op Maps with a guided walkthrough of all features</div>
-                <span class="option-badge" style="background: rgba(255,255,255,0.2); color: white;">New!</span>
+                <div style="font-size: 15px; font-weight: 600; color: white; margin-bottom: 5px;">Interactive Tutorial</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.4;">Learn how to use Co-op Maps with a guided walkthrough of all features</div>
+                <span style="display: inline-block; padding: 3px 8px; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 10px; font-weight: 600; color: white; margin-top: 8px; text-transform: uppercase;">New!</span>
             </a>
 
             <div class="saved-maps">
