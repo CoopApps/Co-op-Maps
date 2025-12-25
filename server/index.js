@@ -49,12 +49,18 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('combined', { stream: logger.stream }));
 }
 
+// Track connection status
+let dbConnected = false;
+let redisConnected = false;
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        version: require('../package.json').version
+        version: require('../package.json').version,
+        database: dbConnected ? 'connected' : 'offline',
+        redis: redisConnected ? 'connected' : 'offline'
     });
 });
 
@@ -69,6 +75,12 @@ app.use('/api/public', publicRoutes);
 // Serve static files (for the frontend)
 app.use(express.static('public'));
 
+// Serve landing page for root URL
+const path = require('path');
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/version-selector.html'));
+});
+
 // Socket.io handlers
 initializeSocketHandlers(io);
 
@@ -82,19 +94,28 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
+    // Try to connect to database (optional)
     try {
-        // Connect to database
         await connectDB();
+        dbConnected = true;
         logger.info('Database connected successfully');
+    } catch (error) {
+        logger.warn('Database connection failed - running in static-only mode:', error.message);
+    }
 
-        // Connect to Redis
+    // Try to connect to Redis (optional)
+    try {
         await connectRedis();
+        redisConnected = true;
         logger.info('Redis connected successfully');
+    } catch (error) {
+        logger.warn('Redis connection failed - sessions will use memory store:', error.message);
+    }
 
-        // Start server
-        server.listen(PORT, () => {
-            logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-            console.log(`
+    // Start server regardless of database connection
+    server.listen(PORT, () => {
+        logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+        console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║           Co-opMaps Backend Server                    ║
 ║                                                       ║
@@ -102,18 +123,15 @@ async function startServer() {
 ║  API:        http://localhost:${PORT}/api              ║
 ║  Health:     http://localhost:${PORT}/health           ║
 ║  Environment: ${process.env.NODE_ENV || 'development'}                         ║
+║  Database:   ${dbConnected ? 'Connected' : 'Offline (static mode)'}                    ║
+║  Redis:      ${redisConnected ? 'Connected' : 'Offline (memory store)'}                    ║
 ╚═══════════════════════════════════════════════════════╝
-            `);
-        });
+        `);
+    });
 
-        // Graceful shutdown
-        process.on('SIGTERM', gracefulShutdown);
-        process.on('SIGINT', gracefulShutdown);
-
-    } catch (error) {
-        logger.error('Failed to start server:', error);
-        process.exit(1);
-    }
+    // Graceful shutdown
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
 }
 
 async function gracefulShutdown() {
