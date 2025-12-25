@@ -38,9 +38,10 @@ app.use(helmet({
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            scriptSrcAttr: ["'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "blob:"],
-            connectSrc: ["'self'", "https://co-op-maps-production.up.railway.app", "wss://co-op-maps-production.up.railway.app"],
+            connectSrc: ["'self'", "https://co-op-maps-production.up.railway.app", "wss://co-op-maps-production.up.railway.app", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],
