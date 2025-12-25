@@ -1,0 +1,932 @@
+/**
+ * Co-op Maps Interactive Tutorial Styles
+ * Deluxe Version Only
+ *
+ * Beautiful, modern styling for the guided tutorial experience.
+ */
+
+/* ============================================
+   Tutorial Overlay & Backdrop
+   ============================================ */
+
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.tutorial-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.tutorial-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* When tutorial is active, allow clicking through to highlighted elements */
+body.tutorial-active .tutorial-backdrop {
+    pointer-events: auto;
+}
+
+/* ============================================
+   Spotlight Effect
+   ============================================ */
+
+.tutorial-spotlight {
+    position: fixed;
+    border-radius: 8px;
+    box-shadow:
+        0 0 0 9999px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(139, 92, 246, 0.5),
+        inset 0 0 20px rgba(139, 92, 246, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10001;
+}
+
+.tutorial-spotlight::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 2px solid rgba(139, 92, 246, 0.8);
+    border-radius: 12px;
+    animation: spotlight-pulse 2s ease-in-out infinite;
+}
+
+@keyframes spotlight-pulse {
+    0%, 100% {
+        border-color: rgba(139, 92, 246, 0.8);
+        transform: scale(1);
+    }
+    50% {
+        border-color: rgba(236, 72, 153, 0.8);
+        transform: scale(1.02);
+    }
+}
+
+/* ============================================
+   Hint Pulse Effect
+   ============================================ */
+
+.tutorial-hint-pulse {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 10002;
+}
+
+.tutorial-hint-pulse::before,
+.tutorial-hint-pulse::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(139, 92, 246, 0.6);
+    animation: hint-pulse 1.5s ease-out infinite;
+}
+
+.tutorial-hint-pulse::after {
+    animation-delay: 0.75s;
+}
+
+@keyframes hint-pulse {
+    0% {
+        width: 20px;
+        height: 20px;
+        opacity: 1;
+    }
+    100% {
+        width: 80px;
+        height: 80px;
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   Tooltip
+   ============================================ */
+
+.tutorial-tooltip {
+    position: fixed;
+    width: 400px;
+    max-width: calc(100vw - 40px);
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    border-radius: 16px;
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(139, 92, 246, 0.3),
+        0 0 40px rgba(139, 92, 246, 0.2);
+    padding: 24px;
+    z-index: 10003;
+    pointer-events: auto;
+    animation: tooltip-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tooltip-enter {
+    0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.tutorial-tooltip.center {
+    max-width: 500px;
+}
+
+/* Tooltip Arrow */
+.tutorial-tooltip::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+.tutorial-tooltip.top::before {
+    bottom: -8px;
+    left: 50%;
+    margin-left: -8px;
+}
+
+.tutorial-tooltip.bottom::before {
+    top: -8px;
+    left: 50%;
+    margin-left: -8px;
+}
+
+.tutorial-tooltip.left::before {
+    right: -8px;
+    top: 50%;
+    margin-top: -8px;
+}
+
+.tutorial-tooltip.right::before {
+    left: -8px;
+    top: 50%;
+    margin-top: -8px;
+}
+
+.tutorial-tooltip.center::before {
+    display: none;
+}
+
+/* ============================================
+   Tooltip Header
+   ============================================ */
+
+.tutorial-tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.tutorial-step-indicator {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(236, 72, 153, 1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(236, 72, 153, 0.15);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.tutorial-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.tutorial-close:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    transform: scale(1.1);
+}
+
+/* ============================================
+   Tooltip Content
+   ============================================ */
+
+.tutorial-title {
+    margin: 0 0 12px 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+}
+
+.tutorial-description {
+    margin: 0 0 16px 0;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+/* ============================================
+   Action Prompt
+   ============================================ */
+
+.tutorial-action {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+}
+
+.tutorial-action-icon {
+    font-size: 18px;
+    color: #8b5cf6;
+    animation: bounce-arrow 1s ease-in-out infinite;
+}
+
+@keyframes bounce-arrow {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+.tutorial-action-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #c4b5fd;
+    line-height: 1.4;
+}
+
+.tutorial-action.shake {
+    animation: shake 0.5s ease-in-out;
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.tutorial-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.tutorial-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.tutorial-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tutorial-btn-skip {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tutorial-btn-skip:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.tutorial-btn-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.tutorial-btn-back:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.tutorial-btn-primary {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.tutorial-btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+.tutorial-btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.tutorial-btn-primary.pulse {
+    animation: button-pulse 0.5s ease-in-out;
+}
+
+@keyframes button-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* ============================================
+   Progress Bar
+   ============================================ */
+
+.tutorial-progress {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tutorial-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.tutorial-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 100%);
+    border-radius: 3px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tutorial-progress-text {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+}
+
+/* ============================================
+   Celebration Screen
+   ============================================ */
+
+.tutorial-celebration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10010;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.tutorial-celebration.show {
+    opacity: 1;
+}
+
+.tutorial-celebration-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 500px;
+}
+
+.tutorial-celebration-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: celebration-bounce 0.6s ease-out;
+}
+
+@keyframes celebration-bounce {
+    0% {
+        transform: scale(0) rotate(-10deg);
+    }
+    50% {
+        transform: scale(1.2) rotate(5deg);
+    }
+    100% {
+        transform: scale(1) rotate(0);
+    }
+}
+
+.tutorial-celebration-content h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 16px 0;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.tutorial-celebration-content p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 30px 0;
+    line-height: 1.6;
+}
+
+.tutorial-celebration-content .tutorial-btn {
+    padding: 14px 32px;
+    font-size: 16px;
+}
+
+/* ============================================
+   Welcome Modal (Landing Page)
+   ============================================ */
+
+.tutorial-welcome-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.tutorial-welcome-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tutorial-welcome-content {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 550px;
+    width: 90%;
+    text-align: center;
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(139, 92, 246, 0.3);
+    animation: modal-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modal-enter {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.tutorial-welcome-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+}
+
+.tutorial-welcome-content h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+}
+
+.tutorial-welcome-content p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 30px 0;
+    line-height: 1.6;
+}
+
+.tutorial-welcome-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tutorial-welcome-btn {
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.tutorial-welcome-btn-start {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.tutorial-welcome-btn-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+.tutorial-welcome-btn-resume {
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.tutorial-welcome-btn-resume:hover {
+    background: rgba(139, 92, 246, 0.3);
+}
+
+.tutorial-welcome-btn-skip {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.tutorial-welcome-btn-skip:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.tutorial-welcome-btn-icon {
+    font-size: 20px;
+}
+
+/* ============================================
+   Step Checklist (Optional Feature)
+   ============================================ */
+
+.tutorial-checklist {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 280px;
+    background: rgba(30, 27, 75, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    z-index: 9999;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+}
+
+.tutorial-checklist.visible {
+    display: block;
+    animation: slide-in-right 0.3s ease;
+}
+
+@keyframes slide-in-right {
+    0% {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.tutorial-checklist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.tutorial-checklist-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #c4b5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tutorial-checklist-toggle {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.tutorial-checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tutorial-checklist-item:last-child {
+    border-bottom: none;
+}
+
+.tutorial-checklist-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.tutorial-checklist-item.completed .tutorial-checklist-checkbox {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    border-color: transparent;
+}
+
+.tutorial-checklist-item.completed .tutorial-checklist-checkbox::after {
+    content: '\2713';
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.tutorial-checklist-item.current .tutorial-checklist-checkbox {
+    border-color: #8b5cf6;
+    animation: checkbox-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes checkbox-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(139, 92, 246, 0);
+    }
+}
+
+.tutorial-checklist-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+}
+
+.tutorial-checklist-item.completed .tutorial-checklist-text {
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: line-through;
+}
+
+.tutorial-checklist-item.current .tutorial-checklist-text {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* ============================================
+   Tutorial Trigger Button (Help Menu)
+   ============================================ */
+
+.tutorial-trigger-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    transition: all 0.3s ease;
+    z-index: 9990;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tutorial-trigger-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+}
+
+.tutorial-trigger-btn::after {
+    content: '?';
+    font-weight: bold;
+}
+
+/* Tooltip for trigger button */
+.tutorial-trigger-btn::before {
+    content: 'Start Tutorial';
+    position: absolute;
+    right: 70px;
+    background: #1e1b4b;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.tutorial-trigger-btn:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 768px) {
+    .tutorial-tooltip {
+        width: calc(100vw - 32px);
+        max-width: none;
+        left: 16px !important;
+        right: 16px;
+        bottom: 16px;
+        top: auto !important;
+        transform: none !important;
+    }
+
+    .tutorial-tooltip::before {
+        display: none;
+    }
+
+    .tutorial-buttons {
+        flex-direction: column;
+    }
+
+    .tutorial-btn {
+        width: 100%;
+    }
+
+    .tutorial-welcome-content {
+        padding: 24px;
+    }
+
+    .tutorial-welcome-options {
+        gap: 10px;
+    }
+
+    .tutorial-checklist {
+        width: calc(100% - 32px);
+        right: 16px;
+        top: auto;
+        bottom: 80px;
+        max-height: 50vh;
+    }
+
+    .tutorial-trigger-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+    }
+
+    .tutorial-trigger-btn::before {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .tutorial-title {
+        font-size: 18px;
+    }
+
+    .tutorial-description {
+        font-size: 14px;
+    }
+
+    .tutorial-action {
+        padding: 12px;
+    }
+
+    .tutorial-action-text {
+        font-size: 13px;
+    }
+
+    .tutorial-celebration-icon {
+        font-size: 60px;
+    }
+
+    .tutorial-celebration-content h2 {
+        font-size: 28px;
+    }
+
+    .tutorial-celebration-content p {
+        font-size: 16px;
+    }
+}
+
+/* ============================================
+   Dark Mode / Light Mode Compatibility
+   ============================================ */
+
+@media (prefers-color-scheme: light) {
+    /* Maintain dark theme for tutorial overlay regardless of system preference */
+    .tutorial-overlay,
+    .tutorial-tooltip,
+    .tutorial-welcome-modal,
+    .tutorial-celebration {
+        /* Keep dark theme as it provides better focus */
+    }
+}
+
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .tutorial-overlay,
+    .tutorial-spotlight,
+    .tutorial-tooltip,
+    .tutorial-btn,
+    .tutorial-progress-fill,
+    .tutorial-celebration,
+    .tutorial-hint-pulse,
+    .tutorial-action-icon {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ============================================
+   Print Styles - Hide Tutorial
+   ============================================ */
+
+@media print {
+    .tutorial-overlay,
+    .tutorial-welcome-modal,
+    .tutorial-celebration,
+    .tutorial-trigger-btn,
+    .tutorial-checklist {
+        display: none !important;
+    }
+}
