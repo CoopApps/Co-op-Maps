@@ -32,8 +32,22 @@ const io = socketIo(server, {
     }
 });
 
-// Middleware
-app.use(helmet());
+// Middleware - Configure helmet with CSP that allows our inline scripts and CDN
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "blob:"],
+            connectSrc: ["'self'", "https://co-op-maps-production.up.railway.app", "wss://co-op-maps-production.up.railway.app"],
+            fontSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+        },
+    },
+}));
 app.use(cors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     credentials: true
