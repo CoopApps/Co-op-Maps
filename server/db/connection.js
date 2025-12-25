@@ -1,16 +1,38 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
 
-const pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'coopmaps',
-    user: process.env.DB_USER || 'coopmaps_user',
-    password: process.env.DB_PASSWORD,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-});
+// Support Railway's DATABASE_URL or individual environment variables
+// Railway provides: PGUSER, POSTGRES_PASSWORD, RAILWAY_TCP_PROXY_DOMAIN, RAILWAY_TCP_PROXY_PORT, PGDATABASE
+// Or a full DATABASE_URL
+
+let poolConfig;
+
+if (process.env.DATABASE_URL) {
+    // Use connection string (Railway, Heroku, etc.)
+    poolConfig = {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+    };
+} else {
+    // Use individual environment variables
+    // Support both Railway-style (PG*) and custom (DB_*) variables
+    poolConfig = {
+        host: process.env.RAILWAY_TCP_PROXY_DOMAIN || process.env.PGHOST || process.env.DB_HOST || 'localhost',
+        port: process.env.RAILWAY_TCP_PROXY_PORT || process.env.PGPORT || process.env.DB_PORT || 5432,
+        database: process.env.PGDATABASE || process.env.DB_NAME || 'coopmaps',
+        user: process.env.PGUSER || process.env.DB_USER || 'coopmaps_user',
+        password: process.env.POSTGRES_PASSWORD || process.env.PGPASSWORD || process.env.DB_PASSWORD,
+        ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+    };
+}
+
+const pool = new Pool(poolConfig);
 
 // Test the connection
 async function connectDB() {
