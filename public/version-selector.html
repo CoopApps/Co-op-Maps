@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Co-opMaps - Choose Your Version</title>
+    <title>Co-op Maps - Choose Your Version</title>
     <style>
         * {
             margin: 0;
@@ -129,15 +129,19 @@
         }
 
         .features li:before {
-            content: "✓";
+            content: "";
             position: absolute;
             left: 0;
-            color: #4CAF50;
-            font-weight: bold;
+            width: 16px;
+            height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234CAF50' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            top: 10px;
         }
 
         .deluxe .features li:before {
-            color: #2196F3;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232196F3' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
         }
 
         .select-button {
@@ -237,100 +241,23 @@
         .hidden {
             display: none;
         }
-
-        .tutorial-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 0.7em;
-            font-weight: bold;
-        }
-
-        .deluxe .tutorial-badge {
-            display: block;
-        }
-
-        .express .tutorial-badge {
-            display: none;
-        }
-
-        /* Tutorial Button Section */
-        .tutorial-section {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            border-radius: 15px;
-            padding: 25px 30px;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            gap: 20px;
-        }
-
-        .tutorial-section-content {
-            flex: 1;
-        }
-
-        .tutorial-section-content h3 {
-            color: white;
-            font-size: 1.3em;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tutorial-section-content p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.95em;
-            margin: 0;
-        }
-
-        .tutorial-section-btn {
-            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            font-size: 1em;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .tutorial-section-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
-        }
-
-        @media (max-width: 768px) {
-            .tutorial-section {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🗺️ Co-opMaps</h1>
-            <p>Collaborative Cooperative Ecosystem Mapping</p>
+            <h1><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>Co-op Maps</h1>
+            <p>Collaborative Co-operative Ecosystem Mapping</p>
         </div>
 
         <!-- Browser warning (shown if old browser detected) -->
         <div id="browser-warning" class="browser-warning hidden">
-            ⚠️ Your browser may have limited support. Express version recommended.
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Your browser may have limited support. Express version recommended.
         </div>
 
         <!-- User preferences -->
         <div class="preferences">
-            <h3>⚙️ Preferences</h3>
+            <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Preferences</h3>
             <div class="preference-option">
                 <label>
                     <input type="checkbox" id="remember-choice">
@@ -345,23 +272,12 @@
             </div>
         </div>
 
-        <!-- Tutorial Section -->
-        <div class="tutorial-section">
-            <div class="tutorial-section-content">
-                <h3>🎓 New to Co-opMaps?</h3>
-                <p>Take our interactive tutorial to learn all the features step-by-step. Complete guided exercises and master the app in minutes!</p>
-            </div>
-            <button class="tutorial-section-btn" onclick="startTutorial()">
-                Start Tutorial
-            </button>
-        </div>
-
         <!-- Version selection cards -->
         <div class="version-cards">
             <!-- Express Version -->
             <div class="version-card express" onclick="selectVersion('express')">
                 <div class="badge">FAST</div>
-                <div class="icon">⚡</div>
+                <div class="icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
                 <h2>Express</h2>
                 <p class="tagline">Classic UI, All Features</p>
                 <div class="features">
@@ -382,9 +298,8 @@
 
             <!-- Deluxe Version -->
             <div class="version-card deluxe" onclick="selectVersion('deluxe')">
-                <div class="tutorial-badge">TUTORIAL</div>
                 <div class="badge">FULL</div>
-                <div class="icon">✨</div>
+                <div class="icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
                 <h2>Deluxe</h2>
                 <p class="tagline">Modern UI, All Features</p>
                 <div class="features">
@@ -392,9 +307,9 @@
                         <li><strong>All features included!</strong></li>
                         <li>Modern 2020s web app style UI</li>
                         <li>Sleek animations and transitions</li>
-                        <li><strong style="color: #8b5cf6;">Interactive guided tutorial!</strong></li>
                         <li>Requires modern browser</li>
                         <li>Beautiful visual design</li>
+                        <li>Familiar to modern web users</li>
                         <li>Best performance on fast connections</li>
                     </ul>
                 </div>
@@ -462,11 +377,6 @@
             }
         })();
 
-        // Start the standalone tutorial
-        function startTutorial() {
-            window.location.href = 'tutorial.html';
-        }
-
         function selectVersion(version, skipDelay) {
             var rememberChoice = document.getElementById('remember-choice').checked;
             var offlineMode = document.getElementById('offline-mode').checked;
@@ -486,13 +396,13 @@
                 // localStorage not available
             }
 
-            // Build redirect URL
+            // Redirect to appropriate version
             var url = version === 'express' ? 'express.html' : 'index.html';
+
             if (offlineMode) {
                 url += '?offline=true';
             }
 
-            // Perform redirect
             if (skipDelay) {
                 window.location.href = url;
             } else {
@@ -512,26 +422,26 @@
         function showComparison() {
             var comparison =
                 'EXPRESS vs DELUXE\n\n' +
-                '⚠️ IMPORTANT: Both versions have ALL THE SAME FEATURES!\n' +
+                '[!] IMPORTANT: Both versions have ALL THE SAME FEATURES!\n' +
                 'The only difference is the USER INTERFACE style.\n\n' +
-                '═══════════════════════════════════════\n\n' +
+                '=======================================\n\n' +
                 'EXPRESS VERSION:\n' +
-                '✓ ALL features (collaboration, symbols, products, etc.)\n' +
-                '✓ Classic Windows 95/2000 UI style\n' +
-                '✓ Works on IE11, old Chrome/Firefox\n' +
-                '✓ Good for 2G/3G connections\n' +
-                '✓ ~300-400KB download size\n' +
-                '✓ Familiar to longtime PC users\n' +
-                '✓ No animations (instant)\n\n' +
+                '+ ALL features (collaboration, symbols, products, etc.)\n' +
+                '+ Classic Windows 95/2000 UI style\n' +
+                '+ Works on IE11, old Chrome/Firefox\n' +
+                '+ Good for 2G/3G connections\n' +
+                '+ ~300-400KB download size\n' +
+                '+ Familiar to longtime PC users\n' +
+                '+ No animations (instant)\n\n' +
                 'DELUXE VERSION:\n' +
-                '✓ ALL features (collaboration, symbols, products, etc.)\n' +
-                '✓ Modern 2020s web app UI style\n' +
-                '✓ Sleek animations and transitions\n' +
-                '✓ Requires modern browser (Chrome 80+, Firefox 75+)\n' +
-                '✓ Better with 4G+ connection\n' +
-                '✓ ~500-600KB download size\n' +
-                '✓ Familiar to modern web users\n\n' +
-                '═══════════════════════════════════════\n\n' +
+                '+ ALL features (collaboration, symbols, products, etc.)\n' +
+                '+ Modern 2020s web app UI style\n' +
+                '+ Sleek animations and transitions\n' +
+                '+ Requires modern browser (Chrome 80+, Firefox 75+)\n' +
+                '+ Better with 4G+ connection\n' +
+                '+ ~500-600KB download size\n' +
+                '+ Familiar to modern web users\n\n' +
+                '=======================================\n\n' +
                 'Maps are 100% compatible between versions!\n' +
                 'You can switch between them anytime.\n' +
                 'Your choice is purely about UI preference!';
