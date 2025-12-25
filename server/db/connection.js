@@ -7,8 +7,17 @@ const logger = require('../utils/logger');
 
 let poolConfig;
 
+// Log available database environment variables for debugging
+logger.info('Database config check:', {
+    hasDATABASE_URL: !!process.env.DATABASE_URL,
+    hasPGHOST: !!process.env.PGHOST,
+    hasPGUSER: !!process.env.PGUSER,
+    DATABASE_URL_preview: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 30) + '...' : 'not set'
+});
+
 if (process.env.DATABASE_URL) {
     // Use connection string (Railway, Heroku, etc.)
+    logger.info('Using DATABASE_URL connection string');
     poolConfig = {
         connectionString: process.env.DATABASE_URL,
         ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
@@ -16,15 +25,29 @@ if (process.env.DATABASE_URL) {
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 5000,
     };
-} else {
-    // Use individual environment variables
-    // Support both Railway-style (PG*) and custom (DB_*) variables
+} else if (process.env.PGHOST) {
+    // Use PostgreSQL standard environment variables
+    logger.info('Using PGHOST environment variables');
     poolConfig = {
-        host: process.env.RAILWAY_TCP_PROXY_DOMAIN || process.env.PGHOST || process.env.DB_HOST || 'localhost',
-        port: process.env.RAILWAY_TCP_PROXY_PORT || process.env.PGPORT || process.env.DB_PORT || 5432,
-        database: process.env.PGDATABASE || process.env.DB_NAME || 'coopmaps',
-        user: process.env.PGUSER || process.env.DB_USER || 'coopmaps_user',
-        password: process.env.POSTGRES_PASSWORD || process.env.PGPASSWORD || process.env.DB_PASSWORD,
+        host: process.env.PGHOST,
+        port: process.env.PGPORT || 5432,
+        database: process.env.PGDATABASE || 'railway',
+        user: process.env.PGUSER || 'postgres',
+        password: process.env.PGPASSWORD || process.env.POSTGRES_PASSWORD,
+        ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+    };
+} else {
+    // Fallback to custom DB_* variables or localhost
+    logger.warn('No DATABASE_URL or PGHOST found, using fallback config');
+    poolConfig = {
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        database: process.env.DB_NAME || 'coopmaps',
+        user: process.env.DB_USER || 'coopmaps_user',
+        password: process.env.DB_PASSWORD,
         ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
