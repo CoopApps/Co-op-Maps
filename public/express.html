@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-opMaps Express</title>
+    <style>
+        /* Classic Win95/2000 Style */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --win-bg: #c0c0c0;
+            --win-dark: #808080;
+            --win-light: #ffffff;
+            --win-darker: #404040;
+            --win-blue: #000080;
+            --win-title: linear-gradient(90deg, #000080, #1084d0);
+            --coop: #008000;
+            --mutual: #808000;
+            --social: #800080;
+            --private: #000080;
+            --public: #008080;
+        }
+
+        body {
+            font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+            background: #008080;
+            font-size: 11px;
+            min-height: 100vh;
+            padding: 4px;
+        }
+
+        /* Window Frame */
+        .window {
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-light) var(--win-dark) var(--win-dark) var(--win-light);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 8px);
+        }
+
+        /* Title Bar */
+        .title-bar {
+            background: var(--win-title);
+            color: white;
+            padding: 3px 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .title-bar-text {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .title-bar-controls {
+            display: flex;
+            gap: 2px;
+        }
+
+        .title-bar-controls button {
+            width: 16px;
+            height: 14px;
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-light) var(--win-dark) var(--win-dark) var(--win-light);
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title-bar-controls button:active {
+            border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark);
+        }
+
+        /* Menu Bar */
+        .menu-bar {
+            background: var(--win-bg);
+            padding: 2px 0;
+            border-bottom: 1px solid var(--win-dark);
+            display: flex;
+            gap: 0;
+        }
+
+        .menu-item {
+            padding: 2px 8px;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: var(--win-blue);
+            color: white;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: var(--win-bg);
+            padding: 2px 4px;
+            display: flex;
+            gap: 2px;
+            border-bottom: 1px solid var(--win-dark);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            width: 24px;
+            height: 22px;
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-light) var(--win-dark) var(--win-dark) var(--win-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .toolbar-btn:active,
+        .toolbar-btn.active {
+            border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark);
+            background: #a0a0a0;
+        }
+
+        .toolbar-separator {
+            width: 2px;
+            height: 22px;
+            margin: 0 4px;
+            border-left: 1px solid var(--win-dark);
+            border-right: 1px solid var(--win-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Left Panel (TreeView style) */
+        .left-panel {
+            width: 200px;
+            background: white;
+            border: 2px solid;
+            border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark);
+            margin: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-tabs {
+            display: flex;
+            background: var(--win-bg);
+            border-bottom: 1px solid var(--win-dark);
+        }
+
+        .panel-tab {
+            padding: 4px 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            font-size: 11px;
+        }
+
+        .panel-tab.active {
+            background: white;
+            border-color: var(--win-dark) var(--win-dark) white var(--win-dark);
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        /* Tree Items */
+        .tree-section {
+            margin-bottom: 8px;
+        }
+
+        .tree-section-title {
+            font-weight: bold;
+            padding: 2px 4px;
+            background: var(--win-bg);
+            border: 1px solid var(--win-dark);
+            margin-bottom: 4px;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 4px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tree-item:hover {
+            background: var(--win-blue);
+            color: white;
+        }
+
+        .tree-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Canvas Area */
+        .canvas-panel {
+            flex: 1;
+            background: white;
+            border: 2px solid;
+            border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark);
+            margin: 4px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .canvas-inner {
+            width: 2000px;
+            height: 1500px;
+            position: relative;
+            background:
+                linear-gradient(#e0e0e0 1px, transparent 1px),
+                linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Map Entities (Win95 style boxes) */
+        .entity-box {
+            position: absolute;
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-light) var(--win-dark) var(--win-dark) var(--win-light);
+            min-width: 140px;
+            cursor: move;
+        }
+
+        .entity-box .entity-title {
+            background: var(--win-blue);
+            color: white;
+            padding: 2px 4px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .entity-box.coop .entity-title { background: var(--coop); }
+        .entity-box.mutual .entity-title { background: var(--mutual); }
+        .entity-box.social .entity-title { background: var(--social); }
+        .entity-box.private .entity-title { background: var(--private); }
+        .entity-box.public .entity-title { background: var(--public); }
+
+        .entity-box .entity-content {
+            padding: 4px;
+            font-size: 11px;
+        }
+
+        .entity-box.selected {
+            outline: 2px dotted black;
+            outline-offset: 2px;
+        }
+
+        /* Right Panel (Properties) */
+        .right-panel {
+            width: 180px;
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-light) var(--win-dark) var(--win-dark) var(--win-light);
+            margin: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-panel-title {
+            background: var(--win-title);
+            color: white;
+            padding: 2px 4px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .properties-content {
+            padding: 4px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .property-group {
+            margin-bottom: 8px;
+        }
+
+        .property-group-title {
+            font-weight: bold;
+            padding: 2px;
+            background: var(--win-bg);
+            border-bottom: 1px solid var(--win-dark);
+            margin-bottom: 4px;
+        }
+
+        .property-row {
+            margin-bottom: 4px;
+        }
+
+        .property-row label {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .property-row input,
+        .property-row select,
+        .property-row textarea {
+            width: 100%;
+            padding: 2px 4px;
+            border: 2px solid;
+            border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark);
+            background: white;
+            font-family: inherit;
+            font-size: 11px;
+        }
+
+        .property-row textarea {
+            height: 50px;
+            resize: vertical;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: var(--win-bg);
+            border-top: 1px solid var(--win-light);
+            display: flex;
+            gap: 2px;
+            padding: 2px;
+        }
+
+        .status-section {
+            border: 2px solid;
+            border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark);
+            padding: 2px 6px;
+            background: var(--win-bg);
+        }
+
+        .status-section:first-child {
+            flex: 1;
+        }
+
+        /* Buttons */
+        .win-btn {
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-light) var(--win-dark) var(--win-dark) var(--win-light);
+            padding: 4px 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+        }
+
+        .win-btn:active {
+            border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark);
+        }
+
+        /* Dialog Box */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .dialog-overlay.active {
+            display: flex;
+        }
+
+        .dialog {
+            background: var(--win-bg);
+            border: 2px solid;
+            border-color: var(--win-light) var(--win-dark) var(--win-dark) var(--win-light);
+            min-width: 300px;
+        }
+
+        .dialog-title {
+            background: var(--win-title);
+            color: white;
+            padding: 3px 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dialog-content {
+            padding: 12px;
+        }
+
+        .dialog-buttons {
+            padding: 8px 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            border-top: 1px solid var(--win-dark);
+        }
+
+        /* Connection Lines */
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            stroke: #000;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .connection-line.trade {
+            stroke: var(--coop);
+            stroke-dasharray: 5,3;
+        }
+
+        .connection-line.membership {
+            stroke: var(--mutual);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .right-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .left-panel {
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <div class="title-bar-text">
+                <span>📋</span>
+                <span>Co-opMaps Express - [Local Ecosystem Map]</span>
+            </div>
+            <div class="title-bar-controls">
+                <button>_</button>
+                <button>□</button>
+                <button onclick="location.href='version-selector.html'">×</button>
+            </div>
+        </div>
+
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <div class="menu-item">File</div>
+            <div class="menu-item">Edit</div>
+            <div class="menu-item">View</div>
+            <div class="menu-item">Insert</div>
+            <div class="menu-item">Format</div>
+            <div class="menu-item">Tools</div>
+            <div class="menu-item">Help</div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" title="New">📄</button>
+            <button class="toolbar-btn" title="Open">📂</button>
+            <button class="toolbar-btn" title="Save">💾</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" title="Cut">✂️</button>
+            <button class="toolbar-btn" title="Copy">📋</button>
+            <button class="toolbar-btn" title="Paste">📌</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn active" title="Select">↖️</button>
+            <button class="toolbar-btn" title="Connect">↗️</button>
+            <button class="toolbar-btn" title="Text">A</button>
+            <button class="toolbar-btn" title="Rectangle">□</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" title="Undo">↩️</button>
+            <button class="toolbar-btn" title="Redo">↪️</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" title="Zoom In">+</button>
+            <button class="toolbar-btn" title="Zoom Out">-</button>
+            <button class="toolbar-btn" title="Fit">⛶</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <div class="panel-tabs">
+                    <div class="panel-tab active" data-tab="symbols">Symbols</div>
+                    <div class="panel-tab" data-tab="business">Business</div>
+                    <div class="panel-tab" data-tab="diagrams">Diagrams</div>
+                </div>
+                <div class="panel-content" id="panel-content">
+                    <!-- Symbols Tab -->
+                    <div class="tab-content" id="tab-symbols">
+                        <div class="tree-section">
+                            <div class="tree-section-title">Enterprise Types</div>
+                            <div class="tree-item" draggable="true" data-type="coop">
+                                <span class="tree-icon">🤝</span>
+                                <span>Co-operative</span>
+                            </div>
+                            <div class="tree-item" draggable="true" data-type="mutual">
+                                <span class="tree-icon">🔄</span>
+                                <span>Non-co-op Mutual</span>
+                            </div>
+                            <div class="tree-item" draggable="true" data-type="social">
+                                <span class="tree-icon">💜</span>
+                                <span>Social Enterprise</span>
+                            </div>
+                            <div class="tree-item" draggable="true" data-type="private">
+                                <span class="tree-icon">🏛️</span>
+                                <span>Private Enterprise</span>
+                            </div>
+                            <div class="tree-item" draggable="true" data-type="public">
+                                <span class="tree-icon">🏛️</span>
+                                <span>Public Enterprise</span>
+                            </div>
+                        </div>
+                        <div class="tree-section">
+                            <div class="tree-section-title">Relationship Symbols</div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">→</span>
+                                <span>Direction</span>
+                            </div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">↔</span>
+                                <span>Bidirectional</span>
+                            </div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">💱</span>
+                                <span>Trade</span>
+                            </div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">👥</span>
+                                <span>Membership</span>
+                            </div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">💰</span>
+                                <span>Funding</span>
+                            </div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">📦</span>
+                                <span>Supply Chain</span>
+                            </div>
+                        </div>
+                        <div class="tree-section">
+                            <div class="tree-section-title">Products/Services</div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">🌾</span>
+                                <span>Agriculture</span>
+                            </div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">🏦</span>
+                                <span>Finance</span>
+                            </div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">🏠</span>
+                                <span>Housing</span>
+                            </div>
+                            <div class="tree-item" draggable="true">
+                                <span class="tree-icon">⚡</span>
+                                <span>Energy</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Business Tab -->
+                    <div class="tab-content" id="tab-business" style="display:none;">
+                        <div class="tree-section">
+                            <div class="tree-section-title">Your Enterprises</div>
+                            <div class="tree-item">
+                                <span class="tree-icon">🏪</span>
+                                <span>Community Food Co-op</span>
+                            </div>
+                            <div class="tree-item">
+                                <span class="tree-icon">🏦</span>
+                                <span>Local Credit Union</span>
+                            </div>
+                            <div class="tree-item">
+                                <span class="tree-icon">⚡</span>
+                                <span>Green Energy Co-op</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Diagrams Tab -->
+                    <div class="tab-content" id="tab-diagrams" style="display:none;">
+                        <div class="tree-section">
+                            <div class="tree-section-title">My Diagrams</div>
+                            <div class="tree-item">
+                                <span class="tree-icon">🗺️</span>
+                                <span>Local Ecosystem Map</span>
+                            </div>
+                            <div class="tree-item">
+                                <span class="tree-icon">📊</span>
+                                <span>Supply Chain Overview</span>
+                            </div>
+                            <div class="tree-item">
+                                <span class="tree-icon">🌍</span>
+                                <span>Regional Co-op Network</span>
+                            </div>
+                        </div>
+                        <button class="win-btn" style="width:100%;margin-top:8px;" id="new-diagram-btn">New Diagram...</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="canvas-panel">
+                <div class="canvas-inner" id="canvas">
+                    <svg class="connections-svg">
+                        <path class="connection-line trade" d="M200 150 L350 220" />
+                        <path class="connection-line membership" d="M490 220 L550 150" />
+                    </svg>
+
+                    <!-- Demo entities -->
+                    <div class="entity-box coop" style="left: 100px; top: 100px;">
+                        <div class="entity-title">Community Food Co-op</div>
+                        <div class="entity-content">
+                            Consumer Co-operative<br>
+                            Members: 2,500
+                        </div>
+                    </div>
+
+                    <div class="entity-box mutual" style="left: 300px; top: 180px;">
+                        <div class="entity-title">Farmers' Mutual Insurance</div>
+                        <div class="entity-content">
+                            Non-co-operative Mutual<br>
+                            Est. 1952
+                        </div>
+                    </div>
+
+                    <div class="entity-box social" style="left: 500px; top: 100px;">
+                        <div class="entity-title">Green Jobs Initiative</div>
+                        <div class="entity-content">
+                            Social Enterprise<br>
+                            Non-profit
+                        </div>
+                    </div>
+
+                    <div class="entity-box private" style="left: 150px; top: 300px;">
+                        <div class="entity-title">Local Bakery Supplier</div>
+                        <div class="entity-content">
+                            Private Enterprise<br>
+                            Family-owned
+                        </div>
+                    </div>
+
+                    <div class="entity-box public" style="left: 400px; top: 320px;">
+                        <div class="entity-title">City Transit Authority</div>
+                        <div class="entity-content">
+                            Public Enterprise<br>
+                            Municipal
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel (Properties) -->
+            <div class="right-panel">
+                <div class="right-panel-title">Properties</div>
+                <div class="properties-content">
+                    <div class="property-group">
+                        <div class="property-group-title">General</div>
+                        <div class="property-row">
+                            <label>Name:</label>
+                            <input type="text" value="Community Food Co-op" id="prop-name">
+                        </div>
+                        <div class="property-row">
+                            <label>Type:</label>
+                            <select id="prop-type">
+                                <option value="coop" selected>Co-operative</option>
+                                <option value="mutual">Non-co-op Mutual</option>
+                                <option value="social">Social Enterprise</option>
+                                <option value="private">Private Enterprise</option>
+                                <option value="public">Public Enterprise</option>
+                            </select>
+                        </div>
+                        <div class="property-row">
+                            <label>Description:</label>
+                            <textarea id="prop-desc">Member-owned grocery store.</textarea>
+                        </div>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-group-title">Contact</div>
+                        <div class="property-row">
+                            <label>Website:</label>
+                            <input type="text" value="https://foodcoop.org">
+                        </div>
+                        <div class="property-row">
+                            <label>Email:</label>
+                            <input type="text" value="info@foodcoop.org">
+                        </div>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-group-title">Metrics</div>
+                        <div class="property-row">
+                            <label>Members:</label>
+                            <input type="text" value="2500">
+                        </div>
+                        <div class="property-row">
+                            <label>Revenue:</label>
+                            <input type="text" value="$3.2M">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-section">Ready | 5 entities, 2 connections</div>
+            <div class="status-section">Connected</div>
+            <div class="status-section">100%</div>
+        </div>
+    </div>
+
+    <!-- New Diagram Dialog -->
+    <div class="dialog-overlay" id="new-dialog">
+        <div class="dialog">
+            <div class="dialog-title">
+                <span>New Diagram</span>
+                <button style="width:16px;height:14px;font-size:9px;" onclick="closeDialog()">×</button>
+            </div>
+            <div class="dialog-content">
+                <div class="property-row">
+                    <label>Diagram Name:</label>
+                    <input type="text" placeholder="My Ecosystem Map" id="new-name">
+                </div>
+                <div class="property-row">
+                    <label>Template:</label>
+                    <select id="new-template">
+                        <option>Blank Canvas</option>
+                        <option>Local Ecosystem</option>
+                        <option>Supply Chain</option>
+                        <option>Regional Network</option>
+                    </select>
+                </div>
+                <div class="property-row">
+                    <label>Description:</label>
+                    <textarea placeholder="Description..." id="new-desc"></textarea>
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button class="win-btn" onclick="closeDialog()">Cancel</button>
+                <button class="win-btn" onclick="createDiagram()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.panel-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+                document.getElementById('tab-' + tab.dataset.tab).style.display = 'block';
+            });
+        });
+
+        // Toolbar buttons
+        document.querySelectorAll('.toolbar-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.title === 'Select' || this.title === 'Connect' ||
+                    this.title === 'Text' || this.title === 'Rectangle') {
+                    document.querySelectorAll('.toolbar-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Entity selection
+        document.querySelectorAll('.entity-box').forEach(entity => {
+            entity.addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.querySelectorAll('.entity-box').forEach(e => e.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('prop-name').value = this.querySelector('.entity-title').textContent;
+            });
+        });
+
+        // Deselect on canvas click
+        document.getElementById('canvas').addEventListener('click', function(e) {
+            if (e.target === this || e.target.classList.contains('canvas-inner')) {
+                document.querySelectorAll('.entity-box').forEach(e => e.classList.remove('selected'));
+            }
+        });
+
+        // Entity dragging
+        let draggedEntity = null;
+        let offsetX = 0, offsetY = 0;
+
+        document.querySelectorAll('.entity-box').forEach(entity => {
+            entity.addEventListener('mousedown', function(e) {
+                draggedEntity = this;
+                const rect = this.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                this.style.zIndex = 1000;
+            });
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (draggedEntity) {
+                const canvas = document.getElementById('canvas');
+                const canvasRect = canvas.getBoundingClientRect();
+                const x = e.clientX - canvasRect.left - offsetX + canvas.scrollLeft;
+                const y = e.clientY - canvasRect.top - offsetY + canvas.scrollTop;
+                draggedEntity.style.left = Math.max(0, x) + 'px';
+                draggedEntity.style.top = Math.max(0, y) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (draggedEntity) {
+                draggedEntity.style.zIndex = '';
+                draggedEntity = null;
+            }
+        });
+
+        // New diagram dialog
+        document.getElementById('new-diagram-btn').addEventListener('click', function() {
+            document.getElementById('new-dialog').classList.add('active');
+        });
+
+        function closeDialog() {
+            document.getElementById('new-dialog').classList.remove('active');
+        }
+
+        function createDiagram() {
+            var name = document.getElementById('new-name').value || 'Untitled Diagram';
+            alert('Creating diagram: ' + name);
+            closeDialog();
+        }
+
+        console.log('Co-opMaps Express loaded successfully');
+    </script>
+</body>
+</html>

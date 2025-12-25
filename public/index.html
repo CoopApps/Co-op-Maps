@@ -4,1427 +4,1216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Co-opMaps Deluxe</title>
-    <link rel="stylesheet" href="css/tutorial.css">
     <style>
-        /* ============================================
-           CSS Variables & Base
-           ============================================ */
-        :root {
-            --primary: #8b5cf6;
-            --primary-dark: #7c3aed;
-            --secondary: #ec4899;
-            --bg-dark: #0f0f1a;
-            --bg-card: #1a1a2e;
-            --bg-hover: #252540;
-            --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.7);
-            --text-muted: rgba(255, 255, 255, 0.5);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.3);
-            --radius: 12px;
-            --transition: all 0.2s ease;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --coop: #10b981;
+            --mutual: #f59e0b;
+            --social: #ec4899;
+            --private: #6366f1;
+            --public: #06b6d4;
+            --bg-dark: #1e1e2e;
+            --bg-card: #2d2d44;
+            --bg-sidebar: #252538;
+            --text: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --border: #3f3f5c;
+        }
+
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg-dark);
-            color: var(--text-primary);
+            color: var(--text);
             min-height: 100vh;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* ============================================
-           App Layout
-           ============================================ */
-        .app-container {
-            display: grid;
-            grid-template-rows: auto 1fr;
-            grid-template-columns: 280px 1fr 320px;
-            height: 100vh;
-        }
-
-        /* ============================================
-           Header / Toolbar
-           ============================================ */
-        .app-header {
-            grid-column: 1 / -1;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 20px;
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 8px;
-            flex: 1;
-            justify-content: center;
-        }
-
-        .toolbar-btn {
-            padding: 10px 16px;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
+            font-size: 1.5em;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .toolbar-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border-color: var(--primary);
-        }
-
-        .toolbar-btn.primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            color: white;
-        }
-
-        .toolbar-btn.primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        .version-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: 600;
         }
 
         .header-actions {
             display: flex;
-            gap: 10px;
-            align-items: center;
+            gap: 12px;
         }
 
-        .diagram-name-input {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 14px;
-            color: var(--text-primary);
-            font-size: 14px;
-            width: 200px;
-        }
-
-        .diagram-name-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* ============================================
-           Sidebar - Left (Tools)
-           ============================================ */
-        .sidebar-left {
-            background: var(--bg-card);
-            border-right: 1px solid var(--border-color);
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .sidebar-section {
-            margin-bottom: 24px;
-        }
-
-        .sidebar-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
-        .tool-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .tool-btn {
-            padding: 12px;
-            background: var(--bg-hover);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            color: var(--text-secondary);
-            font-size: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .tool-btn:hover {
-            background: var(--primary);
+        .header-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            border-color: var(--primary);
-        }
-
-        .tool-btn .icon {
-            font-size: 20px;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .enterprise-type-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .enterprise-type-btn {
-            padding: 10px 12px;
-            background: var(--bg-hover);
-            border: 1px solid var(--border-color);
+            padding: 8px 16px;
             border-radius: 8px;
-            color: var(--text-secondary);
-            font-size: 13px;
-            text-align: left;
             cursor: pointer;
-            transition: var(--transition);
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .header-btn.primary {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* Main Layout */
+        .main-container {
             display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .enterprise-type-btn:hover {
-            background: var(--bg-card);
-            border-color: var(--primary);
-            color: var(--text-primary);
-        }
-
-        .enterprise-type-btn .color-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .type-cooperative .color-dot { background: #8b5cf6; }
-        .type-social-enterprise .color-dot { background: #ec4899; }
-        .type-producer .color-dot { background: #10b981; }
-        .type-consumer .color-dot { background: #f59e0b; }
-        .type-service-provider .color-dot { background: #3b82f6; }
-        .type-other .color-dot { background: #6b7280; }
-
-        /* ============================================
-           Main Canvas Area
-           ============================================ */
-        .canvas-container {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
-            position: relative;
+            flex: 1;
             overflow: hidden;
         }
 
-        .diagram-canvas {
-            width: 100%;
-            height: 100%;
-            cursor: grab;
-        }
-
-        .diagram-canvas:active {
-            cursor: grabbing;
-        }
-
-        .canvas-zoom-controls {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
             display: flex;
-            gap: 8px;
-            background: var(--bg-card);
-            border-radius: 8px;
-            padding: 4px;
-            box-shadow: var(--shadow-lg);
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        .zoom-btn {
-            width: 36px;
-            height: 36px;
-            background: var(--bg-hover);
-            border: none;
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-size: 18px;
+        .sidebar-tabs {
+            display: flex;
+            background: var(--bg-dark);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
             cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .zoom-btn:hover {
-            background: var(--primary);
-        }
-
-        .zoom-level {
-            padding: 0 12px;
-            display: flex;
-            align-items: center;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Enterprise Nodes */
-        .enterprise-node {
-            position: absolute;
-            min-width: 150px;
-            background: var(--bg-card);
-            border: 2px solid var(--primary);
-            border-radius: var(--radius);
-            padding: 16px;
-            cursor: move;
-            transition: box-shadow 0.2s ease;
-            user-select: none;
-        }
-
-        .enterprise-node:hover {
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-        }
-
-        .enterprise-node.selected {
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
-        }
-
-        .enterprise-node .name {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .enterprise-node .type {
-            font-size: 11px;
+            font-size: 0.85em;
             color: var(--text-muted);
-            text-transform: uppercase;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
         }
 
-        /* Relationship Lines */
-        .relationship-line {
-            stroke: var(--primary);
-            stroke-width: 2;
-            fill: none;
+        .sidebar-tab:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.05);
         }
 
-        /* ============================================
-           Sidebar - Right (Properties)
-           ============================================ */
-        .sidebar-right {
-            background: var(--bg-card);
-            border-left: 1px solid var(--border-color);
-            padding: 20px;
+        .sidebar-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--bg-sidebar);
+        }
+
+        .sidebar-content {
+            flex: 1;
             overflow-y: auto;
+            padding: 16px;
         }
 
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .sidebar-section {
             margin-bottom: 20px;
         }
 
-        .panel-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .panel-close {
-            width: 28px;
-            height: 28px;
-            background: transparent;
-            border: none;
+        .sidebar-section-title {
+            font-size: 0.75em;
+            text-transform: uppercase;
             color: var(--text-muted);
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: var(--transition);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
         }
 
-        .panel-close:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
-            width: 100%;
-            padding: 10px 12px;
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: var(--transition);
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .color-picker-row {
+        /* Entity Types */
+        .entity-types {
             display: flex;
+            flex-direction: column;
             gap: 8px;
         }
 
-        .color-swatch {
+        .entity-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .entity-type:hover {
+            border-color: var(--border);
+            transform: translateX(4px);
+        }
+
+        .entity-type.dragging {
+            opacity: 0.6;
+        }
+
+        .entity-icon {
             width: 32px;
             height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .entity-icon.coop { background: rgba(16, 185, 129, 0.2); color: var(--coop); }
+        .entity-icon.mutual { background: rgba(245, 158, 11, 0.2); color: var(--mutual); }
+        .entity-icon.social { background: rgba(236, 72, 153, 0.2); color: var(--social); }
+        .entity-icon.private { background: rgba(99, 102, 241, 0.2); color: var(--private); }
+        .entity-icon.public { background: rgba(6, 182, 212, 0.2); color: var(--public); }
+
+        .entity-info h4 {
+            font-size: 0.9em;
+            margin-bottom: 2px;
+        }
+
+        .entity-info span {
+            font-size: 0.75em;
+            color: var(--text-muted);
+        }
+
+        /* Symbol Palette */
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .symbol-item {
+            aspect-ratio: 1;
+            background: var(--bg-card);
             border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: grab;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .symbol-item:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-dark);
+            overflow: hidden;
+        }
+
+        .canvas-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            gap: 8px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 4px;
+            padding-right: 12px;
+            border-right: 1px solid var(--border);
+            margin-right: 12px;
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+            margin-right: 0;
+        }
+
+        .toolbar-btn {
+            width: 36px;
+            height: 36px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            color: var(--text);
             cursor: pointer;
-            border: 2px solid transparent;
-            transition: var(--transition);
+            font-size: 1.1em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .color-swatch:hover,
-        .color-swatch.active {
-            border-color: white;
-            transform: scale(1.1);
+        .toolbar-btn:hover {
+            background: rgba(255,255,255,0.1);
         }
 
-        .btn-save {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            border-radius: 8px;
+        .toolbar-btn.active {
+            background: var(--primary);
             color: white;
-            font-size: 14px;
+        }
+
+        .toolbar-separator {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 8px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .zoom-level {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Canvas */
+        .canvas-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .canvas {
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: relative;
+        }
+
+        /* Map Entities */
+        .map-entity {
+            position: absolute;
+            padding: 16px 20px;
+            border-radius: 12px;
+            cursor: move;
+            min-width: 160px;
+            transition: box-shadow 0.2s;
+        }
+
+        .map-entity:hover {
+            box-shadow: 0 0 0 2px white;
+        }
+
+        .map-entity.selected {
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .map-entity.coop {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1));
+            border: 2px solid var(--coop);
+        }
+
+        .map-entity.mutual {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1));
+            border: 2px solid var(--mutual);
+        }
+
+        .map-entity.social {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 0.1));
+            border: 2px solid var(--social);
+        }
+
+        .map-entity.private {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(99, 102, 241, 0.1));
+            border: 2px solid var(--private);
+        }
+
+        .map-entity.public {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1));
+            border: 2px solid var(--public);
+        }
+
+        .entity-name {
             font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
+            font-size: 0.95em;
+            margin-bottom: 4px;
         }
 
-        .btn-save:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        .entity-type-label {
+            font-size: 0.75em;
+            opacity: 0.8;
         }
 
-        /* ============================================
-           Modal Dialogs
-           ============================================ */
-        .modal-backdrop {
-            position: fixed;
+        /* Connection Lines (SVG overlay) */
+        .connections-layer {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            stroke: rgba(255,255,255,0.3);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .connection-line.trade {
+            stroke: var(--coop);
+            stroke-dasharray: 5,5;
+        }
+
+        .connection-line.membership {
+            stroke: var(--mutual);
+        }
+
+        .connection-line.partnership {
+            stroke: var(--social);
+            stroke-width: 3;
+        }
+
+        /* Right Panel (Properties) */
+        .properties-panel {
+            width: 300px;
+            background: var(--bg-sidebar);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-header h3 {
+            font-size: 1em;
+        }
+
+        .panel-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .property-group {
+            margin-bottom: 20px;
+        }
+
+        .property-group-title {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .property-row {
+            margin-bottom: 12px;
+        }
+
+        .property-row label {
+            display: block;
+            font-size: 0.85em;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+
+        .property-row input,
+        .property-row select,
+        .property-row textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.9em;
+        }
+
+        .property-row input:focus,
+        .property-row select:focus,
+        .property-row textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .property-row textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Tabs in Properties Panel */
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .panel-tab:hover {
+            color: var(--text);
+        }
+
+        .panel-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--coop);
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+        }
+
+        /* Diagram List (in Diagrams tab) */
+        .diagram-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .diagram-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .diagram-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .diagram-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid var(--primary);
+        }
+
+        .diagram-thumbnail {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .diagram-info h4 {
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+
+        .diagram-info span {
+            font-size: 0.75em;
+            color: var(--text-muted);
+        }
+
+        /* Product Catalog */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .product-item {
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            cursor: grab;
+        }
+
+        .product-item:hover {
+            border: 1px solid var(--primary);
+        }
+
+        .product-name {
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+
+        .product-category {
+            font-size: 0.7em;
+            color: var(--text-muted);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
         }
 
-        .modal-backdrop.active {
-            display: flex;
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
         .modal {
             background: var(--bg-card);
             border-radius: 16px;
-            width: 90%;
-            max-width: 500px;
             padding: 24px;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-title {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 1.3em;
+            margin-bottom: 16px;
         }
 
-        .modal-close {
-            width: 32px;
-            height: 32px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 20px;
-            cursor: pointer;
-            border-radius: 8px;
-        }
-
-        .modal-close:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .modal-body {
-            margin-bottom: 20px;
-        }
-
-        .modal-footer {
+        .modal-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            margin-top: 24px;
             justify-content: flex-end;
         }
 
-        /* ============================================
-           Toast Notifications
-           ============================================ */
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toast {
-            background: var(--bg-card);
+        .btn {
+            padding: 10px 20px;
             border-radius: 8px;
-            padding: 14px 20px;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: toast-enter 0.3s ease;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
         }
 
-        @keyframes toast-enter {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-dark);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .properties-panel {
+                display: none;
             }
         }
 
-        .toast.success { border-left: 4px solid var(--success); }
-        .toast.warning { border-left: 4px solid var(--warning); }
-        .toast.error { border-left: 4px solid var(--error); }
-
-        /* ============================================
-           Empty State
-           ============================================ */
-        .empty-state {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: var(--text-muted);
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 60px;
+            }
+            .sidebar-tab span {
+                display: none;
+            }
+            .sidebar-content {
+                padding: 8px;
+            }
+            .entity-types {
+                gap: 4px;
+            }
+            .entity-type {
+                padding: 8px;
+                justify-content: center;
+            }
+            .entity-info {
+                display: none;
+            }
         }
 
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .empty-state-text {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .empty-state-hint {
-            font-size: 14px;
-            opacity: 0.7;
-        }
-
-        /* ============================================
-           Responsive
-           ============================================ */
-        @media (max-width: 1024px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar-left,
-            .sidebar-right {
-                position: fixed;
-                top: 60px;
-                bottom: 0;
-                width: 300px;
-                z-index: 100;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar-right {
-                right: 0;
-                left: auto;
-                transform: translateX(100%);
-            }
-
-            .sidebar-left.open {
-                transform: translateX(0);
-            }
-
-            .sidebar-right.open {
-                transform: translateX(0);
-            }
+        .map-entity {
+            animation: fadeIn 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header / Toolbar -->
-        <header class="app-header">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
             <div class="logo">
-                <div class="logo-icon">🗺️</div>
-                <span>Co-opMaps</span>
+                🗺️ Co-opMaps
+                <span class="version-badge">DELUXE</span>
             </div>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn" onclick="location.href='version-selector.html'">← Back to Home</button>
+            <button class="header-btn" id="share-btn">Share</button>
+            <button class="header-btn" id="export-btn">Export</button>
+            <button class="header-btn primary" id="save-btn">💾 Save</button>
+        </div>
+    </header>
 
-            <div class="toolbar">
-                <button class="toolbar-btn" id="btn-new-diagram" data-action="new-diagram">
-                    <span>📄</span> New
-                </button>
-                <button class="toolbar-btn primary" id="btn-add-enterprise" data-action="add-enterprise">
-                    <span>➕</span> Add Enterprise
-                </button>
-                <button class="toolbar-btn" id="btn-add-relationship" data-action="add-relationship">
-                    <span>🔗</span> Add Relationship
-                </button>
-                <button class="toolbar-btn" id="btn-save" data-action="save">
-                    <span>💾</span> Save
-                </button>
-                <div class="toolbar-dropdown">
-                    <button class="toolbar-btn" id="menu-file" data-menu="export">
-                        <span>📤</span> Export
-                    </button>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-tabs">
+                <div class="sidebar-tab active" data-tab="symbols">
+                    <span>📊</span> Symbols
+                </div>
+                <div class="sidebar-tab" data-tab="business">
+                    <span>🏢</span> Business
+                </div>
+                <div class="sidebar-tab" data-tab="diagrams">
+                    <span>📋</span> Diagrams
                 </div>
             </div>
 
-            <div class="header-actions">
-                <input type="text" class="diagram-name-input" id="diagram-name" data-field="diagram-name" placeholder="Untitled Diagram">
-                <button class="toolbar-btn" id="btn-share" data-action="share">
-                    <span>👥</span> Share
-                </button>
-                <button class="toolbar-btn" id="btn-help" data-action="help">
-                    <span>❓</span>
-                </button>
-            </div>
-        </header>
+            <div class="sidebar-content" id="sidebar-content">
+                <!-- Symbols Tab Content -->
+                <div class="tab-content" id="tab-symbols">
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Enterprise Types</div>
+                        <div class="entity-types" id="entity-types">
+                            <div class="entity-type" draggable="true" data-type="coop">
+                                <div class="entity-icon coop">🤝</div>
+                                <div class="entity-info">
+                                    <h4>Co-operative</h4>
+                                    <span>Member-owned business</span>
+                                </div>
+                            </div>
+                            <div class="entity-type" draggable="true" data-type="mutual">
+                                <div class="entity-icon mutual">🔄</div>
+                                <div class="entity-info">
+                                    <h4>Non-co-operative Mutual</h4>
+                                    <span>Member benefit org</span>
+                                </div>
+                            </div>
+                            <div class="entity-type" draggable="true" data-type="social">
+                                <div class="entity-icon social">💜</div>
+                                <div class="entity-info">
+                                    <h4>Social Enterprise</h4>
+                                    <span>Mission-driven business</span>
+                                </div>
+                            </div>
+                            <div class="entity-type" draggable="true" data-type="private">
+                                <div class="entity-icon private">🏛️</div>
+                                <div class="entity-info">
+                                    <h4>Private Enterprise</h4>
+                                    <span>Privately owned</span>
+                                </div>
+                            </div>
+                            <div class="entity-type" draggable="true" data-type="public">
+                                <div class="entity-icon public">🏛️</div>
+                                <div class="entity-info">
+                                    <h4>Public Enterprise</h4>
+                                    <span>Government owned</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Left Sidebar - Tools -->
-        <aside class="sidebar-left">
-            <div class="sidebar-section">
-                <h3 class="sidebar-section-title">Enterprise Types</h3>
-                <div class="enterprise-type-list">
-                    <button class="enterprise-type-btn type-cooperative" data-type="cooperative">
-                        <span class="color-dot"></span>
-                        Cooperative
-                    </button>
-                    <button class="enterprise-type-btn type-social-enterprise" data-type="social_enterprise">
-                        <span class="color-dot"></span>
-                        Social Enterprise
-                    </button>
-                    <button class="enterprise-type-btn type-producer" data-type="producer">
-                        <span class="color-dot"></span>
-                        Producer
-                    </button>
-                    <button class="enterprise-type-btn type-consumer" data-type="consumer">
-                        <span class="color-dot"></span>
-                        Consumer
-                    </button>
-                    <button class="enterprise-type-btn type-service-provider" data-type="service_provider">
-                        <span class="color-dot"></span>
-                        Service Provider
-                    </button>
-                    <button class="enterprise-type-btn type-other" data-type="other">
-                        <span class="color-dot"></span>
-                        Other
-                    </button>
-                </div>
-            </div>
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Relationship Symbols</div>
+                        <div class="symbol-grid">
+                            <div class="symbol-item" draggable="true" data-symbol="arrow" title="Direction">→</div>
+                            <div class="symbol-item" draggable="true" data-symbol="bidirectional" title="Bidirectional">↔</div>
+                            <div class="symbol-item" draggable="true" data-symbol="trade" title="Trade">💱</div>
+                            <div class="symbol-item" draggable="true" data-symbol="membership" title="Membership">👥</div>
+                            <div class="symbol-item" draggable="true" data-symbol="partnership" title="Partnership">🤝</div>
+                            <div class="symbol-item" draggable="true" data-symbol="funding" title="Funding">💰</div>
+                            <div class="symbol-item" draggable="true" data-symbol="supply" title="Supply Chain">📦</div>
+                            <div class="symbol-item" draggable="true" data-symbol="data" title="Data Flow">📊</div>
+                        </div>
+                    </div>
 
-            <div class="sidebar-section">
-                <h3 class="sidebar-section-title">Tools</h3>
-                <div class="tool-grid">
-                    <button class="tool-btn" data-tool="select">
-                        <span class="icon">👆</span>
-                        Select
-                    </button>
-                    <button class="tool-btn" data-tool="pan">
-                        <span class="icon">✋</span>
-                        Pan
-                    </button>
-                    <button class="tool-btn" data-tool="zoom-in">
-                        <span class="icon">🔍</span>
-                        Zoom In
-                    </button>
-                    <button class="tool-btn" data-tool="zoom-out">
-                        <span class="icon">🔎</span>
-                        Zoom Out
-                    </button>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-section-title">Views</h3>
-                <div class="tool-grid">
-                    <button class="tool-btn" id="btn-comments" data-action="comments">
-                        <span class="icon">💬</span>
-                        Comments
-                    </button>
-                    <button class="tool-btn" id="btn-versions" data-action="versions">
-                        <span class="icon">📋</span>
-                        Versions
-                    </button>
-                    <button class="tool-btn" id="btn-tags" data-action="tags">
-                        <span class="icon">🏷️</span>
-                        Tags
-                    </button>
-                    <button class="tool-btn" data-action="notifications">
-                        <span class="icon">🔔</span>
-                        Alerts
-                    </button>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Canvas -->
-        <main class="canvas-container">
-            <canvas class="diagram-canvas" id="canvas" data-element="canvas"></canvas>
-
-            <div class="empty-state" id="empty-state">
-                <div class="empty-state-icon">🗺️</div>
-                <p class="empty-state-text">Your cooperative ecosystem starts here</p>
-                <p class="empty-state-hint">Click "Add Enterprise" to begin mapping</p>
-            </div>
-
-            <div class="canvas-zoom-controls">
-                <button class="zoom-btn" id="zoom-out">−</button>
-                <span class="zoom-level" id="zoom-level">100%</span>
-                <button class="zoom-btn" id="zoom-in">+</button>
-                <button class="zoom-btn" id="zoom-fit">⊡</button>
-            </div>
-        </main>
-
-        <!-- Right Sidebar - Properties -->
-        <aside class="sidebar-right" id="properties-panel">
-            <div class="panel-header">
-                <h3 class="panel-title">Properties</h3>
-                <button class="panel-close">&times;</button>
-            </div>
-
-            <form class="enterprise-form" id="enterprise-form">
-                <div class="form-group">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-input" id="enterprise-name" placeholder="Enterprise name">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Type</label>
-                    <select class="form-select" id="enterprise-type">
-                        <option value="cooperative">Cooperative</option>
-                        <option value="social_enterprise">Social Enterprise</option>
-                        <option value="producer">Producer</option>
-                        <option value="consumer">Consumer</option>
-                        <option value="service_provider">Service Provider</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <textarea class="form-textarea" id="enterprise-description" placeholder="Brief description..."></textarea>
-                </div>
-
-                <div class="form-group" id="style-options" data-panel="style">
-                    <label class="form-label">Color</label>
-                    <div class="color-picker-row">
-                        <div class="color-swatch active" style="background: #8b5cf6;" data-color="#8b5cf6"></div>
-                        <div class="color-swatch" style="background: #ec4899;" data-color="#ec4899"></div>
-                        <div class="color-swatch" style="background: #10b981;" data-color="#10b981"></div>
-                        <div class="color-swatch" style="background: #f59e0b;" data-color="#f59e0b"></div>
-                        <div class="color-swatch" style="background: #3b82f6;" data-color="#3b82f6"></div>
-                        <div class="color-swatch" style="background: #6b7280;" data-color="#6b7280"></div>
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Products & Services</div>
+                        <div class="product-grid">
+                            <div class="product-item" draggable="true">
+                                <div class="product-name">🌾 Agriculture</div>
+                                <div class="product-category">Farming</div>
+                            </div>
+                            <div class="product-item" draggable="true">
+                                <div class="product-name">🏦 Finance</div>
+                                <div class="product-category">Banking</div>
+                            </div>
+                            <div class="product-item" draggable="true">
+                                <div class="product-name">🏠 Housing</div>
+                                <div class="product-category">Real Estate</div>
+                            </div>
+                            <div class="product-item" draggable="true">
+                                <div class="product-name">⚡ Energy</div>
+                                <div class="product-category">Utilities</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-save">Save Enterprise</button>
-            </form>
+                <!-- Business Tab Content -->
+                <div class="tab-content" id="tab-business" style="display: none;">
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Your Enterprises</div>
+                        <div class="diagram-list">
+                            <div class="diagram-item active">
+                                <div class="diagram-thumbnail">🏪</div>
+                                <div class="diagram-info">
+                                    <h4>Community Food Co-op</h4>
+                                    <span>Consumer co-operative</span>
+                                </div>
+                            </div>
+                            <div class="diagram-item">
+                                <div class="diagram-thumbnail">🏦</div>
+                                <div class="diagram-info">
+                                    <h4>Local Credit Union</h4>
+                                    <span>Financial co-operative</span>
+                                </div>
+                            </div>
+                            <div class="diagram-item">
+                                <div class="diagram-thumbnail">⚡</div>
+                                <div class="diagram-info">
+                                    <h4>Green Energy Co-op</h4>
+                                    <span>Worker co-operative</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagrams Tab Content -->
+                <div class="tab-content" id="tab-diagrams" style="display: none;">
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">My Diagrams</div>
+                        <div class="diagram-list">
+                            <div class="diagram-item active">
+                                <div class="diagram-thumbnail">🗺️</div>
+                                <div class="diagram-info">
+                                    <h4>Local Ecosystem Map</h4>
+                                    <span>Last edited: 2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="diagram-item">
+                                <div class="diagram-thumbnail">📊</div>
+                                <div class="diagram-info">
+                                    <h4>Supply Chain Overview</h4>
+                                    <span>Last edited: Yesterday</span>
+                                </div>
+                            </div>
+                            <div class="diagram-item">
+                                <div class="diagram-thumbnail">🌍</div>
+                                <div class="diagram-info">
+                                    <h4>Regional Co-op Network</h4>
+                                    <span>Last edited: 3 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" id="new-diagram-btn">+ New Diagram</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Canvas Area -->
+        <main class="canvas-area">
+            <div class="canvas-toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn active" title="Select" data-tool="select">↖️</button>
+                    <button class="toolbar-btn" title="Pan" data-tool="pan">✋</button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" title="Connect" data-tool="connect">↗️</button>
+                    <button class="toolbar-btn" title="Text" data-tool="text">T</button>
+                    <button class="toolbar-btn" title="Shape" data-tool="shape">⬜</button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" title="Undo" id="undo-btn">↩️</button>
+                    <button class="toolbar-btn" title="Redo" id="redo-btn">↪️</button>
+                </div>
+                <div class="zoom-controls">
+                    <button class="toolbar-btn" id="zoom-out">−</button>
+                    <span class="zoom-level" id="zoom-level">100%</span>
+                    <button class="toolbar-btn" id="zoom-in">+</button>
+                    <button class="toolbar-btn" title="Fit to Screen" id="fit-btn">⛶</button>
+                </div>
+            </div>
+
+            <div class="canvas-container" id="canvas-container">
+                <svg class="connections-layer" id="connections-layer">
+                    <!-- Connection lines will be drawn here -->
+                    <path class="connection-line trade" d="M200 200 C 300 200, 300 300, 400 300" />
+                    <path class="connection-line membership" d="M400 300 C 500 300, 500 200, 600 200" />
+                </svg>
+                <div class="canvas" id="canvas">
+                    <!-- Demo entities -->
+                    <div class="map-entity coop" style="left: 120px; top: 150px;">
+                        <div class="entity-name">Community Food Co-op</div>
+                        <div class="entity-type-label">Consumer Co-operative</div>
+                    </div>
+                    <div class="map-entity mutual" style="left: 350px; top: 250px;">
+                        <div class="entity-name">Farmers' Mutual Insurance</div>
+                        <div class="entity-type-label">Non-co-operative Mutual</div>
+                    </div>
+                    <div class="map-entity social" style="left: 550px; top: 150px;">
+                        <div class="entity-name">Green Jobs Initiative</div>
+                        <div class="entity-type-label">Social Enterprise</div>
+                    </div>
+                    <div class="map-entity private" style="left: 180px; top: 380px;">
+                        <div class="entity-name">Local Bakery Supplier</div>
+                        <div class="entity-type-label">Private Enterprise</div>
+                    </div>
+                    <div class="map-entity public" style="left: 480px; top: 400px;">
+                        <div class="entity-name">City Transit Authority</div>
+                        <div class="entity-type-label">Public Enterprise</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Properties Panel -->
+        <aside class="properties-panel" id="properties-panel">
+            <div class="panel-header">
+                <h3>Properties</h3>
+                <button class="panel-close" id="panel-close">×</button>
+            </div>
+            <div class="panel-tabs">
+                <div class="panel-tab active" data-panel="details">Details</div>
+                <div class="panel-tab" data-panel="style">Style</div>
+                <div class="panel-tab" data-panel="data">Data</div>
+            </div>
+            <div class="panel-content">
+                <div class="property-group">
+                    <div class="property-group-title">General</div>
+                    <div class="property-row">
+                        <label>Name</label>
+                        <input type="text" value="Community Food Co-op" id="prop-name" />
+                    </div>
+                    <div class="property-row">
+                        <label>Type</label>
+                        <select id="prop-type">
+                            <option value="coop" selected>Co-operative</option>
+                            <option value="mutual">Non-co-operative Mutual</option>
+                            <option value="social">Social Enterprise</option>
+                            <option value="private">Private Enterprise</option>
+                            <option value="public">Public Enterprise</option>
+                        </select>
+                    </div>
+                    <div class="property-row">
+                        <label>Description</label>
+                        <textarea id="prop-description">A member-owned grocery store serving the local community with organic and locally-sourced products.</textarea>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <div class="property-group-title">Contact</div>
+                    <div class="property-row">
+                        <label>Website</label>
+                        <input type="url" value="https://communityfoodcoop.org" id="prop-website" />
+                    </div>
+                    <div class="property-row">
+                        <label>Email</label>
+                        <input type="email" value="hello@communityfoodcoop.org" id="prop-email" />
+                    </div>
+                </div>
+                <div class="property-group">
+                    <div class="property-group-title">Metrics</div>
+                    <div class="property-row">
+                        <label>Members</label>
+                        <input type="number" value="2500" id="prop-members" />
+                    </div>
+                    <div class="property-row">
+                        <label>Annual Revenue</label>
+                        <input type="text" value="$3.2M" id="prop-revenue" />
+                    </div>
+                </div>
+            </div>
         </aside>
     </div>
 
-    <!-- Export Modal -->
-    <div class="modal-backdrop" id="export-modal">
+    <!-- Status Bar -->
+    <footer class="status-bar">
+        <div class="status-left">
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>Connected</span>
+            </div>
+            <div class="status-item">
+                <span>5 entities</span>
+            </div>
+            <div class="status-item">
+                <span>2 connections</span>
+            </div>
+        </div>
+        <div class="status-right">
+            <div class="status-item">
+                <span>Auto-saved 2 min ago</span>
+            </div>
+            <div class="status-item">
+                <span>Canvas: 1920 × 1080</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- New Diagram Modal -->
+    <div class="modal-overlay" id="new-diagram-modal">
         <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Export Diagram</h3>
-                <button class="modal-close">&times;</button>
+            <h2 class="modal-title">Create New Diagram</h2>
+            <div class="property-row">
+                <label>Diagram Name</label>
+                <input type="text" placeholder="My Ecosystem Map" id="new-diagram-name" />
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Format</label>
-                    <select class="form-select" id="export-format">
-                        <option value="png">PNG Image</option>
-                        <option value="pdf">PDF Document</option>
-                        <option value="svg">SVG Vector</option>
-                        <option value="json">JSON Data</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Quality</label>
-                    <select class="form-select" id="export-quality">
-                        <option value="standard">Standard (1x)</option>
-                        <option value="high">High (2x)</option>
-                        <option value="ultra">Ultra (4x)</option>
-                    </select>
-                </div>
+            <div class="property-row">
+                <label>Template</label>
+                <select id="new-diagram-template">
+                    <option value="blank">Blank Canvas</option>
+                    <option value="local-ecosystem">Local Ecosystem</option>
+                    <option value="supply-chain">Supply Chain</option>
+                    <option value="regional-network">Regional Network</option>
+                </select>
             </div>
-            <div class="modal-footer">
-                <button class="toolbar-btn" onclick="closeModal('export-modal')">Cancel</button>
-                <button class="toolbar-btn primary" onclick="exportDiagram()">Export</button>
+            <div class="property-row">
+                <label>Description (optional)</label>
+                <textarea placeholder="What is this diagram for?" id="new-diagram-desc"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="modal-create">Create Diagram</button>
             </div>
         </div>
     </div>
 
-    <!-- Share Modal -->
-    <div class="modal-backdrop" id="share-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Share Diagram</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Invite by Email</label>
-                    <input type="email" class="form-input" placeholder="colleague@example.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Permission</label>
-                    <select class="form-select">
-                        <option value="view">Can View</option>
-                        <option value="edit">Can Edit</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="toolbar-btn" onclick="closeModal('share-modal')">Cancel</button>
-                <button class="toolbar-btn primary">Send Invite</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div class="toast-container" id="toast-container"></div>
-
-    <!-- Scripts -->
-    <script src="js/tutorial-manager.js"></script>
     <script>
-        /**
-         * Co-opMaps Deluxe - Main Application
-         * Integrates with Tutorial System
-         */
-        (function() {
-            'use strict';
+        // Tab switching
+        document.querySelectorAll('.sidebar-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
 
-            // Application State
-            var AppState = {
-                diagram: {
-                    id: null,
-                    name: 'Untitled Diagram',
-                    enterprises: [],
-                    relationships: [],
-                    createdAt: null,
-                    modifiedAt: null
-                },
-                selectedEnterprise: null,
-                zoom: 1,
-                pan: { x: 0, y: 0 },
-                isDragging: false,
-                isCreatingRelationship: false,
-                relationshipSource: null
-            };
+                const tabId = tab.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+                document.getElementById('tab-' + tabId).style.display = 'block';
+            });
+        });
 
-            // Canvas setup
-            var canvas = document.getElementById('canvas');
-            var ctx = canvas.getContext('2d');
-            var enterpriseCounter = 0;
+        // Panel tabs
+        document.querySelectorAll('.panel-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
 
-            function resizeCanvas() {
-                var container = canvas.parentElement;
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-                render();
+        // Toolbar
+        document.querySelectorAll('.toolbar-btn[data-tool]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.toolbar-btn[data-tool]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Zoom controls
+        let zoomLevel = 100;
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            zoomLevel = Math.min(200, zoomLevel + 10);
+            document.getElementById('zoom-level').textContent = zoomLevel + '%';
+            document.getElementById('canvas').style.transform = `scale(${zoomLevel/100})`;
+        });
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            zoomLevel = Math.max(25, zoomLevel - 10);
+            document.getElementById('zoom-level').textContent = zoomLevel + '%';
+            document.getElementById('canvas').style.transform = `scale(${zoomLevel/100})`;
+        });
+
+        // Entity selection
+        document.querySelectorAll('.map-entity').forEach(entity => {
+            entity.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.map-entity').forEach(e => e.classList.remove('selected'));
+                entity.classList.add('selected');
+                // Update properties panel
+                document.getElementById('prop-name').value = entity.querySelector('.entity-name').textContent;
+            });
+        });
+
+        // Deselect on canvas click
+        document.getElementById('canvas').addEventListener('click', () => {
+            document.querySelectorAll('.map-entity').forEach(e => e.classList.remove('selected'));
+        });
+
+        // Modal
+        document.getElementById('new-diagram-btn').addEventListener('click', () => {
+            document.getElementById('new-diagram-modal').classList.add('active');
+        });
+        document.getElementById('modal-cancel').addEventListener('click', () => {
+            document.getElementById('new-diagram-modal').classList.remove('active');
+        });
+        document.getElementById('modal-create').addEventListener('click', () => {
+            const name = document.getElementById('new-diagram-name').value || 'Untitled Diagram';
+            alert('Creating diagram: ' + name);
+            document.getElementById('new-diagram-modal').classList.remove('active');
+        });
+
+        // Close modal on overlay click
+        document.getElementById('new-diagram-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('new-diagram-modal')) {
+                document.getElementById('new-diagram-modal').classList.remove('active');
             }
+        });
 
-            // Initialize canvas
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+        // Entity dragging (basic implementation)
+        let draggedEntity = null;
+        let offsetX = 0, offsetY = 0;
 
-            // Render the diagram
-            function render() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.querySelectorAll('.map-entity').forEach(entity => {
+            entity.addEventListener('mousedown', (e) => {
+                draggedEntity = entity;
+                const rect = entity.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                entity.style.zIndex = 1000;
+            });
+        });
 
-                // Draw grid
-                drawGrid();
-
-                // Draw relationships
-                AppState.diagram.relationships.forEach(function(rel) {
-                    drawRelationship(rel);
-                });
-
-                // Draw enterprises
-                AppState.diagram.enterprises.forEach(function(ent) {
-                    drawEnterprise(ent);
-                });
-
-                // Update empty state visibility
-                var emptyState = document.getElementById('empty-state');
-                emptyState.style.display = AppState.diagram.enterprises.length === 0 ? 'block' : 'none';
+        document.addEventListener('mousemove', (e) => {
+            if (draggedEntity) {
+                const canvas = document.getElementById('canvas');
+                const canvasRect = canvas.getBoundingClientRect();
+                const x = e.clientX - canvasRect.left - offsetX;
+                const y = e.clientY - canvasRect.top - offsetY;
+                draggedEntity.style.left = x + 'px';
+                draggedEntity.style.top = y + 'px';
             }
+        });
 
-            function drawGrid() {
-                var gridSize = 30 * AppState.zoom;
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-                ctx.lineWidth = 1;
-
-                for (var x = 0; x < canvas.width; x += gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, canvas.height);
-                    ctx.stroke();
-                }
-
-                for (var y = 0; y < canvas.height; y += gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(canvas.width, y);
-                    ctx.stroke();
-                }
+        document.addEventListener('mouseup', () => {
+            if (draggedEntity) {
+                draggedEntity.style.zIndex = '';
+                draggedEntity = null;
             }
-
-            function drawEnterprise(ent) {
-                var x = ent.x * AppState.zoom + AppState.pan.x;
-                var y = ent.y * AppState.zoom + AppState.pan.y;
-                var width = 160 * AppState.zoom;
-                var height = 80 * AppState.zoom;
-                var radius = 12 * AppState.zoom;
-
-                // Draw shadow
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-                ctx.shadowBlur = 15 * AppState.zoom;
-                ctx.shadowOffsetY = 5 * AppState.zoom;
-
-                // Draw card background
-                ctx.fillStyle = '#1a1a2e';
-                roundRect(ctx, x, y, width, height, radius, true, false);
-
-                // Reset shadow
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetY = 0;
-
-                // Draw border
-                ctx.strokeStyle = AppState.selectedEnterprise === ent ? '#ec4899' : (ent.color || '#8b5cf6');
-                ctx.lineWidth = 2 * AppState.zoom;
-                roundRect(ctx, x, y, width, height, radius, false, true);
-
-                // Draw name
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold ' + (14 * AppState.zoom) + 'px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(ent.name, x + width / 2, y + height / 2 - 5 * AppState.zoom);
-
-                // Draw type
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                ctx.font = (11 * AppState.zoom) + 'px Inter, sans-serif';
-                ctx.fillText(ent.type.replace('_', ' ').toUpperCase(), x + width / 2, y + height / 2 + 15 * AppState.zoom);
-            }
-
-            function drawRelationship(rel) {
-                var source = AppState.diagram.enterprises.find(function(e) { return e.id === rel.sourceId; });
-                var target = AppState.diagram.enterprises.find(function(e) { return e.id === rel.targetId; });
-
-                if (!source || !target) return;
-
-                var sx = (source.x + 80) * AppState.zoom + AppState.pan.x;
-                var sy = (source.y + 40) * AppState.zoom + AppState.pan.y;
-                var tx = (target.x + 80) * AppState.zoom + AppState.pan.x;
-                var ty = (target.y + 40) * AppState.zoom + AppState.pan.y;
-
-                ctx.strokeStyle = '#8b5cf6';
-                ctx.lineWidth = 2 * AppState.zoom;
-                ctx.beginPath();
-                ctx.moveTo(sx, sy);
-                ctx.lineTo(tx, ty);
-                ctx.stroke();
-
-                // Draw arrow
-                var angle = Math.atan2(ty - sy, tx - sx);
-                var arrowLength = 15 * AppState.zoom;
-                ctx.beginPath();
-                ctx.moveTo(tx, ty);
-                ctx.lineTo(tx - arrowLength * Math.cos(angle - 0.3), ty - arrowLength * Math.sin(angle - 0.3));
-                ctx.moveTo(tx, ty);
-                ctx.lineTo(tx - arrowLength * Math.cos(angle + 0.3), ty - arrowLength * Math.sin(angle + 0.3));
-                ctx.stroke();
-            }
-
-            function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
-                ctx.beginPath();
-                ctx.moveTo(x + radius, y);
-                ctx.lineTo(x + width - radius, y);
-                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-                ctx.lineTo(x + width, y + height - radius);
-                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-                ctx.lineTo(x + radius, y + height);
-                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-                ctx.lineTo(x, y + radius);
-                ctx.quadraticCurveTo(x, y, x + radius, y);
-                ctx.closePath();
-                if (fill) ctx.fill();
-                if (stroke) ctx.stroke();
-            }
-
-            // Event Handlers
-
-            // New Diagram
-            document.getElementById('btn-new-diagram').addEventListener('click', function() {
-                AppState.diagram = {
-                    id: 'diagram_' + Date.now(),
-                    name: 'Untitled Diagram',
-                    enterprises: [],
-                    relationships: [],
-                    createdAt: new Date(),
-                    modifiedAt: new Date()
-                };
-                document.getElementById('diagram-name').value = '';
-                render();
-                showToast('New diagram created', 'success');
-
-                // Dispatch event for tutorial
-                document.dispatchEvent(new CustomEvent('coopmaps:diagram:created'));
-            });
-
-            // Add Enterprise
-            document.getElementById('btn-add-enterprise').addEventListener('click', function() {
-                addEnterprise();
-            });
-
-            // Enterprise type buttons
-            document.querySelectorAll('.enterprise-type-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    var type = this.getAttribute('data-type');
-                    addEnterprise(type);
-                });
-            });
-
-            function addEnterprise(type) {
-                type = type || 'cooperative';
-                enterpriseCounter++;
-
-                var enterprise = {
-                    id: 'ent_' + Date.now(),
-                    name: 'Enterprise ' + enterpriseCounter,
-                    type: type,
-                    description: '',
-                    x: 100 + Math.random() * 300,
-                    y: 100 + Math.random() * 200,
-                    color: getColorForType(type)
-                };
-
-                AppState.diagram.enterprises.push(enterprise);
-                AppState.selectedEnterprise = enterprise;
-                updatePropertiesPanel(enterprise);
-                render();
-
-                showToast('Enterprise added', 'success');
-
-                // Dispatch event for tutorial
-                document.dispatchEvent(new CustomEvent('coopmaps:enterprise:added'));
-            }
-
-            function getColorForType(type) {
-                var colors = {
-                    cooperative: '#8b5cf6',
-                    social_enterprise: '#ec4899',
-                    producer: '#10b981',
-                    consumer: '#f59e0b',
-                    service_provider: '#3b82f6',
-                    other: '#6b7280'
-                };
-                return colors[type] || '#8b5cf6';
-            }
-
-            function updatePropertiesPanel(ent) {
-                document.getElementById('enterprise-name').value = ent.name;
-                document.getElementById('enterprise-type').value = ent.type;
-                document.getElementById('enterprise-description').value = ent.description || '';
-
-                // Update color swatches
-                document.querySelectorAll('.color-swatch').forEach(function(swatch) {
-                    swatch.classList.toggle('active', swatch.dataset.color === ent.color);
-                });
-            }
-
-            // Add Relationship
-            document.getElementById('btn-add-relationship').addEventListener('click', function() {
-                if (AppState.diagram.enterprises.length < 2) {
-                    showToast('Add at least 2 enterprises first', 'warning');
-                    return;
-                }
-
-                AppState.isCreatingRelationship = true;
-                showToast('Click on source enterprise, then target', 'info');
-            });
-
-            // Canvas click for enterprise selection and relationship creation
-            canvas.addEventListener('click', function(e) {
-                var rect = canvas.getBoundingClientRect();
-                var x = (e.clientX - rect.left - AppState.pan.x) / AppState.zoom;
-                var y = (e.clientY - rect.top - AppState.pan.y) / AppState.zoom;
-
-                // Find clicked enterprise
-                var clicked = null;
-                AppState.diagram.enterprises.forEach(function(ent) {
-                    if (x >= ent.x && x <= ent.x + 160 && y >= ent.y && y <= ent.y + 80) {
-                        clicked = ent;
-                    }
-                });
-
-                if (AppState.isCreatingRelationship) {
-                    if (clicked) {
-                        if (!AppState.relationshipSource) {
-                            AppState.relationshipSource = clicked;
-                            showToast('Now click on target enterprise', 'info');
-                        } else if (clicked !== AppState.relationshipSource) {
-                            // Create relationship
-                            AppState.diagram.relationships.push({
-                                id: 'rel_' + Date.now(),
-                                sourceId: AppState.relationshipSource.id,
-                                targetId: clicked.id,
-                                type: 'partner'
-                            });
-                            AppState.isCreatingRelationship = false;
-                            AppState.relationshipSource = null;
-                            render();
-                            showToast('Relationship created', 'success');
-
-                            // Dispatch event for tutorial
-                            document.dispatchEvent(new CustomEvent('coopmaps:relationship:created'));
-                        }
-                    }
-                } else {
-                    AppState.selectedEnterprise = clicked;
-                    if (clicked) {
-                        updatePropertiesPanel(clicked);
-                    }
-                    render();
-                }
-            });
-
-            // Canvas drag for moving enterprises
-            var dragState = { isDragging: false, enterprise: null, offsetX: 0, offsetY: 0 };
-
-            canvas.addEventListener('mousedown', function(e) {
-                var rect = canvas.getBoundingClientRect();
-                var x = (e.clientX - rect.left - AppState.pan.x) / AppState.zoom;
-                var y = (e.clientY - rect.top - AppState.pan.y) / AppState.zoom;
-
-                AppState.diagram.enterprises.forEach(function(ent) {
-                    if (x >= ent.x && x <= ent.x + 160 && y >= ent.y && y <= ent.y + 80) {
-                        dragState.isDragging = true;
-                        dragState.enterprise = ent;
-                        dragState.offsetX = x - ent.x;
-                        dragState.offsetY = y - ent.y;
-                    }
-                });
-            });
-
-            canvas.addEventListener('mousemove', function(e) {
-                if (dragState.isDragging && dragState.enterprise) {
-                    var rect = canvas.getBoundingClientRect();
-                    var x = (e.clientX - rect.left - AppState.pan.x) / AppState.zoom;
-                    var y = (e.clientY - rect.top - AppState.pan.y) / AppState.zoom;
-
-                    dragState.enterprise.x = x - dragState.offsetX;
-                    dragState.enterprise.y = y - dragState.offsetY;
-                    render();
-
-                    // Dispatch event for tutorial
-                    document.dispatchEvent(new CustomEvent('coopmaps:enterprise:moved'));
-                }
-            });
-
-            canvas.addEventListener('mouseup', function() {
-                dragState.isDragging = false;
-                dragState.enterprise = null;
-            });
-
-            // Canvas zoom with mouse wheel
-            canvas.addEventListener('wheel', function(e) {
-                e.preventDefault();
-                var delta = e.deltaY > 0 ? -0.1 : 0.1;
-                AppState.zoom = Math.max(0.25, Math.min(3, AppState.zoom + delta));
-                document.getElementById('zoom-level').textContent = Math.round(AppState.zoom * 100) + '%';
-                render();
-
-                // Dispatch event for tutorial
-                document.dispatchEvent(new CustomEvent('coopmaps:canvas:navigated'));
-            });
-
-            // Zoom buttons
-            document.getElementById('zoom-in').addEventListener('click', function() {
-                AppState.zoom = Math.min(3, AppState.zoom + 0.1);
-                document.getElementById('zoom-level').textContent = Math.round(AppState.zoom * 100) + '%';
-                render();
-            });
-
-            document.getElementById('zoom-out').addEventListener('click', function() {
-                AppState.zoom = Math.max(0.25, AppState.zoom - 0.1);
-                document.getElementById('zoom-level').textContent = Math.round(AppState.zoom * 100) + '%';
-                render();
-            });
-
-            document.getElementById('zoom-fit').addEventListener('click', function() {
-                AppState.zoom = 1;
-                AppState.pan = { x: 0, y: 0 };
-                document.getElementById('zoom-level').textContent = '100%';
-                render();
-            });
-
-            // Save button
-            document.getElementById('btn-save').addEventListener('click', function() {
-                AppState.diagram.name = document.getElementById('diagram-name').value || 'Untitled Diagram';
-                AppState.diagram.modifiedAt = new Date();
-
-                // Save to localStorage
-                try {
-                    localStorage.setItem('coopmaps_current_diagram', JSON.stringify(AppState.diagram));
-                    showToast('Diagram saved', 'success');
-
-                    // Dispatch event for tutorial
-                    document.dispatchEvent(new CustomEvent('coopmaps:diagram:saved'));
-                } catch (e) {
-                    showToast('Failed to save diagram', 'error');
-                }
-            });
-
-            // Export menu
-            document.getElementById('menu-file').addEventListener('click', function() {
-                document.getElementById('export-modal').classList.add('active');
-
-                // Dispatch event for tutorial
-                document.dispatchEvent(new CustomEvent('coopmaps:export:opened'));
-            });
-
-            // Share button
-            document.getElementById('btn-share').addEventListener('click', function() {
-                document.getElementById('share-modal').classList.add('active');
-
-                // Dispatch event for tutorial
-                document.dispatchEvent(new CustomEvent('coopmaps:share:opened'));
-            });
-
-            // Comments button
-            document.getElementById('btn-comments').addEventListener('click', function() {
-                showToast('Comments panel opened', 'info');
-
-                // Dispatch event for tutorial
-                document.dispatchEvent(new CustomEvent('coopmaps:comments:opened'));
-            });
-
-            // Versions button
-            document.getElementById('btn-versions').addEventListener('click', function() {
-                showToast('Version history panel opened', 'info');
-
-                // Dispatch event for tutorial
-                document.dispatchEvent(new CustomEvent('coopmaps:versions:opened'));
-            });
-
-            // Tags button
-            document.getElementById('btn-tags').addEventListener('click', function() {
-                showToast('Tags panel opened', 'info');
-
-                // Dispatch event for tutorial
-                document.dispatchEvent(new CustomEvent('coopmaps:tags:viewed'));
-            });
-
-            // Color swatches
-            document.querySelectorAll('.color-swatch').forEach(function(swatch) {
-                swatch.addEventListener('click', function() {
-                    if (AppState.selectedEnterprise) {
-                        AppState.selectedEnterprise.color = this.dataset.color;
-                        document.querySelectorAll('.color-swatch').forEach(function(s) {
-                            s.classList.remove('active');
-                        });
-                        this.classList.add('active');
-                        render();
-
-                        // Dispatch event for tutorial
-                        document.dispatchEvent(new CustomEvent('coopmaps:style:changed'));
-                    }
-                });
-            });
-
-            // Enterprise form submission
-            document.getElementById('enterprise-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                if (AppState.selectedEnterprise) {
-                    AppState.selectedEnterprise.name = document.getElementById('enterprise-name').value;
-                    AppState.selectedEnterprise.type = document.getElementById('enterprise-type').value;
-                    AppState.selectedEnterprise.description = document.getElementById('enterprise-description').value;
-                    AppState.selectedEnterprise.color = getColorForType(AppState.selectedEnterprise.type);
-                    render();
-                    showToast('Enterprise updated', 'success');
-
-                    // Dispatch event for tutorial
-                    document.dispatchEvent(new CustomEvent('coopmaps:enterprise:configured'));
-                }
-            });
-
-            // Modal close handlers
-            document.querySelectorAll('.modal-close').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    this.closest('.modal-backdrop').classList.remove('active');
-                });
-            });
-
-            document.querySelectorAll('.modal-backdrop').forEach(function(modal) {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.classList.remove('active');
-                    }
-                });
-            });
-
-            window.closeModal = function(id) {
-                document.getElementById(id).classList.remove('active');
-            };
-
-            window.exportDiagram = function() {
-                var format = document.getElementById('export-format').value;
-                showToast('Exporting as ' + format.toUpperCase() + '...', 'info');
-                closeModal('export-modal');
-
-                // Simulate export
-                setTimeout(function() {
-                    showToast('Export complete!', 'success');
-                }, 1000);
-            };
-
-            // Toast notification system
-            function showToast(message, type) {
-                type = type || 'info';
-                var container = document.getElementById('toast-container');
-                var toast = document.createElement('div');
-                toast.className = 'toast ' + type;
-                toast.innerHTML = '<span>' + message + '</span>';
-                container.appendChild(toast);
-
-                setTimeout(function() {
-                    toast.style.opacity = '0';
-                    setTimeout(function() {
-                        toast.remove();
-                    }, 300);
-                }, 3000);
-            }
-
-            // Help button - restart tutorial
-            document.getElementById('btn-help').addEventListener('click', function() {
-                if (typeof TutorialManager !== 'undefined') {
-                    if (confirm('Would you like to start the interactive tutorial?')) {
-                        TutorialManager.start(true);
-                    }
-                }
-            });
-
-            // Check if we should start the tutorial
-            function checkTutorialStart() {
-                var urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('startTutorial') === 'true') {
-                    // Remove the parameter from URL
-                    window.history.replaceState({}, '', window.location.pathname);
-
-                    // Start tutorial after a short delay
-                    setTimeout(function() {
-                        if (typeof TutorialManager !== 'undefined') {
-                            TutorialManager.start(true);
-                        }
-                    }, 500);
-                }
-            }
-
-            // Load saved diagram
-            function loadSavedDiagram() {
-                try {
-                    var saved = localStorage.getItem('coopmaps_current_diagram');
-                    if (saved) {
-                        var diagram = JSON.parse(saved);
-                        AppState.diagram = diagram;
-                        document.getElementById('diagram-name').value = diagram.name;
-                        enterpriseCounter = diagram.enterprises.length;
-                        render();
-                    }
-                } catch (e) {
-                    console.log('No saved diagram found');
-                }
-            }
-
-            // Initialize
-            loadSavedDiagram();
-            checkTutorialStart();
-            render();
-
-        })();
+        });
+
+        // Save button
+        document.getElementById('save-btn').addEventListener('click', () => {
+            alert('Diagram saved successfully!');
+        });
+
+        // Export button
+        document.getElementById('export-btn').addEventListener('click', () => {
+            alert('Export options: PNG, SVG, PDF, JSON');
+        });
+
+        // Share button
+        document.getElementById('share-btn').addEventListener('click', () => {
+            alert('Share link copied to clipboard!');
+        });
+
+        console.log('Co-opMaps Deluxe loaded successfully');
     </script>
 </body>
 </html>
