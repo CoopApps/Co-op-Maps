@@ -22,6 +22,7 @@
         panStart: { x: 0, y: 0 },
         panOffset: { x: 0, y: 0 },
         minZoom: 0.1, // Dynamic minimum zoom (zoom-to-fit)
+        zoomLevels: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0, 4.0, 5.0], // Fixed zoom steps
         canvasSizes: {
             // Landscape orientations at 96 DPI
             'A4': { width: 1123, height: 794 },   // 297mm x 210mm landscape
@@ -75,7 +76,7 @@
                 select.value = size;
             }
 
-            // Calculate zoom to fit entire page on screen
+            // Calculate minimum zoom (for fit functionality) and set default to 100%
             const container = document.querySelector('.canvas-area');
             if (container) {
                 const containerRect = container.getBoundingClientRect();
@@ -85,27 +86,29 @@
                 const availableWidth = containerRect.width - (padding * 2);
                 const availableHeight = containerRect.height - (padding * 2);
 
-                // Calculate zoom needed to fit
+                // Calculate zoom needed to fit (used as minimum zoom)
                 const zoomX = availableWidth / canvasSize.width;
                 const zoomY = availableHeight / canvasSize.height;
                 const fitZoom = Math.min(zoomX, zoomY, 1); // Don't zoom in beyond 100%
 
-                // Store minimum zoom and set zoom to fit
+                // Store minimum zoom for boundary checking
                 this.minZoom = Math.max(0.05, fitZoom); // Absolute minimum 5%
-                CoopMaps.state.ui.zoom = fitZoom;
+
+                // Default to 100% zoom (user can click Fit to fit to screen)
+                const defaultZoom = 1.0;
+                CoopMaps.state.ui.zoom = defaultZoom;
 
                 // Reset pan offset when changing size
                 this.panOffset = { x: 0, y: 0 };
 
                 // Set CSS dimensions to scaled size for proper centering
-                // Canvas internal resolution stays at full size for quality
-                this.canvas.style.width = (canvasSize.width * fitZoom) + 'px';
-                this.canvas.style.height = (canvasSize.height * fitZoom) + 'px';
+                this.canvas.style.width = (canvasSize.width * defaultZoom) + 'px';
+                this.canvas.style.height = (canvasSize.height * defaultZoom) + 'px';
 
                 // Update zoom display if it exists
                 const zoomDisplay = document.getElementById('zoomLevel');
                 if (zoomDisplay) {
-                    zoomDisplay.textContent = Math.round(fitZoom * 100) + '%';
+                    zoomDisplay.textContent = '100%';
                 }
             }
 
@@ -490,11 +493,19 @@
                     CoopMaps.saveState();
                 }
 
+                // Check if we were panning and need to snap back
+                const wasPanning = self.isPanning;
+
                 self.isDragging = false;
                 self.draggedItem = null;
                 self.potentialSelection = null;
                 self.mouseDownTime = 0;
                 self.isPanning = false;
+
+                // Snap pan offset back to valid boundaries with animation
+                if (wasPanning) {
+                    self.snapPanToBounds();
+                }
 
                 // Reset cursor - show grab on empty space, pointer on items
                 const hoverItem = self.getItemAtPosition(x, y);
@@ -506,11 +517,17 @@
             });
 
             this.canvas.addEventListener('mouseleave', () => {
+                const wasPanning = self.isPanning;
                 self.isDragging = false;
                 self.draggedItem = null;
                 self.mouseDownTime = 0;
                 self.isPanning = false;
                 self.canvas.style.cursor = 'default';
+
+                // Snap pan offset back to valid boundaries
+                if (wasPanning) {
+                    self.snapPanToBounds();
+                }
             });
 
             // Enhanced zoom with smooth animation
@@ -1247,18 +1264,102 @@
             }
         },
 
+        // Smoothly snap pan offset to valid boundaries
+        snapPanToBounds() {
+            const container = document.querySelector('.canvas-area');
+            if (!container) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            const zoom = CoopMaps.state.ui.zoom;
+
+            // Calculate canvas dimensions at current zoom
+            const canvasWidth = canvasSize.width * zoom;
+            const canvasHeight = canvasSize.height * zoom;
+
+            // Calculate max pan offset (how far canvas can move before going off-screen)
+            // Allow slight overhang (10% of container) for better UX
+            const maxOverhang = 0.1;
+            const maxPanX = Math.max(0, (canvasWidth - containerRect.width) / 2 + containerRect.width * maxOverhang);
+            const maxPanY = Math.max(0, (canvasHeight - containerRect.height) / 2 + containerRect.height * maxOverhang);
+
+            // Calculate clamped pan offset
+            let targetX = Math.max(-maxPanX, Math.min(maxPanX, this.panOffset.x));
+            let targetY = Math.max(-maxPanY, Math.min(maxPanY, this.panOffset.y));
+
+            // If canvas fits in container, center it (no panning needed)
+            if (canvasWidth <= containerRect.width) targetX = 0;
+            if (canvasHeight <= containerRect.height) targetY = 0;
+
+            // If already at valid position, no animation needed
+            if (Math.abs(targetX - this.panOffset.x) < 1 && Math.abs(targetY - this.panOffset.y) < 1) {
+                this.panOffset.x = targetX;
+                this.panOffset.y = targetY;
+                return;
+            }
+
+            // Animate snap-back
+            const startX = this.panOffset.x;
+            const startY = this.panOffset.y;
+            const duration = 200;
+            const startTime = Date.now();
+            const self = this;
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Elastic ease-out
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+                self.panOffset.x = startX + (targetX - startX) * easeProgress;
+                self.panOffset.y = startY + (targetY - startY) * easeProgress;
+
+                self.render();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            };
+
+            animate();
+        },
+
         zoomIn() {
-            this.smoothZoom(1.2);
+            // Find next zoom level up
+            const currentZoom = CoopMaps.state.ui.zoom;
+            let targetZoom = this.zoomLevels[this.zoomLevels.length - 1]; // Default to max
+            for (const level of this.zoomLevels) {
+                if (level > currentZoom + 0.01) { // Small tolerance for floating point
+                    targetZoom = level;
+                    break;
+                }
+            }
+            this.zoomTo(targetZoom);
         },
 
         zoomOut() {
-            this.smoothZoom(0.8);
+            // Find next zoom level down
+            const currentZoom = CoopMaps.state.ui.zoom;
+            let targetZoom = Math.max(this.minZoom, this.zoomLevels[0]); // Default to min
+            for (let i = this.zoomLevels.length - 1; i >= 0; i--) {
+                if (this.zoomLevels[i] < currentZoom - 0.01) { // Small tolerance for floating point
+                    targetZoom = Math.max(this.minZoom, this.zoomLevels[i]);
+                    break;
+                }
+            }
+            this.zoomTo(targetZoom);
         },
 
         zoomReset() {
-            // Reset to fit zoom (minZoom) instead of 100%
-            const targetZoom = this.minZoom;
+            // Reset to 100%
+            this.zoomTo(1.0);
+        },
+
+        zoomTo(targetZoom) {
             const canvasSize = this.canvasSizes[this.currentCanvasSize];
+
+            // Clamp to valid range
+            targetZoom = Math.max(this.minZoom, Math.min(5.0, targetZoom));
 
             // Reset pan offset
             this.panOffset = { x: 0, y: 0 };
@@ -1275,7 +1376,7 @@
             }
 
             const startZoom = CoopMaps.state.ui.zoom;
-            const duration = 300;
+            const duration = 200;
             const startTime = Date.now();
             const self = this;
 
