@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-opMaps Tutorial - Learn the Features</title>
+    <link rel="stylesheet" href="css/tutorial.css">
+    <style>
+        /* ============================================
+           CSS Variables & Base
+           ============================================ */
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary: #ec4899;
+            --bg-dark: #0f0f1a;
+            --bg-card: #1a1a2e;
+            --bg-hover: #252540;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.3);
+            --radius: 12px;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           Tutorial Header Bar
+           ============================================ */
+        .tutorial-header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 9999;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .tutorial-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tutorial-header-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tutorial-header-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .tutorial-header-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tutorial-header-progress-bar {
+            width: 200px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .tutorial-header-progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        .tutorial-header-progress-text {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .tutorial-exit-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tutorial-exit-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ============================================
+           App Layout (below tutorial bar)
+           ============================================ */
+        .app-container {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            grid-template-columns: 280px 1fr 320px;
+            height: calc(100vh - 50px);
+            margin-top: 50px;
+        }
+
+        /* ============================================
+           Header / Toolbar
+           ============================================ */
+        .app-header {
+            grid-column: 1 / -1;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .toolbar-btn {
+            padding: 10px 16px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--primary);
+        }
+
+        .toolbar-btn.primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            color: white;
+        }
+
+        .toolbar-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .diagram-name-input {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            width: 200px;
+        }
+
+        .diagram-name-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* ============================================
+           Sidebar - Left (Tools)
+           ============================================ */
+        .sidebar-left {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            padding: 12px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tool-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tool-btn .icon {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .enterprise-type-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .enterprise-type-btn {
+            padding: 10px 12px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .enterprise-type-btn:hover {
+            background: var(--bg-card);
+            border-color: var(--primary);
+            color: var(--text-primary);
+        }
+
+        .enterprise-type-btn .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .type-cooperative .color-dot { background: #8b5cf6; }
+        .type-social-enterprise .color-dot { background: #ec4899; }
+        .type-producer .color-dot { background: #10b981; }
+        .type-consumer .color-dot { background: #f59e0b; }
+        .type-service-provider .color-dot { background: #3b82f6; }
+        .type-other .color-dot { background: #6b7280; }
+
+        /* ============================================
+           Main Canvas Area
+           ============================================ */
+        .canvas-container {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diagram-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        .diagram-canvas:active {
+            cursor: grabbing;
+        }
+
+        .canvas-zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-hover);
+            border: none;
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .zoom-btn:hover {
+            background: var(--primary);
+        }
+
+        .zoom-level {
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* ============================================
+           Sidebar - Right (Properties)
+           ============================================ */
+        .sidebar-right {
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .color-picker-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .color-swatch:hover,
+        .color-swatch.active {
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        /* ============================================
+           Modal Dialogs
+           ============================================ */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* ============================================
+           Toast Notifications
+           ============================================ */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 8000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 14px 20px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toast-enter 0.3s ease;
+        }
+
+        @keyframes toast-enter {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.warning { border-left: 4px solid var(--warning); }
+        .toast.error { border-left: 4px solid var(--error); }
+        .toast.info { border-left: 4px solid var(--primary); }
+
+        /* ============================================
+           Empty State
+           ============================================ */
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-hint {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* ============================================
+           Tutorial Completion Screen
+           ============================================ */
+        .tutorial-complete-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20000;
+        }
+
+        .tutorial-complete-screen.active {
+            display: flex;
+        }
+
+        .tutorial-complete-content {
+            text-align: center;
+            padding: 40px;
+            max-width: 600px;
+        }
+
+        .tutorial-complete-icon {
+            font-size: 100px;
+            margin-bottom: 24px;
+            animation: bounce-in 0.6s ease;
+        }
+
+        @keyframes bounce-in {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .tutorial-complete-content h1 {
+            font-size: 36px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tutorial-complete-content p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .tutorial-complete-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .tutorial-stat {
+            text-align: center;
+        }
+
+        .tutorial-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .tutorial-stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .tutorial-complete-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .tutorial-complete-btn {
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .tutorial-complete-btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .tutorial-complete-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .tutorial-complete-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .tutorial-complete-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ============================================
+           Responsive
+           ============================================ */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-left,
+            .sidebar-right {
+                display: none;
+            }
+
+            .tutorial-header-progress-bar {
+                width: 100px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .tutorial-header-bar {
+                padding: 0 10px;
+            }
+
+            .tutorial-header-badge {
+                display: none;
+            }
+
+            .tutorial-header-progress-bar {
+                width: 60px;
+            }
+
+            .toolbar {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .toolbar-btn span:first-child {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tutorial Header Bar -->
+    <div class="tutorial-header-bar">
+        <div class="tutorial-header-left">
+            <span class="tutorial-header-badge">Tutorial Mode</span>
+            <span class="tutorial-header-title" id="current-step-title">Welcome to Co-opMaps</span>
+        </div>
+        <div class="tutorial-header-progress">
+            <div class="tutorial-header-progress-bar">
+                <div class="tutorial-header-progress-fill" id="header-progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="tutorial-header-progress-text" id="header-progress-text">Step 1 of 16</span>
+        </div>
+        <button class="tutorial-exit-btn" onclick="exitTutorial()">Exit Tutorial</button>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Header / Toolbar -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">🗺️</div>
+                <span>Co-opMaps</span>
+            </div>
+
+            <div class="toolbar">
+                <button class="toolbar-btn" id="btn-new-diagram" data-action="new-diagram">
+                    <span>📄</span> New
+                </button>
+                <button class="toolbar-btn primary" id="btn-add-enterprise" data-action="add-enterprise">
+                    <span>➕</span> Add Enterprise
+                </button>
+                <button class="toolbar-btn" id="btn-add-relationship" data-action="add-relationship">
+                    <span>🔗</span> Add Relationship
+                </button>
+                <button class="toolbar-btn" id="btn-save" data-action="save">
+                    <span>💾</span> Save
+                </button>
+                <button class="toolbar-btn" id="menu-file" data-menu="export">
+                    <span>📤</span> Export
+                </button>
+            </div>
+
+            <div class="header-actions">
+                <input type="text" class="diagram-name-input" id="diagram-name" data-field="diagram-name" placeholder="Untitled Diagram">
+                <button class="toolbar-btn" id="btn-share" data-action="share">
+                    <span>👥</span> Share
+                </button>
+            </div>
+        </header>
+
+        <!-- Left Sidebar - Tools -->
+        <aside class="sidebar-left">
+            <div class="sidebar-section">
+                <h3 class="sidebar-section-title">Enterprise Types</h3>
+                <div class="enterprise-type-list">
+                    <button class="enterprise-type-btn type-cooperative" data-type="cooperative">
+                        <span class="color-dot"></span>
+                        Cooperative
+                    </button>
+                    <button class="enterprise-type-btn type-social-enterprise" data-type="social_enterprise">
+                        <span class="color-dot"></span>
+                        Social Enterprise
+                    </button>
+                    <button class="enterprise-type-btn type-producer" data-type="producer">
+                        <span class="color-dot"></span>
+                        Producer
+                    </button>
+                    <button class="enterprise-type-btn type-consumer" data-type="consumer">
+                        <span class="color-dot"></span>
+                        Consumer
+                    </button>
+                    <button class="enterprise-type-btn type-service-provider" data-type="service_provider">
+                        <span class="color-dot"></span>
+                        Service Provider
+                    </button>
+                    <button class="enterprise-type-btn type-other" data-type="other">
+                        <span class="color-dot"></span>
+                        Other
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-section-title">Tools</h3>
+                <div class="tool-grid">
+                    <button class="tool-btn" data-tool="select">
+                        <span class="icon">👆</span>
+                        Select
+                    </button>
+                    <button class="tool-btn" data-tool="pan">
+                        <span class="icon">✋</span>
+                        Pan
+                    </button>
+                    <button class="tool-btn" data-tool="zoom-in">
+                        <span class="icon">🔍</span>
+                        Zoom In
+                    </button>
+                    <button class="tool-btn" data-tool="zoom-out">
+                        <span class="icon">🔎</span>
+                        Zoom Out
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-section-title">Views</h3>
+                <div class="tool-grid">
+                    <button class="tool-btn" id="btn-comments" data-action="comments">
+                        <span class="icon">💬</span>
+                        Comments
+                    </button>
+                    <button class="tool-btn" id="btn-versions" data-action="versions">
+                        <span class="icon">📋</span>
+                        Versions
+                    </button>
+                    <button class="tool-btn" id="btn-tags" data-action="tags">
+                        <span class="icon">🏷️</span>
+                        Tags
+                    </button>
+                    <button class="tool-btn" data-action="notifications">
+                        <span class="icon">🔔</span>
+                        Alerts
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Canvas -->
+        <main class="canvas-container">
+            <canvas class="diagram-canvas" id="canvas" data-element="canvas"></canvas>
+
+            <div class="empty-state" id="empty-state">
+                <div class="empty-state-icon">🗺️</div>
+                <p class="empty-state-text">Your cooperative ecosystem starts here</p>
+                <p class="empty-state-hint">Click "Add Enterprise" to begin mapping</p>
+            </div>
+
+            <div class="canvas-zoom-controls">
+                <button class="zoom-btn" id="zoom-out">−</button>
+                <span class="zoom-level" id="zoom-level">100%</span>
+                <button class="zoom-btn" id="zoom-in">+</button>
+                <button class="zoom-btn" id="zoom-fit">⊡</button>
+            </div>
+        </main>
+
+        <!-- Right Sidebar - Properties -->
+        <aside class="sidebar-right" id="properties-panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Properties</h3>
+            </div>
+
+            <form class="enterprise-form" id="enterprise-form">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="enterprise-name" placeholder="Enterprise name">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Type</label>
+                    <select class="form-select" id="enterprise-type">
+                        <option value="cooperative">Cooperative</option>
+                        <option value="social_enterprise">Social Enterprise</option>
+                        <option value="producer">Producer</option>
+                        <option value="consumer">Consumer</option>
+                        <option value="service_provider">Service Provider</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="enterprise-description" placeholder="Brief description..."></textarea>
+                </div>
+
+                <div class="form-group" id="style-options" data-panel="style">
+                    <label class="form-label">Color</label>
+                    <div class="color-picker-row">
+                        <div class="color-swatch active" style="background: #8b5cf6;" data-color="#8b5cf6"></div>
+                        <div class="color-swatch" style="background: #ec4899;" data-color="#ec4899"></div>
+                        <div class="color-swatch" style="background: #10b981;" data-color="#10b981"></div>
+                        <div class="color-swatch" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                        <div class="color-swatch" style="background: #3b82f6;" data-color="#3b82f6"></div>
+                        <div class="color-swatch" style="background: #6b7280;" data-color="#6b7280"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save">Save Enterprise</button>
+            </form>
+        </aside>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-backdrop" id="export-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Export Diagram</h3>
+                <button class="modal-close" onclick="closeModal('export-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Format</label>
+                    <select class="form-select" id="export-format">
+                        <option value="png">PNG Image</option>
+                        <option value="pdf">PDF Document</option>
+                        <option value="svg">SVG Vector</option>
+                        <option value="json">JSON Data</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="toolbar-btn" onclick="closeModal('export-modal')">Cancel</button>
+                <button class="toolbar-btn primary" onclick="exportDiagram()">Export</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal-backdrop" id="share-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Share Diagram</h3>
+                <button class="modal-close" onclick="closeModal('share-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Invite by Email</label>
+                    <input type="email" class="form-input" placeholder="colleague@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Permission</label>
+                    <select class="form-select">
+                        <option value="view">Can View</option>
+                        <option value="edit">Can Edit</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="toolbar-btn" onclick="closeModal('share-modal')">Cancel</button>
+                <button class="toolbar-btn primary" onclick="shareComplete()">Send Invite</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Tutorial Complete Screen -->
+    <div class="tutorial-complete-screen" id="tutorial-complete-screen">
+        <div class="tutorial-complete-content">
+            <div class="tutorial-complete-icon">🎉</div>
+            <h1>Tutorial Complete!</h1>
+            <p>
+                Congratulations! You've learned all the essential features of Co-opMaps.
+                You're now ready to create your own cooperative ecosystem diagrams!
+            </p>
+            <div class="tutorial-complete-stats">
+                <div class="tutorial-stat">
+                    <div class="tutorial-stat-value">16</div>
+                    <div class="tutorial-stat-label">Steps Completed</div>
+                </div>
+                <div class="tutorial-stat">
+                    <div class="tutorial-stat-value" id="time-spent">5:00</div>
+                    <div class="tutorial-stat-label">Time Spent</div>
+                </div>
+                <div class="tutorial-stat">
+                    <div class="tutorial-stat-value">100%</div>
+                    <div class="tutorial-stat-label">Mastery</div>
+                </div>
+            </div>
+            <div class="tutorial-complete-buttons">
+                <button class="tutorial-complete-btn tutorial-complete-btn-primary" onclick="goToDeluxe()">
+                    Start Using Co-opMaps
+                </button>
+                <button class="tutorial-complete-btn tutorial-complete-btn-secondary" onclick="restartTutorial()">
+                    Restart Tutorial
+                </button>
+                <button class="tutorial-complete-btn tutorial-complete-btn-secondary" onclick="goToLanding()">
+                    Back to Home
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Manager -->
+    <script src="js/tutorial-manager.js"></script>
+
+    <script>
+        /**
+         * Co-opMaps Tutorial Environment
+         * Standalone tutorial that guides users through all features
+         */
+        (function() {
+            'use strict';
+
+            // Track tutorial start time
+            var tutorialStartTime = Date.now();
+
+            // Application State (Tutorial Demo)
+            var AppState = {
+                diagram: {
+                    id: 'tutorial_demo',
+                    name: '',
+                    enterprises: [],
+                    relationships: []
+                },
+                selectedEnterprise: null,
+                zoom: 1,
+                pan: { x: 0, y: 0 }
+            };
+
+            // Tutorial Step State
+            var TutorialState = {
+                currentStep: 0,
+                completedSteps: [],
+                totalSteps: 16
+            };
+
+            // Tutorial Steps Definition
+            var STEPS = [
+                {
+                    id: 'welcome',
+                    title: 'Welcome to Co-opMaps!',
+                    instruction: 'Click anywhere to begin the tutorial',
+                    target: null,
+                    validate: function() { return true; },
+                    autoAdvance: true
+                },
+                {
+                    id: 'create-diagram',
+                    title: 'Create a New Diagram',
+                    instruction: 'Click the "New" button to create a fresh diagram',
+                    target: '#btn-new-diagram',
+                    validate: function() { return AppState.diagramCreated; }
+                },
+                {
+                    id: 'name-diagram',
+                    title: 'Name Your Diagram',
+                    instruction: 'Type a name for your diagram (at least 3 characters)',
+                    target: '#diagram-name',
+                    validate: function() {
+                        var name = document.getElementById('diagram-name').value;
+                        return name && name.trim().length >= 3;
+                    }
+                },
+                {
+                    id: 'add-enterprise',
+                    title: 'Add Your First Enterprise',
+                    instruction: 'Click "Add Enterprise" to add an organization to your map',
+                    target: '#btn-add-enterprise',
+                    validate: function() { return AppState.diagram.enterprises.length >= 1; }
+                },
+                {
+                    id: 'configure-enterprise',
+                    title: 'Configure the Enterprise',
+                    instruction: 'Change the enterprise name in the Properties panel and click Save',
+                    target: '#enterprise-form',
+                    validate: function() { return AppState.enterpriseConfigured; }
+                },
+                {
+                    id: 'move-enterprise',
+                    title: 'Move the Enterprise',
+                    instruction: 'Drag the enterprise to a new position on the canvas',
+                    target: '#canvas',
+                    validate: function() { return AppState.enterpriseMoved; }
+                },
+                {
+                    id: 'add-second',
+                    title: 'Add Another Enterprise',
+                    instruction: 'Add a second enterprise so we can create a relationship',
+                    target: '#btn-add-enterprise',
+                    validate: function() { return AppState.diagram.enterprises.length >= 2; }
+                },
+                {
+                    id: 'create-relationship',
+                    title: 'Create a Relationship',
+                    instruction: 'Click "Add Relationship", then click on both enterprises to connect them',
+                    target: '#btn-add-relationship',
+                    validate: function() { return AppState.diagram.relationships.length >= 1; }
+                },
+                {
+                    id: 'change-color',
+                    title: 'Customize Appearance',
+                    instruction: 'Select an enterprise and change its color using the swatches',
+                    target: '.color-picker-row',
+                    validate: function() { return AppState.colorChanged; }
+                },
+                {
+                    id: 'zoom-pan',
+                    title: 'Navigate the Canvas',
+                    instruction: 'Use mouse wheel to zoom, or click the zoom buttons',
+                    target: '.canvas-zoom-controls',
+                    validate: function() { return AppState.zoomed; }
+                },
+                {
+                    id: 'save',
+                    title: 'Save Your Work',
+                    instruction: 'Click "Save" to save your diagram',
+                    target: '#btn-save',
+                    validate: function() { return AppState.saved; }
+                },
+                {
+                    id: 'export',
+                    title: 'Export Options',
+                    instruction: 'Click "Export" to see the available export formats',
+                    target: '#menu-file',
+                    validate: function() { return AppState.exportOpened; }
+                },
+                {
+                    id: 'share',
+                    title: 'Share with Others',
+                    instruction: 'Click "Share" to invite collaborators',
+                    target: '#btn-share',
+                    validate: function() { return AppState.shareOpened; }
+                },
+                {
+                    id: 'comments',
+                    title: 'Comments & Discussion',
+                    instruction: 'Click "Comments" to open the discussion panel',
+                    target: '#btn-comments',
+                    validate: function() { return AppState.commentsOpened; }
+                },
+                {
+                    id: 'versions',
+                    title: 'Version History',
+                    instruction: 'Click "Versions" to see the version history',
+                    target: '#btn-versions',
+                    validate: function() { return AppState.versionsOpened; }
+                },
+                {
+                    id: 'complete',
+                    title: 'Tutorial Complete!',
+                    instruction: 'You\'ve learned all the basics. Click to finish!',
+                    target: null,
+                    validate: function() { return true; },
+                    autoAdvance: true,
+                    isLast: true
+                }
+            ];
+
+            // Canvas setup
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            var enterpriseCounter = 0;
+
+            function resizeCanvas() {
+                var container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                render();
+            }
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Render the diagram
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawGrid();
+
+                AppState.diagram.relationships.forEach(function(rel) {
+                    drawRelationship(rel);
+                });
+
+                AppState.diagram.enterprises.forEach(function(ent) {
+                    drawEnterprise(ent);
+                });
+
+                var emptyState = document.getElementById('empty-state');
+                emptyState.style.display = AppState.diagram.enterprises.length === 0 ? 'block' : 'none';
+            }
+
+            function drawGrid() {
+                var gridSize = 30 * AppState.zoom;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+                ctx.lineWidth = 1;
+
+                for (var x = 0; x < canvas.width; x += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+
+                for (var y = 0; y < canvas.height; y += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+            }
+
+            function drawEnterprise(ent) {
+                var x = ent.x * AppState.zoom + AppState.pan.x;
+                var y = ent.y * AppState.zoom + AppState.pan.y;
+                var width = 160 * AppState.zoom;
+                var height = 80 * AppState.zoom;
+                var radius = 12 * AppState.zoom;
+
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 15 * AppState.zoom;
+                ctx.shadowOffsetY = 5 * AppState.zoom;
+
+                ctx.fillStyle = '#1a1a2e';
+                roundRect(ctx, x, y, width, height, radius, true, false);
+
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                ctx.strokeStyle = AppState.selectedEnterprise === ent ? '#ec4899' : (ent.color || '#8b5cf6');
+                ctx.lineWidth = 2 * AppState.zoom;
+                roundRect(ctx, x, y, width, height, radius, false, true);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold ' + (14 * AppState.zoom) + 'px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(ent.name, x + width / 2, y + height / 2 - 5 * AppState.zoom);
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.font = (11 * AppState.zoom) + 'px Inter, sans-serif';
+                ctx.fillText(ent.type.replace('_', ' ').toUpperCase(), x + width / 2, y + height / 2 + 15 * AppState.zoom);
+            }
+
+            function drawRelationship(rel) {
+                var source = AppState.diagram.enterprises.find(function(e) { return e.id === rel.sourceId; });
+                var target = AppState.diagram.enterprises.find(function(e) { return e.id === rel.targetId; });
+
+                if (!source || !target) return;
+
+                var sx = (source.x + 80) * AppState.zoom + AppState.pan.x;
+                var sy = (source.y + 40) * AppState.zoom + AppState.pan.y;
+                var tx = (target.x + 80) * AppState.zoom + AppState.pan.x;
+                var ty = (target.y + 40) * AppState.zoom + AppState.pan.y;
+
+                ctx.strokeStyle = '#8b5cf6';
+                ctx.lineWidth = 2 * AppState.zoom;
+                ctx.beginPath();
+                ctx.moveTo(sx, sy);
+                ctx.lineTo(tx, ty);
+                ctx.stroke();
+
+                var angle = Math.atan2(ty - sy, tx - sx);
+                var arrowLength = 15 * AppState.zoom;
+                ctx.beginPath();
+                ctx.moveTo(tx, ty);
+                ctx.lineTo(tx - arrowLength * Math.cos(angle - 0.3), ty - arrowLength * Math.sin(angle - 0.3));
+                ctx.moveTo(tx, ty);
+                ctx.lineTo(tx - arrowLength * Math.cos(angle + 0.3), ty - arrowLength * Math.sin(angle + 0.3));
+                ctx.stroke();
+            }
+
+            function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+                if (fill) ctx.fill();
+                if (stroke) ctx.stroke();
+            }
+
+            function getColorForType(type) {
+                var colors = {
+                    cooperative: '#8b5cf6',
+                    social_enterprise: '#ec4899',
+                    producer: '#10b981',
+                    consumer: '#f59e0b',
+                    service_provider: '#3b82f6',
+                    other: '#6b7280'
+                };
+                return colors[type] || '#8b5cf6';
+            }
+
+            // Tutorial Progress UI
+            function updateTutorialUI() {
+                var step = STEPS[TutorialState.currentStep];
+                var progress = ((TutorialState.currentStep + 1) / STEPS.length) * 100;
+
+                document.getElementById('current-step-title').textContent = step.title;
+                document.getElementById('header-progress-fill').style.width = progress + '%';
+                document.getElementById('header-progress-text').textContent =
+                    'Step ' + (TutorialState.currentStep + 1) + ' of ' + STEPS.length;
+
+                // Show tutorial overlay
+                showTutorialStep(step);
+            }
+
+            function showTutorialStep(step) {
+                // Use the TutorialManager overlay if available
+                if (typeof TutorialManager !== 'undefined') {
+                    TutorialManager.currentStep = TutorialState.currentStep;
+                    TutorialManager.showStep(TutorialState.currentStep);
+                    if (!TutorialManager.isActive) {
+                        TutorialManager.isActive = true;
+                        TutorialManager.overlay.classList.add('active');
+                    }
+                }
+            }
+
+            function advanceStep() {
+                TutorialState.completedSteps.push(TutorialState.currentStep);
+                TutorialState.currentStep++;
+
+                if (TutorialState.currentStep >= STEPS.length) {
+                    completeTutorial();
+                } else {
+                    updateTutorialUI();
+                    showToast('Step completed!', 'success');
+                }
+            }
+
+            function checkStepCompletion() {
+                var step = STEPS[TutorialState.currentStep];
+                if (step && step.validate()) {
+                    if (step.isLast) {
+                        completeTutorial();
+                    } else {
+                        advanceStep();
+                    }
+                }
+            }
+
+            function completeTutorial() {
+                // Calculate time spent
+                var elapsed = Date.now() - tutorialStartTime;
+                var minutes = Math.floor(elapsed / 60000);
+                var seconds = Math.floor((elapsed % 60000) / 1000);
+                document.getElementById('time-spent').textContent =
+                    minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+
+                // Mark as completed
+                try {
+                    localStorage.setItem('coopmaps_tutorial_completed', 'true');
+                } catch (e) {}
+
+                // Hide tutorial overlay
+                if (typeof TutorialManager !== 'undefined') {
+                    TutorialManager.isActive = false;
+                    TutorialManager.overlay.classList.remove('active');
+                }
+
+                // Show completion screen
+                document.getElementById('tutorial-complete-screen').classList.add('active');
+            }
+
+            // Event Handlers
+
+            // New Diagram
+            document.getElementById('btn-new-diagram').addEventListener('click', function() {
+                AppState.diagram = { id: 'demo', name: '', enterprises: [], relationships: [] };
+                AppState.diagramCreated = true;
+                document.getElementById('diagram-name').value = '';
+                render();
+                showToast('New diagram created!', 'success');
+                checkStepCompletion();
+            });
+
+            // Diagram name input
+            document.getElementById('diagram-name').addEventListener('input', function() {
+                AppState.diagram.name = this.value;
+                checkStepCompletion();
+            });
+
+            // Add Enterprise
+            document.getElementById('btn-add-enterprise').addEventListener('click', function() {
+                enterpriseCounter++;
+                var enterprise = {
+                    id: 'ent_' + Date.now(),
+                    name: 'Enterprise ' + enterpriseCounter,
+                    type: 'cooperative',
+                    x: 100 + Math.random() * 300,
+                    y: 100 + Math.random() * 200,
+                    color: '#8b5cf6'
+                };
+                AppState.diagram.enterprises.push(enterprise);
+                AppState.selectedEnterprise = enterprise;
+                updatePropertiesPanel(enterprise);
+                render();
+                showToast('Enterprise added!', 'success');
+                checkStepCompletion();
+            });
+
+            function updatePropertiesPanel(ent) {
+                document.getElementById('enterprise-name').value = ent.name;
+                document.getElementById('enterprise-type').value = ent.type;
+                document.querySelectorAll('.color-swatch').forEach(function(swatch) {
+                    swatch.classList.toggle('active', swatch.dataset.color === ent.color);
+                });
+            }
+
+            // Enterprise form
+            document.getElementById('enterprise-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (AppState.selectedEnterprise) {
+                    AppState.selectedEnterprise.name = document.getElementById('enterprise-name').value;
+                    AppState.selectedEnterprise.type = document.getElementById('enterprise-type').value;
+                    AppState.enterpriseConfigured = true;
+                    render();
+                    showToast('Enterprise saved!', 'success');
+                    checkStepCompletion();
+                }
+            });
+
+            // Canvas drag
+            var dragState = { isDragging: false, enterprise: null, offsetX: 0, offsetY: 0 };
+
+            canvas.addEventListener('mousedown', function(e) {
+                var rect = canvas.getBoundingClientRect();
+                var x = (e.clientX - rect.left - AppState.pan.x) / AppState.zoom;
+                var y = (e.clientY - rect.top - AppState.pan.y) / AppState.zoom;
+
+                AppState.diagram.enterprises.forEach(function(ent) {
+                    if (x >= ent.x && x <= ent.x + 160 && y >= ent.y && y <= ent.y + 80) {
+                        dragState.isDragging = true;
+                        dragState.enterprise = ent;
+                        dragState.offsetX = x - ent.x;
+                        dragState.offsetY = y - ent.y;
+                        AppState.selectedEnterprise = ent;
+                        updatePropertiesPanel(ent);
+                    }
+                });
+                render();
+            });
+
+            canvas.addEventListener('mousemove', function(e) {
+                if (dragState.isDragging && dragState.enterprise) {
+                    var rect = canvas.getBoundingClientRect();
+                    var x = (e.clientX - rect.left - AppState.pan.x) / AppState.zoom;
+                    var y = (e.clientY - rect.top - AppState.pan.y) / AppState.zoom;
+                    dragState.enterprise.x = x - dragState.offsetX;
+                    dragState.enterprise.y = y - dragState.offsetY;
+                    AppState.enterpriseMoved = true;
+                    render();
+                    checkStepCompletion();
+                }
+            });
+
+            canvas.addEventListener('mouseup', function() {
+                dragState.isDragging = false;
+                dragState.enterprise = null;
+            });
+
+            // Relationship creation
+            var relState = { creating: false, source: null };
+
+            document.getElementById('btn-add-relationship').addEventListener('click', function() {
+                if (AppState.diagram.enterprises.length < 2) {
+                    showToast('Add at least 2 enterprises first', 'warning');
+                    return;
+                }
+                relState.creating = true;
+                relState.source = null;
+                showToast('Click on the first enterprise', 'info');
+            });
+
+            canvas.addEventListener('click', function(e) {
+                if (!relState.creating) return;
+
+                var rect = canvas.getBoundingClientRect();
+                var x = (e.clientX - rect.left - AppState.pan.x) / AppState.zoom;
+                var y = (e.clientY - rect.top - AppState.pan.y) / AppState.zoom;
+
+                var clicked = null;
+                AppState.diagram.enterprises.forEach(function(ent) {
+                    if (x >= ent.x && x <= ent.x + 160 && y >= ent.y && y <= ent.y + 80) {
+                        clicked = ent;
+                    }
+                });
+
+                if (clicked) {
+                    if (!relState.source) {
+                        relState.source = clicked;
+                        showToast('Now click on the second enterprise', 'info');
+                    } else if (clicked !== relState.source) {
+                        AppState.diagram.relationships.push({
+                            id: 'rel_' + Date.now(),
+                            sourceId: relState.source.id,
+                            targetId: clicked.id
+                        });
+                        relState.creating = false;
+                        relState.source = null;
+                        render();
+                        showToast('Relationship created!', 'success');
+                        checkStepCompletion();
+                    }
+                }
+            });
+
+            // Color swatches
+            document.querySelectorAll('.color-swatch').forEach(function(swatch) {
+                swatch.addEventListener('click', function() {
+                    if (AppState.selectedEnterprise) {
+                        AppState.selectedEnterprise.color = this.dataset.color;
+                        document.querySelectorAll('.color-swatch').forEach(function(s) {
+                            s.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        AppState.colorChanged = true;
+                        render();
+                        showToast('Color changed!', 'success');
+                        checkStepCompletion();
+                    }
+                });
+            });
+
+            // Zoom
+            canvas.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                var delta = e.deltaY > 0 ? -0.1 : 0.1;
+                AppState.zoom = Math.max(0.25, Math.min(3, AppState.zoom + delta));
+                document.getElementById('zoom-level').textContent = Math.round(AppState.zoom * 100) + '%';
+                AppState.zoomed = true;
+                render();
+                checkStepCompletion();
+            });
+
+            document.getElementById('zoom-in').addEventListener('click', function() {
+                AppState.zoom = Math.min(3, AppState.zoom + 0.1);
+                document.getElementById('zoom-level').textContent = Math.round(AppState.zoom * 100) + '%';
+                AppState.zoomed = true;
+                render();
+                checkStepCompletion();
+            });
+
+            document.getElementById('zoom-out').addEventListener('click', function() {
+                AppState.zoom = Math.max(0.25, AppState.zoom - 0.1);
+                document.getElementById('zoom-level').textContent = Math.round(AppState.zoom * 100) + '%';
+                AppState.zoomed = true;
+                render();
+                checkStepCompletion();
+            });
+
+            // Save
+            document.getElementById('btn-save').addEventListener('click', function() {
+                AppState.saved = true;
+                showToast('Diagram saved!', 'success');
+                checkStepCompletion();
+            });
+
+            // Export
+            document.getElementById('menu-file').addEventListener('click', function() {
+                document.getElementById('export-modal').classList.add('active');
+                AppState.exportOpened = true;
+                checkStepCompletion();
+            });
+
+            // Share
+            document.getElementById('btn-share').addEventListener('click', function() {
+                document.getElementById('share-modal').classList.add('active');
+                AppState.shareOpened = true;
+                checkStepCompletion();
+            });
+
+            // Comments
+            document.getElementById('btn-comments').addEventListener('click', function() {
+                AppState.commentsOpened = true;
+                showToast('Comments panel opened!', 'success');
+                checkStepCompletion();
+            });
+
+            // Versions
+            document.getElementById('btn-versions').addEventListener('click', function() {
+                AppState.versionsOpened = true;
+                showToast('Version history opened!', 'success');
+                checkStepCompletion();
+            });
+
+            // Tags
+            document.getElementById('btn-tags').addEventListener('click', function() {
+                showToast('Tags panel opened!', 'success');
+            });
+
+            // Modal helpers
+            window.closeModal = function(id) {
+                document.getElementById(id).classList.remove('active');
+            };
+
+            window.exportDiagram = function() {
+                showToast('Export complete!', 'success');
+                closeModal('export-modal');
+            };
+
+            window.shareComplete = function() {
+                showToast('Invite sent!', 'success');
+                closeModal('share-modal');
+            };
+
+            // Toast
+            function showToast(message, type) {
+                var container = document.getElementById('toast-container');
+                var toast = document.createElement('div');
+                toast.className = 'toast ' + (type || 'info');
+                toast.innerHTML = '<span>' + message + '</span>';
+                container.appendChild(toast);
+                setTimeout(function() {
+                    toast.style.opacity = '0';
+                    setTimeout(function() { toast.remove(); }, 300);
+                }, 3000);
+            }
+
+            // Navigation functions
+            window.exitTutorial = function() {
+                if (confirm('Exit the tutorial? You can restart it anytime from the landing page.')) {
+                    window.location.href = 'version-selector.html';
+                }
+            };
+
+            window.goToDeluxe = function() {
+                window.location.href = 'index.html';
+            };
+
+            window.goToLanding = function() {
+                window.location.href = 'version-selector.html';
+            };
+
+            window.restartTutorial = function() {
+                window.location.reload();
+            };
+
+            // Initialize
+            render();
+
+            // Start tutorial after a brief delay
+            setTimeout(function() {
+                updateTutorialUI();
+            }, 500);
+
+        })();
+    </script>
+</body>
+</html>

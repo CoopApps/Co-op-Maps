@@ -238,104 +238,6 @@
             display: none;
         }
 
-        /* Tutorial Modal Styles */
-        .tutorial-offer-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .tutorial-offer-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .tutorial-offer-content {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .tutorial-offer-modal.active .tutorial-offer-content {
-            transform: scale(1);
-        }
-
-        .tutorial-offer-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-        }
-
-        .tutorial-offer-content h2 {
-            color: #ffffff;
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        .tutorial-offer-content p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .tutorial-offer-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .tutorial-offer-btn {
-            padding: 14px 24px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-        }
-
-        .tutorial-offer-btn-start {
-            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-            color: #ffffff;
-        }
-
-        .tutorial-offer-btn-start:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
-        }
-
-        .tutorial-offer-btn-skip {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .tutorial-offer-btn-skip:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
         .tutorial-badge {
             position: absolute;
             top: 15px;
@@ -354,6 +256,63 @@
 
         .express .tutorial-badge {
             display: none;
+        }
+
+        /* Tutorial Button Section */
+        .tutorial-section {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            gap: 20px;
+        }
+
+        .tutorial-section-content {
+            flex: 1;
+        }
+
+        .tutorial-section-content h3 {
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tutorial-section-content p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95em;
+            margin: 0;
+        }
+
+        .tutorial-section-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1em;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tutorial-section-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .tutorial-section {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -384,6 +343,17 @@
                     Work offline (local storage only, no server sync)
                 </label>
             </div>
+        </div>
+
+        <!-- Tutorial Section -->
+        <div class="tutorial-section">
+            <div class="tutorial-section-content">
+                <h3>🎓 New to Co-opMaps?</h3>
+                <p>Take our interactive tutorial to learn all the features step-by-step. Complete guided exercises and master the app in minutes!</p>
+            </div>
+            <button class="tutorial-section-btn" onclick="startTutorial()">
+                Start Tutorial
+            </button>
         </div>
 
         <!-- Version selection cards -->
@@ -446,27 +416,6 @@
         </div>
     </div>
 
-    <!-- Tutorial Offer Modal (Deluxe Only) -->
-    <div id="tutorial-offer-modal" class="tutorial-offer-modal">
-        <div class="tutorial-offer-content">
-            <div class="tutorial-offer-icon">🎓</div>
-            <h2>Welcome to Co-opMaps Deluxe!</h2>
-            <p>
-                Would you like to take an interactive guided tour?
-                Our step-by-step tutorial will walk you through all the features,
-                from creating your first diagram to collaborating with others.
-            </p>
-            <div class="tutorial-offer-buttons">
-                <button class="tutorial-offer-btn tutorial-offer-btn-start" onclick="startWithTutorial()">
-                    ✨ Start Interactive Tutorial
-                </button>
-                <button class="tutorial-offer-btn tutorial-offer-btn-skip" onclick="skipTutorial()">
-                    Skip for now (I'll explore on my own)
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Browser detection
         (function() {
@@ -513,8 +462,10 @@
             }
         })();
 
-        // Store selected preferences for redirect
-        var pendingRedirect = null;
+        // Start the standalone tutorial
+        function startTutorial() {
+            window.location.href = 'tutorial.html';
+        }
 
         function selectVersion(version, skipDelay) {
             var rememberChoice = document.getElementById('remember-choice').checked;
@@ -541,58 +492,7 @@
                 url += '?offline=true';
             }
 
-            // For Deluxe version, check if we should show tutorial offer
-            if (version === 'deluxe' && !skipDelay) {
-                var hasSeenTutorial = false;
-                var hasTutorialProgress = false;
-                try {
-                    hasSeenTutorial = localStorage.getItem('coopmaps_tutorial_completed') === 'true';
-                    hasTutorialProgress = localStorage.getItem('coopmaps_tutorial_progress') !== null;
-                } catch (e) {}
-
-                // Show tutorial offer for new users or those with saved progress
-                if (!hasSeenTutorial) {
-                    pendingRedirect = { url: url, offlineMode: offlineMode };
-                    showTutorialOffer(hasTutorialProgress);
-                    return;
-                }
-            }
-
             // Perform redirect
-            performRedirect(url, skipDelay);
-        }
-
-        function showTutorialOffer(hasProgress) {
-            var modal = document.getElementById('tutorial-offer-modal');
-            var startBtn = modal.querySelector('.tutorial-offer-btn-start');
-
-            // Update button text if user has progress
-            if (hasProgress) {
-                startBtn.innerHTML = '▶️ Resume Tutorial';
-            }
-
-            modal.classList.add('active');
-        }
-
-        function startWithTutorial() {
-            if (pendingRedirect) {
-                var url = pendingRedirect.url;
-                // Add tutorial flag to URL
-                url += (url.indexOf('?') === -1 ? '?' : '&') + 'startTutorial=true';
-                performRedirect(url, false);
-            }
-        }
-
-        function skipTutorial() {
-            var modal = document.getElementById('tutorial-offer-modal');
-            modal.classList.remove('active');
-
-            if (pendingRedirect) {
-                performRedirect(pendingRedirect.url, false);
-            }
-        }
-
-        function performRedirect(url, skipDelay) {
             if (skipDelay) {
                 window.location.href = url;
             } else {
