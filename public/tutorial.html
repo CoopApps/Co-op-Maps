@@ -1223,64 +1223,116 @@
             isActive: true,
 
             steps: [
+                // Step 1: Introduction to the workspace
                 {
                     target: '#sidebar',
-                    title: 'Symbol Sidebar',
-                    content: 'This is where you will find all the enterprise symbols. The sidebar has 4 tabs: Symbols for adding enterprises, Properties for editing, Diagrams for saving/loading, and Business for adding detailed info.',
+                    title: 'The Symbol Sidebar',
+                    content: 'Welcome! This sidebar contains all the tools you need. It has 4 tabs: <strong>Symbols</strong> for adding enterprises, <strong>Properties</strong> for editing, <strong>Diagrams</strong> for saving/loading, and <strong>Business</strong> for detailed info.',
                     position: 'right'
                 },
+                // Step 2: Find the Co-operative symbol
                 {
                     target: '.sidebar-tab[data-tab="symbols"]',
-                    title: 'Symbols Tab',
-                    content: 'The Symbols tab contains different types of enterprises you can add to your map. Drag and drop them onto the canvas to start mapping your cooperative ecosystem.',
+                    title: 'Step 1: Find Enterprise Symbols',
+                    content: 'Click the <strong>Symbols</strong> tab to see available enterprise types. You will find <strong>Co-operative</strong>, Non-co-operative Mutual, Social Enterprise, Private Enterprise, and more.',
                     position: 'right'
                 },
-                {
-                    target: '#mainToolbar',
-                    title: 'Toolbar',
-                    content: 'The toolbar provides quick access to all the main features: Undo/Redo, canvas controls, relationships, export options, and more.',
-                    position: 'bottom'
-                },
-                {
-                    target: '#relationshipModeBtn',
-                    title: 'Relationship Mode',
-                    content: 'Click this button to enter Relationship Mode. Then click on one enterprise and drag to another to create connections between them.',
-                    position: 'bottom'
-                },
+                // Step 3: Drag onto canvas
                 {
                     target: '#canvasArea',
-                    title: 'Canvas',
-                    content: 'This is your main workspace. Drag enterprises from the sidebar to place them here. You can pan by dragging on empty space and zoom with the controls in the header.',
+                    title: 'Step 2: Place Your First Symbol',
+                    content: 'Drag a <strong>Co-operative</strong> symbol from the sidebar onto the canvas. You can also click a symbol to add it to the center. Try it now!',
                     position: 'left'
                 },
+                // Step 4: Select the symbol
                 {
-                    target: '.zoom-controls',
-                    title: 'Zoom Controls',
-                    content: 'Use these buttons to zoom in, zoom out, reset to 100%, or fit all content to the visible area.',
-                    position: 'bottom'
+                    target: '#canvasArea',
+                    title: 'Step 3: Select the Symbol',
+                    content: 'Click on your placed symbol to select it. A blue highlight will appear around it, and the Properties panel will show its settings.',
+                    position: 'left'
                 },
-                {
-                    target: '#gridToggleBtn',
-                    title: 'Grid Toggle',
-                    content: 'Toggle the grid on or off for precise alignment. Use the Snap button next to it to snap elements to grid points.',
-                    position: 'bottom'
-                },
+                // Step 5: Properties Tab
                 {
                     target: '.sidebar-tab[data-tab="properties"]',
-                    title: 'Properties Tab',
-                    content: 'Select an enterprise on the canvas, then use the Properties tab to edit its name, type, description, and other attributes.',
+                    title: 'Step 4: Open Properties',
+                    content: 'Click the <strong>Properties</strong> tab to see and edit the selected enterprise. This is where you customize everything about your symbol.',
                     position: 'right'
                 },
+                // Step 6: Basic Properties - Name
+                {
+                    target: '#sidebar-content',
+                    title: 'Basic Properties: Name',
+                    content: 'In <strong>Basic Properties</strong>, start by giving your enterprise a name. Type something meaningful like "Local Food Co-op" or "Community Credit Union".',
+                    position: 'right'
+                },
+                // Step 7: Basic Properties - Size
+                {
+                    target: '#sidebar-content',
+                    title: 'Basic Properties: Size',
+                    content: 'Choose a <strong>Size</strong> for your symbol:<br><br>• <strong>Small</strong> (100×60px) - for minor enterprises<br>• <strong>Medium</strong> (140×84px) - standard size<br>• <strong>Large</strong> (180×108px) - for major enterprises',
+                    position: 'right'
+                },
+                // Step 8: Generic Set
+                {
+                    target: '#sidebar-content',
+                    title: 'Basic Properties: Generic Set',
+                    content: 'Enable <strong>Generic Set (Multiple Enterprises)</strong> to show a stack effect. Use this when representing multiple similar enterprises as one symbol.',
+                    position: 'right'
+                },
+                // Step 9: Fill Color
+                {
+                    target: '#sidebar-content',
+                    title: 'Basic Properties: Fill Color',
+                    content: 'Choose a <strong>Fill Color</strong> to distinguish your enterprise. Pick from preset colors or use the color picker for custom colors.',
+                    position: 'right'
+                },
+                // Step 10: Participation Roles
+                {
+                    target: '#sidebar-content',
+                    title: 'Participation Roles',
+                    content: 'For Co-operatives, you can indicate who participates:<br><br>• <strong style="color:#e74c3c">Producers</strong> - Red indicator (left)<br>• <strong style="color:#3498db">Users</strong> - Blue indicator (center)<br>• <strong style="color:#27ae60">Investors</strong> - Green indicator (right)<br><br>These appear as colored bars on top of the symbol.',
+                    position: 'right'
+                },
+                // Step 11: Structural Composition
+                {
+                    target: '#sidebar-content',
+                    title: 'Structural Composition',
+                    content: 'Set the <strong>Structural Composition</strong> to show the enterprise tier:<br><br>• <strong>Primary</strong> - Bottom indicator<br>• <strong>Secondary</strong> - Middle indicator<br>• <strong>Tertiary</strong> - Top indicator<br>• <strong>Hybrid</strong> options for combinations<br><br>These appear on the left edge of the symbol.',
+                    position: 'right'
+                },
+                // Step 12: Add second enterprise
+                {
+                    target: '.sidebar-tab[data-tab="symbols"]',
+                    title: 'Step 5: Add Another Enterprise',
+                    content: 'Go back to the <strong>Symbols</strong> tab and add a second enterprise. You might add a Private Enterprise that supplies to your co-op.',
+                    position: 'right'
+                },
+                // Step 13: Create relationship
+                {
+                    target: '#relationshipModeBtn',
+                    title: 'Step 6: Create a Relationship',
+                    content: 'Click the <strong>Relationship Mode</strong> button, then drag from one enterprise to another to create a connection. Different line styles show different relationship types.',
+                    position: 'bottom'
+                },
+                // Step 14: Toolbar overview
+                {
+                    target: '#mainToolbar',
+                    title: 'The Toolbar',
+                    content: 'The toolbar provides quick access to <strong>Undo/Redo</strong>, zoom controls, grid options, and <strong>Export</strong> features (PNG, SVG, PDF).',
+                    position: 'bottom'
+                },
+                // Step 15: Save your work
                 {
                     target: '.sidebar-tab[data-tab="diagrams"]',
-                    title: 'Diagrams Tab',
-                    content: 'Save your work to the browser storage and load previously saved diagrams. You can also set diagram properties like title and author here.',
+                    title: 'Step 7: Save Your Work',
+                    content: 'Click the <strong>Diagrams</strong> tab to save your map. Your work is auto-saved to browser storage, but you can also export files for backup.',
                     position: 'right'
                 },
+                // Step 16: Business info
                 {
                     target: '.sidebar-tab[data-tab="business"]',
-                    title: 'Business Tab',
-                    content: 'Add detailed business information to your enterprises - website, location, description, and more. This data appears when viewing maps in Explore mode.',
+                    title: 'Bonus: Business Details',
+                    content: 'Use the <strong>Business</strong> tab to add detailed info like website, location, and description. This enriches your map with real data.',
                     position: 'right'
                 }
             ],
@@ -1299,8 +1351,16 @@
                             '<line x1="15" y1="6" x2="15" y2="21"/>' +
                         '</svg>' +
                     '</div>' +
-                    '<h2>Welcome to Co-op Maps!</h2>' +
-                    '<p>This interactive tutorial will guide you through all the features of the Co-op Maps Deluxe editor. You will learn how to create cooperative ecosystem diagrams, add relationships, and export your work.</p>' +
+                    '<h2>Create Your First Co-op Map!</h2>' +
+                    '<p>This step-by-step tutorial will teach you how to build a cooperative ecosystem diagram. You will learn to:</p>' +
+                    '<ul style="text-align: left; margin: 15px auto; max-width: 320px; line-height: 1.8;">' +
+                        '<li>Place and select enterprise symbols</li>' +
+                        '<li>Set names, sizes, and colors</li>' +
+                        '<li>Configure participation roles</li>' +
+                        '<li>Define structural composition</li>' +
+                        '<li>Create relationships between enterprises</li>' +
+                        '<li>Save and export your work</li>' +
+                    '</ul>' +
                     '<div class="welcome-actions">' +
                         '<button class="btn-start" onclick="Tutorial.startTutorial()">Start Tutorial</button>' +
                         '<button class="btn-exit" onclick="Tutorial.exitTutorial()">Skip Tutorial</button>' +
@@ -1416,8 +1476,17 @@
                             '<polyline points="20 6 9 17 4 12"/>' +
                         '</svg>' +
                     '</div>' +
-                    '<h2>Tutorial Complete!</h2>' +
-                    '<p>You are now ready to create your own cooperative ecosystem maps. Start by dragging enterprise symbols from the sidebar onto the canvas, then create relationships between them.</p>' +
+                    '<h2>You Did It!</h2>' +
+                    '<p>You now know how to create co-op maps! Here is what you learned:</p>' +
+                    '<ul style="text-align: left; margin: 15px auto; max-width: 300px; line-height: 1.6; font-size: 14px;">' +
+                        '<li>Adding enterprise symbols to the canvas</li>' +
+                        '<li>Setting names, sizes, and colors</li>' +
+                        '<li>Configuring participation roles</li>' +
+                        '<li>Defining structural composition</li>' +
+                        '<li>Creating relationships</li>' +
+                        '<li>Saving your diagrams</li>' +
+                    '</ul>' +
+                    '<p style="margin-top: 15px;">Ready to build your own ecosystem map?</p>' +
                     '<div class="complete-actions">' +
                         '<button class="btn-home" onclick="window.location.href=\'index.html\'">Return Home</button>' +
                         '<button class="btn-explore" onclick="Tutorial.closeTutorial()">Start Mapping</button>' +
