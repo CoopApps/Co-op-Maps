@@ -116,16 +116,40 @@
         }
     }
 
+    // Design system colors (matching version-selector.html)
+    var designSystem = {
+        // Colors
+        primaryColor: '#1a365d',
+        accentBlue: '#3182ce',
+        accentBlueDark: '#2b6cb0',
+        errorRed: '#c53030',
+        warningAmber: '#d69e2e',
+        textWhite: '#ffffff',
+        // Typography
+        fontStack: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
+        // Spacing
+        radiusSm: '6px',
+        radiusMd: '10px',
+        shadowMd: '0 4px 6px rgba(0,0,0,0.1)'
+    };
+
     // Show browser compatibility warning if needed
     function showCompatibilityWarning() {
         if (window.BrowserCapabilities.isTooOld) {
             var warning = document.createElement('div');
             warning.id = 'browser-warning';
-            warning.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff6b6b;color:white;padding:15px;text-align:center;z-index:99999;font-family:Arial,sans-serif;';
+            warning.style.cssText =
+                'position:fixed;top:0;left:0;right:0;' +
+                'background:' + designSystem.errorRed + ';' +
+                'color:' + designSystem.textWhite + ';' +
+                'padding:16px 20px;text-align:center;z-index:99999;' +
+                'font-family:' + designSystem.fontStack + ';' +
+                'font-size:14px;line-height:1.5;' +
+                'box-shadow:' + designSystem.shadowMd + ';';
             warning.innerHTML =
-                '<strong>⚠️ Browser Not Supported</strong><br>' +
-                'Your browser is too old to run Co-opMaps. Please upgrade to:<br>' +
-                'Chrome 49+, Firefox 52+, Safari 10+, or Edge 14+';
+                '<strong style="display:block;margin-bottom:4px;">Browser Not Supported</strong>' +
+                'Your browser is too old to run Co-opMaps. Please upgrade to ' +
+                'Chrome 49+, Firefox 52+, Safari 10+, or Edge 14+.';
             document.body.insertBefore(warning, document.body.firstChild);
             return;
         }
@@ -133,17 +157,25 @@
         if (window.BrowserCapabilities.isLegacy) {
             var info = document.createElement('div');
             info.id = 'legacy-info';
-            info.style.cssText = 'position:fixed;bottom:10px;right:10px;background:#4a90e2;color:white;padding:10px 15px;border-radius:5px;font-size:12px;z-index:9999;font-family:Arial,sans-serif;max-width:300px;';
+            info.style.cssText =
+                'position:fixed;bottom:16px;right:16px;' +
+                'background:' + designSystem.primaryColor + ';' +
+                'color:' + designSystem.textWhite + ';' +
+                'padding:12px 16px;' +
+                'border-radius:' + designSystem.radiusMd + ';' +
+                'font-size:13px;line-height:1.4;z-index:9999;' +
+                'font-family:' + designSystem.fontStack + ';' +
+                'max-width:280px;' +
+                'box-shadow:' + designSystem.shadowMd + ';';
             info.innerHTML =
-                '💡 <strong>Legacy Mode</strong><br>' +
-                'Running in compatibility mode for your browser. ' +
-                'Some features may be limited.';
+                '<strong style="display:block;margin-bottom:4px;">Compatibility Mode</strong>' +
+                'Running in compatibility mode for your browser. Some visual features may be simplified.';
 
             // Auto-hide after 10 seconds
             setTimeout(function() {
-                info.style.transition = 'opacity 0.5s';
+                info.style.transition = 'opacity 0.3s ease';
                 info.style.opacity = '0';
-                setTimeout(function() { info.remove(); }, 500);
+                setTimeout(function() { info.remove(); }, 300);
             }, 10000);
 
             document.body.appendChild(info);
