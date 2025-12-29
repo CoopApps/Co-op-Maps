@@ -87,17 +87,16 @@
             const container = document.querySelector('.canvas-area');
             if (!container) return;
 
-            const containerRect = container.getBoundingClientRect();
-            // Minimal padding - just 5px buffer
-            const padding = 5;
-            const availableWidth = containerRect.width - (padding * 2);
-            const availableHeight = containerRect.height - (padding * 2);
+            // Use clientWidth/Height to get inner dimensions (excludes scrollbars)
+            const availableWidth = container.clientWidth;
+            const availableHeight = container.clientHeight;
 
             // Skip if container has no size yet
             if (availableWidth <= 0 || availableHeight <= 0) return;
 
-            const zoomX = availableWidth / canvasSize.width;
-            const zoomY = availableHeight / canvasSize.height;
+            // Calculate zoom to fit with small margin (2% buffer)
+            const zoomX = (availableWidth * 0.98) / canvasSize.width;
+            const zoomY = (availableHeight * 0.98) / canvasSize.height;
             const fitZoom = Math.min(zoomX, zoomY);
 
             // Store the fit-to-screen zoom as our baseline (this = 100%)
@@ -151,16 +150,13 @@
             // Auto-fit canvas to viewport
             const container = document.querySelector('.canvas-area');
             if (container) {
-                const containerRect = container.getBoundingClientRect();
+                // Use clientWidth/Height to get inner dimensions (excludes scrollbars)
+                const availableWidth = container.clientWidth;
+                const availableHeight = container.clientHeight;
 
-                // Minimal padding - 5px buffer
-                const padding = 5;
-                const availableWidth = containerRect.width - (padding * 2);
-                const availableHeight = containerRect.height - (padding * 2);
-
-                // Calculate zoom needed to fit canvas in viewport
-                const zoomX = availableWidth / canvasSize.width;
-                const zoomY = availableHeight / canvasSize.height;
+                // Calculate zoom needed to fit canvas in viewport (2% buffer for margin)
+                const zoomX = (availableWidth * 0.98) / canvasSize.width;
+                const zoomY = (availableHeight * 0.98) / canvasSize.height;
                 const fitZoom = Math.min(zoomX, zoomY);
 
                 // Store baseline zoom (fit-to-screen = 100%)
@@ -199,14 +195,13 @@
             const container = document.querySelector('.canvas-area');
             if (!container) return;
 
-            const containerRect = container.getBoundingClientRect();
-            const padding = 5;
-            const availableWidth = containerRect.width - (padding * 2);
-            const availableHeight = containerRect.height - (padding * 2);
+            // Use clientWidth/Height to get inner dimensions
+            const availableWidth = container.clientWidth;
+            const availableHeight = container.clientHeight;
 
-            // Calculate new fit zoom
-            const zoomX = availableWidth / canvasSize.width;
-            const zoomY = availableHeight / canvasSize.height;
+            // Calculate new fit zoom (2% buffer)
+            const zoomX = (availableWidth * 0.98) / canvasSize.width;
+            const zoomY = (availableHeight * 0.98) / canvasSize.height;
             const newFitZoom = Math.min(zoomX, zoomY);
 
             // Calculate current display zoom ratio (how much user has zoomed from baseline)
