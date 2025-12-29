@@ -1221,302 +1221,294 @@
         var Tutorial = {
             currentStep: -1,
             isActive: true,
+            lastEnterpriseCount: 0,
+            lastRelationshipCount: 0,
+            checkInterval: null,
 
-            // Helper function to add a dummy enterprise programmatically
-            addDummyEnterprise: function(config) {
-                var enterprise = {
-                    id: CoopMaps.generateId(),
-                    type: config.type || 'cooperative',
-                    name: config.name || 'New Enterprise',
-                    x: config.x || 400,
-                    y: config.y || 300,
-                    width: config.width || 140,
-                    height: config.height || 84,
-                    fill: config.fill || '#ffffff',
-                    roles: config.roles || [],
-                    tier: config.tier || 'none',
-                    isGenericSet: config.isGenericSet || false,
-                    dateAdded: new Date().toISOString()
-                };
-                CoopMaps.state.data.enterprises.push(enterprise);
-                CoopMaps.saveState();
-                if (CoopMaps.modules.canvas) {
-                    CoopMaps.modules.canvas.render();
+            // Track what enterprises we've seen added during the tutorial
+            trackEnterpriseAdded: function() {
+                var currentCount = CoopMaps.state.data.enterprises.length;
+                if (currentCount > this.lastEnterpriseCount) {
+                    this.lastEnterpriseCount = currentCount;
+                    return true;
                 }
-                return enterprise;
+                return false;
             },
 
-            // Helper function to add a relationship between enterprises
-            addDummyRelationship: function(sourceId, targetId, config) {
-                var relationship = {
-                    id: CoopMaps.generateId(),
-                    source: sourceId,
-                    target: targetId,
-                    type: config.type || 'supply',
-                    label: config.label || '',
-                    style: config.style || 'solid'
-                };
-                CoopMaps.state.data.relationships.push(relationship);
-                CoopMaps.saveState();
-                if (CoopMaps.modules.canvas) {
-                    CoopMaps.modules.canvas.render();
+            // Track what relationships we've seen added during the tutorial
+            trackRelationshipAdded: function() {
+                var currentCount = CoopMaps.state.data.relationships.length;
+                if (currentCount > this.lastRelationshipCount) {
+                    this.lastRelationshipCount = currentCount;
+                    return true;
                 }
-                return relationship;
+                return false;
+            },
+
+            // Check if a specific enterprise type exists on canvas
+            hasEnterpriseType: function(type) {
+                return CoopMaps.state.data.enterprises.some(function(e) {
+                    return e.type === type;
+                });
+            },
+
+            // Get count of enterprises by type
+            getEnterpriseCountByType: function(type) {
+                return CoopMaps.state.data.enterprises.filter(function(e) {
+                    return e.type === type;
+                }).length;
             },
 
             // Clear canvas for fresh start
             clearCanvas: function() {
                 CoopMaps.state.data.enterprises = [];
                 CoopMaps.state.data.relationships = [];
+                this.lastEnterpriseCount = 0;
+                this.lastRelationshipCount = 0;
                 CoopMaps.saveState();
                 if (CoopMaps.modules.canvas) {
                     CoopMaps.modules.canvas.render();
                 }
             },
 
-            // Store created enterprise IDs for relationship creation
-            createdEnterprises: {},
+            // Start watching for user actions
+            startWatching: function(validateFn, onComplete) {
+                var self = this;
+                if (this.checkInterval) {
+                    clearInterval(this.checkInterval);
+                }
+                this.checkInterval = setInterval(function() {
+                    if (validateFn()) {
+                        clearInterval(self.checkInterval);
+                        self.checkInterval = null;
+                        if (onComplete) onComplete();
+                        self.updateStepUI();
+                    }
+                }, 500);
+            },
+
+            // Stop watching
+            stopWatching: function() {
+                if (this.checkInterval) {
+                    clearInterval(this.checkInterval);
+                    this.checkInterval = null;
+                }
+            },
 
             steps: [
                 // PART 1: INTERFACE OVERVIEW (Steps 1-4)
-                // Step 1: Introduction to the workspace
                 {
                     target: '#sidebar',
                     title: 'Welcome to Co-op Maps!',
                     content: 'This sidebar contains all the tools you need. It has 4 tabs: <strong>Symbols</strong> for adding enterprises, <strong>Properties</strong> for editing, <strong>Diagrams</strong> for saving/loading, and <strong>Business</strong> for detailed info.',
                     position: 'right'
                 },
-                // Step 2: Canvas overview
                 {
                     target: '#canvasArea',
                     title: 'Your Canvas',
                     content: 'This is your workspace where you will build your cooperative ecosystem map. You can drag symbols here, arrange them, and create relationships between enterprises.',
                     position: 'left'
                 },
-                // Step 3: Toolbar overview
                 {
                     target: '#mainToolbar',
                     title: 'The Toolbar',
                     content: 'The toolbar provides quick access to <strong>Undo/Redo</strong>, zoom controls, grid options, relationship mode, and <strong>Export</strong> features (PNG, SVG, PDF).',
                     position: 'bottom'
                 },
-                // Step 4: Symbols tab
                 {
                     target: '.sidebar-tab[data-tab="symbols"]',
                     title: 'Symbol Types',
-                    content: 'Click the <strong>Symbols</strong> tab to see available enterprise types: <strong>Co-operative</strong>, Non-co-operative Mutual, Social Enterprise, Private Enterprise, Public Enterprise, and more.',
+                    content: 'The <strong>Symbols</strong> tab shows available enterprise types. You\'ll find Co-operatives, Social Enterprises, Private Enterprises, and more. Let\'s start building your map!',
                     position: 'right'
                 },
 
-                // PART 2: HANDS-ON - BUILD YOUR FIRST MAP (Steps 5-16)
-                // Step 5: Let's build a map - Food Co-op
+                // PART 2: HANDS-ON - BUILD YOUR FIRST MAP
+                // Step 5: Clear canvas and intro
                 {
                     target: '#canvasArea',
                     title: 'Let\'s Build a Map Together!',
-                    content: 'Now let\'s create a sample cooperative ecosystem! We\'ll add 5 different enterprises to show you how they work together. Click <strong>Next</strong> to add your first co-op automatically.',
+                    content: 'Now you\'ll create a cooperative ecosystem by dragging symbols onto the canvas. We\'ll guide you through adding 5 different enterprises. Click <strong>Next</strong> to begin!',
                     position: 'left',
-                    action: function() {
+                    onEnter: function() {
                         Tutorial.clearCanvas();
                     }
                 },
-                // Step 6: Food Co-op created
+
+                // Step 6: Drag first co-op
                 {
-                    target: '#canvasArea',
-                    title: '1. Food Co-operative Added!',
-                    content: 'We just created <strong>"Green Valley Food Co-op"</strong> - a consumer cooperative where members shop for local, organic food. Notice the:<br><br>• <strong style="color:#e74c3c">Red</strong> + <strong style="color:#3498db">Blue</strong> bars = Producers & Users participate<br>• <strong>Primary tier</strong> indicator on the left edge<br>• White fill color (standard for co-ops)',
-                    position: 'left',
-                    action: function() {
-                        var ent = Tutorial.addDummyEnterprise({
-                            type: 'cooperative',
-                            name: 'Green Valley Food Co-op',
-                            x: 150,
-                            y: 180,
-                            width: 160,
-                            height: 96,
-                            fill: '#ffffff',
-                            roles: ['producers', 'users'],
-                            tier: 'primary'
-                        });
-                        Tutorial.createdEnterprises.foodCoop = ent.id;
-                    }
-                },
-                // Step 7: Credit Union
-                {
-                    target: '#canvasArea',
-                    title: '2. Credit Union Added!',
-                    content: 'Next, we added <strong>"Community Credit Union"</strong> - a financial cooperative. This one has:<br><br>• <strong style="color:#3498db">Blue</strong> + <strong style="color:#27ae60">Green</strong> bars = Users & Investors participate<br>• <strong>Secondary tier</strong> indicator<br>• Light blue fill to distinguish it',
-                    position: 'left',
-                    action: function() {
-                        var ent = Tutorial.addDummyEnterprise({
-                            type: 'cooperative',
-                            name: 'Community Credit Union',
-                            x: 450,
-                            y: 100,
-                            width: 160,
-                            height: 96,
-                            fill: '#e3f2fd',
-                            roles: ['users', 'investors'],
-                            tier: 'secondary'
-                        });
-                        Tutorial.createdEnterprises.creditUnion = ent.id;
-                    }
-                },
-                // Step 8: Worker Co-op
-                {
-                    target: '#canvasArea',
-                    title: '3. Worker Co-operative Added!',
-                    content: 'Now we have <strong>"Sunrise Bakery Co-op"</strong> - owned by its workers! Notice:<br><br>• Only <strong style="color:#e74c3c">Red</strong> bar = Producers (workers) are the owners<br>• <strong>Primary tier</strong> - direct service to community<br>• <strong>Generic Set</strong> enabled (stacked effect) - represents multiple similar bakeries',
-                    position: 'left',
-                    action: function() {
-                        var ent = Tutorial.addDummyEnterprise({
-                            type: 'cooperative',
-                            name: 'Sunrise Bakery Co-op',
-                            x: 150,
-                            y: 380,
-                            width: 160,
-                            height: 96,
-                            fill: '#fff9c4',
-                            roles: ['producers'],
-                            tier: 'primary',
-                            isGenericSet: true
-                        });
-                        Tutorial.createdEnterprises.bakeryCoop = ent.id;
-                    }
-                },
-                // Step 9: Private Enterprise
-                {
-                    target: '#canvasArea',
-                    title: '4. Private Enterprise Added!',
-                    content: 'We added <strong>"FreshFarms Supplier Ltd"</strong> - a private company. Note the different shape:<br><br>• <strong>Diamond shape</strong> = Non-cooperative enterprise<br>• Gray fill color<br>• No participation roles (not member-owned)<br>• This represents a supplier to the co-ops',
-                    position: 'left',
-                    action: function() {
-                        var ent = Tutorial.addDummyEnterprise({
-                            type: 'private',
-                            name: 'FreshFarms Supplier Ltd',
-                            x: 450,
-                            y: 300,
-                            width: 140,
-                            height: 84,
-                            fill: '#f0f0f0',
-                            roles: [],
-                            tier: 'none'
-                        });
-                        Tutorial.createdEnterprises.privateFarm = ent.id;
-                    }
-                },
-                // Step 10: Social Enterprise
-                {
-                    target: '#canvasArea',
-                    title: '5. Social Enterprise Added!',
-                    content: 'Finally, <strong>"Community Kitchen CIC"</strong> - a social enterprise! Features:<br><br>• <strong>Rounded rectangle</strong> shape<br>• Yellow fill (typical for social enterprises)<br>• Bridges co-ops with community needs<br>• Provides job training and affordable meals',
-                    position: 'left',
-                    action: function() {
-                        var ent = Tutorial.addDummyEnterprise({
-                            type: 'social',
-                            name: 'Community Kitchen CIC',
-                            x: 300,
-                            y: 500,
-                            width: 160,
-                            height: 96,
-                            fill: '#FFFF00',
-                            roles: [],
-                            tier: 'none'
-                        });
-                        Tutorial.createdEnterprises.socialEnt = ent.id;
+                    target: '#sidebar-content',
+                    title: '1. Add a Food Co-operative',
+                    content: '<strong>YOUR TURN:</strong> Drag a <strong>Co-operative</strong> symbol from the Symbols panel onto the canvas.<br><br>This will be a food co-op where members buy local, organic produce.',
+                    position: 'right',
+                    requiresAction: true,
+                    validate: function() {
+                        return Tutorial.getEnterpriseCountByType('cooperative') >= 1;
+                    },
+                    onEnter: function() {
+                        // Make sure we're on symbols tab
+                        document.querySelector('.sidebar-tab[data-tab="symbols"]').click();
                     }
                 },
 
-                // PART 3: RELATIONSHIPS (Steps 11-13)
-                // Step 11: Create relationships intro
-                {
-                    target: '#relationshipModeBtn',
-                    title: 'Now Let\'s Connect Them!',
-                    content: 'A co-op ecosystem shows how organizations work together. The <strong>Relationship Mode</strong> button lets you draw connections. We\'ll add some automatically to show you how it works.',
-                    position: 'bottom'
-                },
-                // Step 12: Add relationships
+                // Step 7: Explain what they created
                 {
                     target: '#canvasArea',
-                    title: 'Relationships Created!',
-                    content: 'We connected the enterprises:<br><br>• FreshFarms <strong>supplies</strong> → Food Co-op<br>• Food Co-op <strong>partners with</strong> → Credit Union<br>• Bakery Co-op <strong>supplies</strong> → Community Kitchen<br>• Credit Union <strong>funds</strong> → Community Kitchen<br><br>Lines show how value flows through the ecosystem!',
-                    position: 'left',
-                    action: function() {
-                        // Add relationships between enterprises
-                        Tutorial.addDummyRelationship(
-                            Tutorial.createdEnterprises.privateFarm,
-                            Tutorial.createdEnterprises.foodCoop,
-                            { type: 'supply', label: 'Supplies produce' }
-                        );
-                        Tutorial.addDummyRelationship(
-                            Tutorial.createdEnterprises.foodCoop,
-                            Tutorial.createdEnterprises.creditUnion,
-                            { type: 'membership', label: 'Banking partner' }
-                        );
-                        Tutorial.addDummyRelationship(
-                            Tutorial.createdEnterprises.bakeryCoop,
-                            Tutorial.createdEnterprises.socialEnt,
-                            { type: 'supply', label: 'Donates bread' }
-                        );
-                        Tutorial.addDummyRelationship(
-                            Tutorial.createdEnterprises.creditUnion,
-                            Tutorial.createdEnterprises.socialEnt,
-                            { type: 'investment', label: 'Community loan' }
-                        );
-                    }
-                },
-                // Step 13: View the ecosystem
-                {
-                    target: '#canvasArea',
-                    title: 'Your Cooperative Ecosystem!',
-                    content: 'You\'ve built a complete co-op ecosystem map showing:<br><br>• <strong>3 Cooperatives</strong> (different types & tiers)<br>• <strong>1 Private Enterprise</strong> (supplier)<br>• <strong>1 Social Enterprise</strong> (community benefit)<br>• <strong>4 Relationships</strong> showing connections<br><br>This is how cooperative economies work together!',
+                    title: 'Great Job!',
+                    content: 'You added your first co-op! Now <strong>click on it</strong> to select it, then go to the <strong>Properties</strong> tab to customize it.<br><br>Try setting:<br>• Name: "Green Valley Food Co-op"<br>• Participation: Producers + Users<br>• Tier: Primary',
                     position: 'left'
                 },
 
-                // PART 4: EDITING & CUSTOMIZING (Steps 14-17)
-                // Step 14: Select and edit
+                // Step 8: Add Credit Union
+                {
+                    target: '#sidebar-content',
+                    title: '2. Add a Credit Union',
+                    content: '<strong>YOUR TURN:</strong> Drag another <strong>Co-operative</strong> symbol onto the canvas.<br><br>This will be a credit union - a financial cooperative owned by its members.',
+                    position: 'right',
+                    requiresAction: true,
+                    validate: function() {
+                        return Tutorial.getEnterpriseCountByType('cooperative') >= 2;
+                    },
+                    onEnter: function() {
+                        document.querySelector('.sidebar-tab[data-tab="symbols"]').click();
+                    }
+                },
+
+                // Step 9: Customize Credit Union
                 {
                     target: '.sidebar-tab[data-tab="properties"]',
-                    title: 'Customize Any Enterprise',
-                    content: 'Click on any enterprise on the canvas, then use the <strong>Properties</strong> tab to customize it. You can change:<br><br>• Name and type<br>• Size and color<br>• Participation roles<br>• Structural tier',
-                    position: 'right'
-                },
-                // Step 15: Participation roles explained
-                {
-                    target: '#sidebar-content',
-                    title: 'Understanding Roles',
-                    content: 'The colored bars show who owns/controls the co-op:<br><br>• <strong style="color:#e74c3c">Producers (Red)</strong> - Workers, farmers, creators<br>• <strong style="color:#3498db">Users (Blue)</strong> - Customers, consumers, clients<br>• <strong style="color:#27ae60">Investors (Green)</strong> - Financial stakeholders<br><br>A co-op can have any combination!',
-                    position: 'right'
-                },
-                // Step 16: Structural tiers explained
-                {
-                    target: '#sidebar-content',
-                    title: 'Understanding Tiers',
-                    content: 'The left-edge indicators show the co-op\'s tier in the ecosystem:<br><br>• <strong>Primary</strong> - Directly serves people (retail co-op, local credit union)<br>• <strong>Secondary</strong> - Serves other co-ops (wholesaler, federation)<br>• <strong>Tertiary</strong> - Supports the whole sector (apex org)<br>• <strong>Hybrid</strong> - Operates at multiple levels',
+                    title: 'Customize Your Credit Union',
+                    content: 'Click on your new co-op, then use <strong>Properties</strong> to customize it:<br><br>• Name: "Community Credit Union"<br>• Fill Color: Light blue<br>• Participation: Users + Investors<br>• Tier: Secondary',
                     position: 'right'
                 },
 
-                // PART 5: SAVING & EXPORTING (Steps 17-18)
-                // Step 17: Save your work
+                // Step 10: Add Worker Co-op
                 {
-                    target: '.sidebar-tab[data-tab="diagrams"]',
-                    title: 'Save Your Map',
-                    content: 'Click the <strong>Diagrams</strong> tab to save your map. Your work is auto-saved to browser storage, but you can also:<br><br>• Save multiple diagrams<br>• Export as JSON file<br>• Load previous work',
-                    position: 'right'
+                    target: '#sidebar-content',
+                    title: '3. Add a Worker Co-operative',
+                    content: '<strong>YOUR TURN:</strong> Drag another <strong>Co-operative</strong> onto the canvas.<br><br>This will be a bakery owned by its workers. After adding, try enabling "Generic Set" in Properties to show it represents multiple bakeries!',
+                    position: 'right',
+                    requiresAction: true,
+                    validate: function() {
+                        return Tutorial.getEnterpriseCountByType('cooperative') >= 3;
+                    },
+                    onEnter: function() {
+                        document.querySelector('.sidebar-tab[data-tab="symbols"]').click();
+                    }
                 },
-                // Step 18: Export options
+
+                // Step 11: Add Private Enterprise
                 {
-                    target: '#mainToolbar',
-                    title: 'Export Your Map',
-                    content: 'Use the <strong>Export</strong> button in the toolbar to save your map as:<br><br>• <strong>PNG</strong> - Image for presentations<br>• <strong>SVG</strong> - Scalable vector graphic<br>• <strong>PDF</strong> - Print-ready document<br><br>Share your cooperative ecosystem with the world!',
+                    target: '#sidebar-content',
+                    title: '4. Add a Private Enterprise',
+                    content: '<strong>YOUR TURN:</strong> Now drag a <strong>Private Enterprise</strong> symbol onto the canvas.<br><br>Notice the different <strong>diamond shape</strong> - this represents a conventional business that supplies to the co-ops.',
+                    position: 'right',
+                    requiresAction: true,
+                    validate: function() {
+                        return Tutorial.hasEnterpriseType('private');
+                    },
+                    onEnter: function() {
+                        document.querySelector('.sidebar-tab[data-tab="symbols"]').click();
+                    }
+                },
+
+                // Step 12: Add Social Enterprise
+                {
+                    target: '#sidebar-content',
+                    title: '5. Add a Social Enterprise',
+                    content: '<strong>YOUR TURN:</strong> Finally, drag a <strong>Social Enterprise</strong> symbol onto the canvas.<br><br>Social enterprises have a <strong>rounded rectangle</strong> shape and focus on community benefit over profit.',
+                    position: 'right',
+                    requiresAction: true,
+                    validate: function() {
+                        return Tutorial.hasEnterpriseType('social');
+                    },
+                    onEnter: function() {
+                        document.querySelector('.sidebar-tab[data-tab="symbols"]').click();
+                    }
+                },
+
+                // Step 13: Review what they built
+                {
+                    target: '#canvasArea',
+                    title: 'Excellent! Your Enterprises',
+                    content: 'You\'ve added 5 enterprises to your map! Take a moment to:<br><br>• <strong>Arrange them</strong> by dragging<br>• <strong>Name each one</strong> via Properties<br>• <strong>Set participation roles</strong> for co-ops<br><br>When ready, click Next to learn about relationships.',
+                    position: 'left'
+                },
+
+                // PART 3: RELATIONSHIPS
+                {
+                    target: '#relationshipModeBtn',
+                    title: 'Connecting Enterprises',
+                    content: 'Now let\'s show how these organizations work together! Click the <strong>Relationship Mode</strong> button to enable relationship drawing.',
                     position: 'bottom'
                 },
 
-                // PART 6: ADDITIONAL FEATURES (Step 19)
-                // Step 19: Business details
+                // Step 15: Create first relationship
+                {
+                    target: '#canvasArea',
+                    title: 'Draw a Relationship',
+                    content: '<strong>YOUR TURN:</strong> With Relationship Mode on, drag from one enterprise to another to create a connection.<br><br>Try connecting your private supplier to the food co-op to show a supply chain!',
+                    position: 'left',
+                    requiresAction: true,
+                    validate: function() {
+                        return CoopMaps.state.data.relationships.length >= 1;
+                    }
+                },
+
+                // Step 16: Add more relationships
+                {
+                    target: '#canvasArea',
+                    title: 'Add More Connections',
+                    content: '<strong>YOUR TURN:</strong> Add at least one more relationship to show how value flows through your ecosystem.<br><br>Ideas:<br>• Credit Union funds Social Enterprise<br>• Bakery supplies Food Co-op<br>• Co-ops share membership',
+                    position: 'left',
+                    requiresAction: true,
+                    validate: function() {
+                        return CoopMaps.state.data.relationships.length >= 2;
+                    }
+                },
+
+                // Step 17: View ecosystem
+                {
+                    target: '#canvasArea',
+                    title: 'Your Cooperative Ecosystem!',
+                    content: 'Amazing! You\'ve built a real cooperative ecosystem map showing:<br><br>• <strong>Multiple enterprise types</strong><br>• <strong>Different ownership structures</strong><br>• <strong>Relationships</strong> showing how they connect<br><br>This is how cooperative economies work together!',
+                    position: 'left'
+                },
+
+                // PART 4: UNDERSTANDING THE SYMBOLS
+                {
+                    target: '#sidebar-content',
+                    title: 'Understanding Roles',
+                    content: 'The colored bars on co-ops show ownership:<br><br>• <strong style="color:#e74c3c">Producers (Red)</strong> - Workers, farmers<br>• <strong style="color:#3498db">Users (Blue)</strong> - Customers, clients<br>• <strong style="color:#27ae60">Investors (Green)</strong> - Financial members<br><br>Select a co-op and try changing its roles!',
+                    position: 'right'
+                },
+
+                {
+                    target: '#sidebar-content',
+                    title: 'Understanding Tiers',
+                    content: 'The left-edge indicators show the co-op\'s tier:<br><br>• <strong>Primary</strong> - Serves people directly<br>• <strong>Secondary</strong> - Serves other co-ops<br>• <strong>Tertiary</strong> - Supports the sector<br>• <strong>Hybrid</strong> - Multiple levels',
+                    position: 'right'
+                },
+
+                // PART 5: SAVING & EXPORTING
+                {
+                    target: '.sidebar-tab[data-tab="diagrams"]',
+                    title: 'Save Your Map',
+                    content: 'Click the <strong>Diagrams</strong> tab to save your work. Your map is auto-saved to browser storage, but you can also save multiple diagrams and export as JSON.',
+                    position: 'right'
+                },
+
+                {
+                    target: '#mainToolbar',
+                    title: 'Export Your Map',
+                    content: 'Use the <strong>Export</strong> button to save your map as:<br><br>• <strong>PNG</strong> - Image for presentations<br>• <strong>SVG</strong> - Scalable vector<br>• <strong>PDF</strong> - Print-ready document<br><br>Share your cooperative ecosystem!',
+                    position: 'bottom'
+                },
+
+                // Final step
                 {
                     target: '.sidebar-tab[data-tab="business"]',
                     title: 'Add Rich Details',
-                    content: 'The <strong>Business</strong> tab lets you add detailed info to selected enterprises:<br><br>• Website and location<br>• Description and sector<br>• Founding date and size<br><br>This enriches your map with real data about each organization.',
+                    content: 'The <strong>Business</strong> tab lets you add detailed info:<br><br>• Website and location<br>• Description and sector<br>• Founding date and size<br><br>This enriches your map with real data!',
                     position: 'right'
                 }
             ],
@@ -1536,16 +1528,16 @@
                         '</svg>' +
                     '</div>' +
                     '<h2>Build Your First Co-op Map!</h2>' +
-                    '<p>This <strong>hands-on tutorial</strong> will guide you through creating a real cooperative ecosystem map. We\'ll build it together step-by-step!</p>' +
+                    '<p>This <strong>interactive tutorial</strong> guides you through creating a cooperative ecosystem map. You\'ll drag symbols, create relationships, and build a real map!</p>' +
                     '<ul style="text-align: left; margin: 15px auto; max-width: 340px; line-height: 1.8;">' +
                         '<li><strong>Explore</strong> the interface and tools</li>' +
-                        '<li><strong>Create 5 sample enterprises</strong> with different types</li>' +
-                        '<li><strong>Learn</strong> participation roles & structural tiers</li>' +
-                        '<li><strong>Connect</strong> enterprises with relationships</li>' +
+                        '<li><strong>Drag 5 enterprises</strong> onto the canvas</li>' +
+                        '<li><strong>Customize</strong> names, roles & tiers</li>' +
+                        '<li><strong>Draw relationships</strong> between enterprises</li>' +
                         '<li><strong>Build</strong> a complete ecosystem map</li>' +
                         '<li><strong>Save & export</strong> your work</li>' +
                     '</ul>' +
-                    '<p style="margin-top: 10px; font-size: 14px; color: #7f8c8d;">Estimated time: 5-7 minutes</p>' +
+                    '<p style="margin-top: 10px; font-size: 14px; color: #7f8c8d;">Estimated time: 8-10 minutes (interactive)</p>' +
                     '<div class="welcome-actions">' +
                         '<button class="btn-start" onclick="Tutorial.startTutorial()">Start Tutorial</button>' +
                         '<button class="btn-exit" onclick="Tutorial.exitTutorial()">Skip Tutorial</button>' +
@@ -1565,6 +1557,9 @@
                 var overlay = document.getElementById('tutorialOverlay');
                 var spotlight = document.getElementById('tutorialSpotlight');
 
+                // Stop any previous watching
+                this.stopWatching();
+
                 if (this.currentStep >= this.steps.length) {
                     this.showComplete();
                     return;
@@ -1572,10 +1567,11 @@
 
                 var step = this.steps[this.currentStep];
 
-                // Execute action if this step has one (creates dummy enterprises/relationships)
-                if (step.action && typeof step.action === 'function') {
-                    step.action();
+                // Execute onEnter if this step has one
+                if (step.onEnter && typeof step.onEnter === 'function') {
+                    step.onEnter();
                 }
+
                 var target = document.querySelector(step.target);
 
                 if (!target) {
@@ -1619,6 +1615,10 @@
                 tooltipLeft = Math.max(20, Math.min(tooltipLeft, window.innerWidth - tooltipWidth - 20));
                 tooltipTop = Math.max(70, Math.min(tooltipTop, window.innerHeight - tooltipHeight - 20));
 
+                // Check if this step requires user action
+                var requiresAction = step.requiresAction && step.validate;
+                var actionComplete = requiresAction ? step.validate() : true;
+
                 var progressDots = this.steps.map(function(_, i) {
                     var dotClass = 'dot';
                     if (i < self.currentStep) dotClass += ' completed';
@@ -1629,17 +1629,52 @@
                 var prevBtn = this.currentStep > 0 ? '<button class="btn-prev" onclick="Tutorial.prevStep()">Previous</button>' : '';
                 var nextText = this.currentStep === this.steps.length - 1 ? 'Finish' : 'Next';
 
+                // Status indicator for action steps
+                var statusHtml = '';
+                if (requiresAction) {
+                    if (actionComplete) {
+                        statusHtml = '<div style="background: #d4edda; color: #155724; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; display: flex; align-items: center; gap: 8px;">' +
+                            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' +
+                            'Action complete! Click Next to continue.' +
+                        '</div>';
+                    } else {
+                        statusHtml = '<div style="background: #fff3cd; color: #856404; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; display: flex; align-items: center; gap: 8px;">' +
+                            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>' +
+                            'Waiting for you to complete the action...' +
+                        '</div>';
+                    }
+                }
+
+                // Disable next button if action not complete (but still allow skipping)
+                var nextBtnStyle = (!actionComplete && requiresAction) ?
+                    'opacity: 0.5; cursor: not-allowed;' : '';
+                var nextBtnDisabled = (!actionComplete && requiresAction) ? 'disabled' : '';
+
                 overlay.innerHTML = '<div class="tutorial-tooltip" style="top: ' + tooltipTop + 'px; left: ' + tooltipLeft + 'px; width: ' + tooltipWidth + 'px;">' +
                     '<div class="tutorial-progress">' + progressDots + '</div>' +
                     '<h3><span class="step-number">' + (this.currentStep + 1) + '</span>' + step.title + '</h3>' +
                     '<p>' + step.content + '</p>' +
+                    statusHtml +
                     '<div class="tutorial-actions">' +
                         prevBtn +
                         '<button class="btn-skip" onclick="Tutorial.exitTutorial()">Skip Tutorial</button>' +
-                        '<button class="btn-next" onclick="Tutorial.nextStep()">' + nextText + '</button>' +
+                        '<button class="btn-next" onclick="Tutorial.nextStep()" style="' + nextBtnStyle + '" ' + nextBtnDisabled + '>' + nextText + '</button>' +
                     '</div>' +
                 '</div>';
                 overlay.classList.add('active');
+
+                // If this step requires action and it's not complete, start watching
+                if (requiresAction && !actionComplete) {
+                    this.startWatching(step.validate, function() {
+                        // Action completed! Refresh the UI
+                        self.updateStepUI();
+                    });
+                }
+            },
+
+            // Update the step UI without changing steps (for when action completes)
+            updateStepUI: function() {
+                this.showStep();
             },
 
             nextStep: function() {
@@ -1660,6 +1695,19 @@
                 spotlight.style.display = 'none';
                 document.getElementById('tutorialBadge').style.display = 'none';
 
+                // Build dynamic summary of what user created
+                var enterprises = CoopMaps.state.data.enterprises;
+                var relationships = CoopMaps.state.data.relationships;
+
+                var enterpriseList = enterprises.map(function(e) {
+                    var typeName = e.type.charAt(0).toUpperCase() + e.type.slice(1);
+                    return '<li>' + (e.name || 'Unnamed') + ' (' + typeName + ')</li>';
+                }).join('');
+
+                if (!enterpriseList) {
+                    enterpriseList = '<li style="color: #7f8c8d;">No enterprises added</li>';
+                }
+
                 overlay.innerHTML = '<div class="tutorial-complete">' +
                     '<div class="complete-icon">' +
                         '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">' +
@@ -1667,23 +1715,15 @@
                         '</svg>' +
                     '</div>' +
                     '<h2>Congratulations!</h2>' +
-                    '<p>You just built your first cooperative ecosystem map! Here\'s what you created:</p>' +
+                    '<p>You built your first cooperative ecosystem map! Here\'s what you created:</p>' +
                     '<div style="text-align: left; margin: 15px auto; max-width: 340px; background: #f8f9fa; padding: 15px; border-radius: 8px;">' +
-                        '<p style="margin-bottom: 10px;"><strong>5 Enterprises:</strong></p>' +
+                        '<p style="margin-bottom: 10px;"><strong>' + enterprises.length + ' Enterprise' + (enterprises.length !== 1 ? 's' : '') + ':</strong></p>' +
                         '<ul style="line-height: 1.6; font-size: 13px; margin-left: 15px; margin-bottom: 15px;">' +
-                            '<li>Green Valley Food Co-op (consumer co-op)</li>' +
-                            '<li>Community Credit Union (financial co-op)</li>' +
-                            '<li>Sunrise Bakery Co-op (worker co-op)</li>' +
-                            '<li>FreshFarms Supplier Ltd (private)</li>' +
-                            '<li>Community Kitchen CIC (social enterprise)</li>' +
+                            enterpriseList +
                         '</ul>' +
-                        '<p style="margin-bottom: 5px;"><strong>4 Relationships:</strong></p>' +
-                        '<ul style="line-height: 1.6; font-size: 13px; margin-left: 15px;">' +
-                            '<li>Supply chains and partnerships</li>' +
-                            '<li>Community investment flows</li>' +
-                        '</ul>' +
+                        '<p style="margin-bottom: 5px;"><strong>' + relationships.length + ' Relationship' + (relationships.length !== 1 ? 's' : '') + '</strong></p>' +
                     '</div>' +
-                    '<p style="margin-top: 15px;">The map is still on the canvas. Keep editing or start fresh!</p>' +
+                    '<p style="margin-top: 15px;">Your map is still on the canvas. Keep editing or start fresh!</p>' +
                     '<div class="complete-actions">' +
                         '<button class="btn-home" onclick="window.location.href=\'index.html\'">Return Home</button>' +
                         '<button class="btn-explore" onclick="Tutorial.closeTutorial()">Continue Editing</button>' +
@@ -1692,12 +1732,14 @@
             },
 
             exitTutorial: function() {
+                this.stopWatching();
                 if (confirm('Are you sure you want to skip the tutorial? You can always access it again from the home page.')) {
                     window.location.href = 'index.html';
                 }
             },
 
             closeTutorial: function() {
+                this.stopWatching();
                 var overlay = document.getElementById('tutorialOverlay');
                 var spotlight = document.getElementById('tutorialSpotlight');
                 overlay.classList.remove('active');
