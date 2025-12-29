@@ -766,6 +766,154 @@
             width: 16px;
             height: 16px;
         }
+
+        /* Responsive styles for smaller screens */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 280px;
+            }
+            .sidebar-tabs {
+                width: 280px;
+            }
+            .sidebar-tab {
+                width: 70px !important;
+                min-width: 70px !important;
+                max-width: 70px !important;
+                flex: 0 0 70px !important;
+                font-size: 10px;
+            }
+            .sidebar-content {
+                padding: 15px;
+            }
+            .toolbar button {
+                padding: 3px 6px;
+                font-size: 10px;
+            }
+            .toolbar .separator {
+                margin: 0 1px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 240px;
+            }
+            .sidebar-tabs {
+                width: 240px;
+            }
+            .sidebar-tab {
+                width: 60px !important;
+                min-width: 60px !important;
+                max-width: 60px !important;
+                flex: 0 0 60px !important;
+                font-size: 9px;
+                padding: 12px 2px;
+            }
+            .sidebar-content {
+                padding: 10px;
+            }
+            .header h1 {
+                font-size: 16px;
+            }
+            .toolbar button {
+                padding: 2px 4px;
+                font-size: 9px;
+            }
+            .tutorial-tooltip {
+                max-width: 320px !important;
+                padding: 16px;
+            }
+            .tutorial-tooltip h3 {
+                font-size: 15px;
+            }
+            .tutorial-tooltip p {
+                font-size: 13px;
+            }
+            .tutorial-welcome,
+            .tutorial-complete {
+                padding: 25px;
+                max-width: 90%;
+            }
+            .tutorial-welcome h2,
+            .tutorial-complete h2 {
+                font-size: 22px;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .header {
+                height: 40px;
+            }
+            .header h1 {
+                font-size: 14px;
+            }
+            .toolbar {
+                height: 40px;
+            }
+            .toolbar button {
+                padding: 2px 4px;
+                font-size: 9px;
+            }
+            .container {
+                padding-top: 40px;
+            }
+            .tutorial-badge {
+                top: 50px;
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+            .tutorial-tooltip {
+                max-width: 300px !important;
+                padding: 14px;
+            }
+            .tutorial-tooltip h3 {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            .tutorial-tooltip p {
+                font-size: 12px;
+                line-height: 1.4;
+                margin-bottom: 12px;
+            }
+            .tutorial-tooltip button {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+            .tutorial-progress .dot {
+                width: 6px;
+                height: 6px;
+            }
+            .tutorial-welcome,
+            .tutorial-complete {
+                padding: 20px;
+                max-width: 400px;
+            }
+            .tutorial-welcome h2,
+            .tutorial-complete h2 {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            .tutorial-welcome p,
+            .tutorial-complete p {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+            .tutorial-welcome ul,
+            .tutorial-complete ul {
+                font-size: 13px;
+                line-height: 1.5;
+            }
+            .tutorial-welcome .welcome-icon {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 16px;
+            }
+            .tutorial-complete .complete-icon {
+                width: 70px;
+                height: 70px;
+                margin-bottom: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1363,7 +1511,8 @@
                     target: '#canvasArea',
                     title: 'Great Job!',
                     content: 'You added your first co-op! Now <strong>click on it</strong> to select it, then go to the <strong>Properties</strong> tab to customize it.<br><br>Try setting:<br>• Name: "Green Valley Food Co-op"<br>• Participation: Producers + Users<br>• Tier: Primary',
-                    position: 'left'
+                    position: 'left',
+                    allowInteraction: true
                 },
 
                 // Step 8: Add Credit Union
@@ -1386,7 +1535,8 @@
                     target: '.sidebar-tab[data-tab="properties"]',
                     title: 'Customize Your Credit Union',
                     content: 'Click on your new co-op, then use <strong>Properties</strong> to customize it:<br><br>• Name: "Community Credit Union"<br>• Fill Color: Light blue<br>• Participation: Users + Investors<br>• Tier: Secondary',
-                    position: 'right'
+                    position: 'right',
+                    allowInteraction: true
                 },
 
                 // Step 10: Add Worker Co-op
@@ -1439,7 +1589,8 @@
                     target: '#canvasArea',
                     title: 'Excellent! Your Enterprises',
                     content: 'You\'ve added 5 enterprises to your map! Take a moment to:<br><br>• <strong>Arrange them</strong> by dragging<br>• <strong>Name each one</strong> via Properties<br>• <strong>Set participation roles</strong> for co-ops<br><br>When ready, click Next to learn about relationships.',
-                    position: 'left'
+                    position: 'left',
+                    allowInteraction: true
                 },
 
                 // PART 3: RELATIONSHIPS
@@ -1447,7 +1598,8 @@
                     target: '#relationshipModeBtn',
                     title: 'Connecting Enterprises',
                     content: 'Now let\'s show how these organizations work together! Click the <strong>Relationship Mode</strong> button to enable relationship drawing.',
-                    position: 'bottom'
+                    position: 'bottom',
+                    allowInteraction: true
                 },
 
                 // Step 15: Create first relationship
@@ -1479,7 +1631,8 @@
                     target: '#canvasArea',
                     title: 'Your Cooperative Ecosystem!',
                     content: 'Amazing! You\'ve built a real cooperative ecosystem map showing:<br><br>• <strong>Multiple enterprise types</strong><br>• <strong>Different ownership structures</strong><br>• <strong>Relationships</strong> showing how they connect<br><br>This is how cooperative economies work together!',
-                    position: 'left'
+                    position: 'left',
+                    allowInteraction: true
                 },
 
                 // PART 4: UNDERSTANDING THE SYMBOLS
@@ -1487,14 +1640,16 @@
                     target: '#sidebar-content',
                     title: 'Understanding Roles',
                     content: 'The colored bars on co-ops show ownership:<br><br>• <strong style="color:#e74c3c">Producers (Red)</strong> - Workers, farmers<br>• <strong style="color:#3498db">Users (Blue)</strong> - Customers, clients<br>• <strong style="color:#27ae60">Investors (Green)</strong> - Financial members<br><br>Select a co-op and try changing its roles!',
-                    position: 'right'
+                    position: 'right',
+                    allowInteraction: true
                 },
 
                 {
                     target: '#sidebar-content',
                     title: 'Understanding Tiers',
                     content: 'The left-edge indicators show the co-op\'s tier:<br><br>• <strong>Primary</strong> - Serves people directly<br>• <strong>Secondary</strong> - Serves other co-ops<br>• <strong>Tertiary</strong> - Supports the sector<br>• <strong>Hybrid</strong> - Multiple levels',
-                    position: 'right'
+                    position: 'right',
+                    allowInteraction: true
                 },
 
                 // PART 5: SAVING & EXPORTING
@@ -1597,7 +1752,10 @@
                 spotlight.style.height = (rect.height + padding * 2) + 'px';
                 spotlight.style.display = 'block';
 
-                var tooltipWidth = 380;
+                // Responsive tooltip width
+                var tooltipWidth = Math.min(380, window.innerWidth - 40);
+                if (window.innerWidth <= 900) tooltipWidth = Math.min(320, window.innerWidth - 40);
+                if (window.innerHeight <= 700) tooltipWidth = Math.min(300, window.innerWidth - 40);
                 var tooltipHeight = 200;
                 var tooltipTop, tooltipLeft;
 
@@ -1671,8 +1829,8 @@
                 '</div>';
                 overlay.classList.add('active');
 
-                // Allow interaction with canvas/sidebar when step requires action
-                if (requiresAction) {
+                // Allow interaction with canvas/sidebar when step requires or allows interaction
+                if (requiresAction || step.allowInteraction) {
                     overlay.classList.add('allow-interaction');
                 } else {
                     overlay.classList.remove('allow-interaction');
