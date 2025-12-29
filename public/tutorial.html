@@ -929,6 +929,490 @@
                 margin-bottom: 16px;
             }
         }
+
+        /* ========================================
+           MOBILE RESPONSIVE STYLES
+           Desktop styles remain unchanged above
+           ======================================== */
+
+        /* Hamburger menu button - hidden on desktop */
+        .hamburger-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            color: white;
+            margin-right: 10px;
+        }
+        .hamburger-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Sidebar overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+        }
+
+        /* Toolbar overflow menu button - hidden on desktop */
+        .toolbar-overflow-btn {
+            display: none;
+            padding: 4px 8px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+        .toolbar-overflow-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 10px;
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            padding: 8px 0;
+            z-index: 100;
+            min-width: 180px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .toolbar-overflow-menu.active {
+            display: block;
+        }
+        .toolbar-overflow-menu button {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--dark);
+        }
+        .toolbar-overflow-menu button:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Tablet portrait and large phones (768px) */
+        @media (max-width: 768px) {
+            /* Show hamburger menu */
+            .hamburger-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Sidebar becomes a drawer */
+            .sidebar {
+                position: fixed;
+                left: -300px;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                z-index: 100;
+                transition: left 0.3s ease;
+                padding-top: 50px;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+
+            /* Show overlay when sidebar is open */
+            .sidebar-overlay {
+                display: block;
+                pointer-events: none;
+            }
+            .sidebar-overlay.active {
+                pointer-events: auto;
+            }
+
+            /* Sidebar tabs go vertical */
+            .sidebar-tabs {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .sidebar-tab {
+                width: 50% !important;
+                min-width: 50% !important;
+                max-width: 50% !important;
+                flex: 0 0 50% !important;
+                padding: 12px 8px;
+                font-size: 11px;
+                border-bottom: 1px solid var(--light-gray);
+            }
+            .sidebar-tab::before {
+                display: none;
+            }
+            .sidebar-tab.active {
+                background: rgba(52, 152, 219, 0.1);
+                border-bottom-color: var(--primary);
+            }
+
+            /* Container adjusts */
+            .container {
+                padding-left: 0;
+            }
+
+            /* Header adjustments */
+            .header {
+                padding: 0 12px;
+            }
+            .header h1 {
+                font-size: 14px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 200px;
+            }
+
+            /* Hide search on tablet */
+            #searchInput {
+                width: 140px !important;
+            }
+
+            /* Zoom controls compact */
+            .zoom-controls button {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            /* Toolbar wraps */
+            .toolbar {
+                flex-wrap: wrap;
+                height: auto;
+                min-height: 40px;
+                padding: 6px 8px;
+                gap: 3px;
+            }
+            .toolbar .separator {
+                display: none;
+            }
+            .toolbar button {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+            .toolbar select {
+                padding: 4px 6px !important;
+                font-size: 10px !important;
+            }
+
+            /* Modal adjustments */
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+                max-width: none;
+            }
+            .modal h2 {
+                font-size: 18px;
+            }
+            .form-group label {
+                font-size: 12px;
+            }
+            .form-group input,
+            .form-group textarea {
+                font-size: 16px; /* Prevents iOS zoom on focus */
+                padding: 12px;
+            }
+            .modal-buttons {
+                flex-direction: column;
+            }
+            .modal-buttons button {
+                width: 100%;
+            }
+
+            /* Tutorial tooltip */
+            .tutorial-tooltip {
+                max-width: 90% !important;
+                left: 5% !important;
+                right: 5% !important;
+            }
+            .tutorial-welcome,
+            .tutorial-complete {
+                max-width: 95%;
+                padding: 20px;
+            }
+        }
+
+        /* Phones landscape and small tablets (600px) */
+        @media (max-width: 600px) {
+            /* Header more compact */
+            .header h1 {
+                font-size: 12px;
+                max-width: 140px;
+            }
+
+            /* Hide search completely */
+            #searchInput {
+                display: none !important;
+            }
+
+            /* Hide search icon container */
+            .header > div:last-child > div:last-child {
+                display: none;
+            }
+
+            /* Zoom controls minimal */
+            .zoom-controls button:nth-child(4) {
+                display: none; /* Hide Fit button */
+            }
+
+            /* Show toolbar overflow button */
+            .toolbar-overflow-btn {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            /* Hide less essential toolbar buttons */
+            .toolbar button[onclick*="autoLayout"],
+            .toolbar button[onclick*="showAddNoteDialog"],
+            .toolbar button[onclick*="showLogoImportDialog"],
+            .toolbar button[onclick*="toggleMinimap"],
+            .toolbar button[onclick*="toggleDarkMode"],
+            .toolbar button[onclick*="showAddSnapshotDialog"],
+            .toolbar button[onclick*="showTimelinePanel"],
+            .toolbar button[onclick*="showLayersPanel"],
+            .toolbar button[onclick*="showKeyboardShortcuts"],
+            .toolbar button[onclick*="showManualDialog"],
+            .toolbar button[onclick*="showInfoDialog"],
+            .toolbar button[onclick*="generateKey"],
+            .toolbar .align-dropdown {
+                display: none;
+            }
+
+            /* Keep essential buttons visible */
+            .toolbar button[onclick*="undo"],
+            .toolbar button[onclick*="redo"],
+            .toolbar button[onclick*="newDiagram"],
+            .toolbar button[onclick*="clearCanvas"],
+            .toolbar button[onclick*="toggleRelationshipMode"],
+            .toolbar button[onclick*="showExportDialog"],
+            .toolbar button[onclick*="showSubmitDialog"],
+            .toolbar select {
+                display: flex;
+            }
+
+            /* Sidebar slightly narrower */
+            .sidebar {
+                width: 260px;
+                left: -270px;
+            }
+
+            /* Tutorial adjustments */
+            .tutorial-tooltip h3 {
+                font-size: 14px;
+            }
+            .tutorial-tooltip p {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            .tutorial-tooltip button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .tutorial-progress {
+                margin-bottom: 10px;
+            }
+            .tutorial-progress .dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
+
+        /* Small phones (480px) */
+        @media (max-width: 480px) {
+            /* Header minimal */
+            .header {
+                height: 45px;
+                padding: 0 8px;
+            }
+            .header h1 {
+                font-size: 11px;
+                max-width: 120px;
+            }
+            .header a[href="index.html"] span {
+                display: none; /* Hide "Home" text, keep icon */
+            }
+
+            /* Zoom controls minimal */
+            .zoom-controls {
+                gap: 2px;
+            }
+            .zoom-controls button {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+            .zoom-controls button:nth-child(2) span {
+                display: none; /* Hide zoom percentage text */
+            }
+
+            /* Container adjustment */
+            .container {
+                padding-top: 45px;
+            }
+
+            /* Toolbar very compact */
+            .toolbar {
+                padding: 4px 6px;
+                gap: 2px;
+            }
+            .toolbar button {
+                padding: 6px;
+                font-size: 9px;
+            }
+            .toolbar button svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            /* Sidebar full width on very small screens */
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .sidebar-tabs {
+                flex-direction: row;
+            }
+            .sidebar-tab {
+                width: 25% !important;
+                min-width: 25% !important;
+                max-width: 25% !important;
+                flex: 0 0 25% !important;
+                padding: 10px 4px;
+                font-size: 9px;
+                border-bottom: none;
+            }
+
+            /* Modal full screen */
+            .modal-content {
+                width: 100%;
+                height: 100%;
+                max-height: 100%;
+                border-radius: 0;
+                padding: 16px;
+            }
+
+            /* Tutorial full width */
+            .tutorial-tooltip {
+                max-width: 100% !important;
+                left: 8px !important;
+                right: 8px !important;
+                padding: 12px;
+            }
+            .tutorial-tooltip h3 {
+                font-size: 13px;
+                gap: 6px;
+            }
+            .tutorial-tooltip h3 .step-number {
+                width: 22px;
+                height: 22px;
+                font-size: 11px;
+            }
+            .tutorial-tooltip p {
+                font-size: 11px;
+                margin-bottom: 12px;
+            }
+            .tutorial-tooltip .tutorial-actions {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .tutorial-tooltip .tutorial-actions button {
+                flex: 1;
+                min-width: 80px;
+            }
+
+            .tutorial-welcome,
+            .tutorial-complete {
+                padding: 16px;
+                max-width: 100%;
+                margin: 8px;
+            }
+            .tutorial-welcome h2,
+            .tutorial-complete h2 {
+                font-size: 18px;
+            }
+            .tutorial-welcome p,
+            .tutorial-complete p {
+                font-size: 13px;
+            }
+            .tutorial-welcome ul {
+                font-size: 12px;
+            }
+            .tutorial-welcome .welcome-icon {
+                width: 50px;
+                height: 50px;
+            }
+            .tutorial-welcome .welcome-actions,
+            .tutorial-complete .complete-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .tutorial-welcome .welcome-actions button,
+            .tutorial-complete .complete-actions button {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+
+        /* Landscape phones - prioritize height */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header {
+                height: 36px;
+            }
+            .container {
+                padding-top: 36px;
+            }
+            .toolbar {
+                height: auto;
+                min-height: 32px;
+                padding: 4px;
+            }
+            .toolbar button {
+                padding: 4px 6px;
+            }
+            .sidebar {
+                padding-top: 36px;
+            }
+            .tutorial-tooltip {
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            .tutorial-welcome,
+            .tutorial-complete {
+                max-height: 90vh;
+                overflow-y: auto;
+                padding: 16px;
+            }
+            .tutorial-welcome .welcome-icon,
+            .tutorial-complete .complete-icon {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -949,8 +1433,19 @@
         <span>Tutorial Mode</span>
     </div>
 
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
     <!-- Header -->
     <div class="header">
+        <!-- Hamburger Menu Button (visible on mobile only) -->
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Toggle menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
         <a href="index.html" style="
             display: flex;
             align-items: center;
@@ -1107,6 +1602,36 @@
                 <button onclick="CoopMaps.showKeyboardShortcuts()">Shortcuts</button>
                 <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
                 <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms</button>
+                <!-- Overflow Menu Button (visible on mobile only) -->
+                <button class="toolbar-overflow-btn" onclick="toggleToolbarMenu()" id="toolbarOverflowBtn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="5" r="1"/>
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="12" cy="19" r="1"/>
+                    </svg>
+                    More
+                </button>
+                <!-- Overflow Menu (shown on mobile when More is clicked) -->
+                <div class="toolbar-overflow-menu" id="toolbarOverflowMenu">
+                    <button onclick="CoopMaps.modules.canvas?.autoLayout(); toggleToolbarMenu();">Auto Layout</button>
+                    <button onclick="CoopMaps.modules.canvas?.showAddNoteDialog(); toggleToolbarMenu();">Add Note</button>
+                    <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog(); toggleToolbarMenu();">Add Logo</button>
+                    <button onclick="CoopMaps.modules.canvas?.toggleMinimap(); toggleToolbarMenu();">Toggle Minimap</button>
+                    <button onclick="CoopMaps.modules.canvas?.toggleDarkMode(); toggleToolbarMenu();">Toggle Dark Mode</button>
+                    <button onclick="CoopMaps.modules.timeline?.showAddSnapshotDialog(); toggleToolbarMenu();">Add Snapshot</button>
+                    <button onclick="CoopMaps.modules.timeline?.showTimelinePanel(); toggleToolbarMenu();">Timeline</button>
+                    <button onclick="CoopMaps.modules.layers?.showLayersPanel(); toggleToolbarMenu();">Layers</button>
+                    <button onclick="CoopMaps.modules.groups?.showCreateGroupDialog(); toggleToolbarMenu();">Create Group</button>
+                    <button onclick="CoopMaps.modules.groups?.showGroupsPanel(); toggleToolbarMenu();">Manage Groups</button>
+                    <button onclick="CoopMaps.modules.statistics?.showStatisticsPanel(); toggleToolbarMenu();">Statistics</button>
+                    <button onclick="CoopMaps.modules.comparison?.showComparisonDialog(); toggleToolbarMenu();">Compare</button>
+                    <button onclick="CoopMaps.modules.reports?.showReportsDialog(); toggleToolbarMenu();">Reports</button>
+                    <button onclick="CoopMaps.modules.dependency?.showDependencyPanel(); toggleToolbarMenu();">Dependencies</button>
+                    <button onclick="CoopMaps.modules.symbolKey?.generateKey(); toggleToolbarMenu();">Symbol Key</button>
+                    <button onclick="CoopMaps.showKeyboardShortcuts(); toggleToolbarMenu();">Shortcuts</button>
+                    <button onclick="CoopMaps.modules.manuals?.showManualDialog(); toggleToolbarMenu();">Manual</button>
+                    <button onclick="CoopMaps.modules.productInfo?.showInfoDialog(); toggleToolbarMenu();">Terms</button>
+                </div>
             </div>
 
             <!-- Canvas Area -->
@@ -1175,6 +1700,48 @@
     <script src="./config.js"></script>
     <script src="./js/api.js"></script>
     <script>
+        // Mobile responsive toggle functions
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+            var isOpen = sidebar.classList.contains('open');
+
+            if (isOpen) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            } else {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function toggleToolbarMenu() {
+            var menu = document.getElementById('toolbarOverflowMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Close toolbar menu when clicking outside
+        document.addEventListener('click', function(e) {
+            var menu = document.getElementById('toolbarOverflowMenu');
+            var btn = document.getElementById('toolbarOverflowBtn');
+            if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        });
+
+        // Close sidebar on window resize if going to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                var sidebar = document.getElementById('sidebar');
+                var overlay = document.getElementById('sidebarOverlay');
+                if (sidebar) sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
         window.CoopMaps = {
             version: '1.0',
             modules: {},
