@@ -57,6 +57,18 @@
             this.bindCanvasEvents();
             this.setupDragAndDrop();
             this.setupKeyboardShortcuts();
+
+            // Add resize listener to keep canvas fitting the viewport
+            const self = this;
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                // Debounce resize events
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    self.handleResize();
+                }, 150);
+            });
+
             this.render();
         },
 
@@ -76,26 +88,28 @@
                 select.value = size;
             }
 
-            // Calculate minimum zoom (for fit functionality) and set default to 100%
+            // Auto-fit canvas to viewport
             const container = document.querySelector('.canvas-area');
             if (container) {
                 const containerRect = container.getBoundingClientRect();
 
                 // Add padding so canvas doesn't touch edges
-                const padding = 40;
+                const padding = 20;
                 const availableWidth = containerRect.width - (padding * 2);
                 const availableHeight = containerRect.height - (padding * 2);
 
-                // Calculate zoom needed to fit (used as minimum zoom)
+                // Calculate zoom needed to fit canvas in viewport
                 const zoomX = availableWidth / canvasSize.width;
                 const zoomY = availableHeight / canvasSize.height;
-                const fitZoom = Math.min(zoomX, zoomY, 1); // Don't zoom in beyond 100%
+                // Auto-fit: use the smaller zoom to ensure entire canvas fits
+                // Cap at 100% so we don't zoom in beyond actual size
+                const fitZoom = Math.min(zoomX, zoomY, 1);
 
                 // Store minimum zoom for boundary checking
-                this.minZoom = Math.max(0.05, fitZoom); // Absolute minimum 5%
+                this.minZoom = Math.max(0.05, fitZoom * 0.5); // Allow zooming out further
 
-                // Default to 100% zoom (user can click Fit to fit to screen)
-                const defaultZoom = 1.0;
+                // DEFAULT TO FIT ZOOM - canvas always visible on any screen
+                const defaultZoom = Math.max(0.1, fitZoom);
                 CoopMaps.state.ui.zoom = defaultZoom;
 
                 // Reset pan offset when changing size
@@ -108,11 +122,53 @@
                 // Update zoom display if it exists
                 const zoomDisplay = document.getElementById('zoomLevel');
                 if (zoomDisplay) {
-                    zoomDisplay.textContent = '100%';
+                    zoomDisplay.textContent = Math.round(defaultZoom * 100) + '%';
                 }
             }
 
             this.render();
+        },
+
+        // Recalculate canvas fit when window resizes
+        handleResize() {
+            if (!this.canvas || !this.currentCanvasSize) return;
+
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            if (!canvasSize) return;
+
+            const container = document.querySelector('.canvas-area');
+            if (!container) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const padding = 20;
+            const availableWidth = containerRect.width - (padding * 2);
+            const availableHeight = containerRect.height - (padding * 2);
+
+            // Calculate zoom needed to fit
+            const zoomX = availableWidth / canvasSize.width;
+            const zoomY = availableHeight / canvasSize.height;
+            const fitZoom = Math.min(zoomX, zoomY, 1);
+
+            // Only auto-resize if current zoom would cause canvas to overflow
+            const currentZoom = CoopMaps.state.ui.zoom;
+            const canvasDisplayWidth = canvasSize.width * currentZoom;
+            const canvasDisplayHeight = canvasSize.height * currentZoom;
+
+            // If canvas is larger than available space, shrink to fit
+            if (canvasDisplayWidth > availableWidth || canvasDisplayHeight > availableHeight) {
+                const newZoom = Math.max(0.1, fitZoom);
+                CoopMaps.state.ui.zoom = newZoom;
+
+                this.canvas.style.width = (canvasSize.width * newZoom) + 'px';
+                this.canvas.style.height = (canvasSize.height * newZoom) + 'px';
+
+                const zoomDisplay = document.getElementById('zoomLevel');
+                if (zoomDisplay) {
+                    zoomDisplay.textContent = Math.round(newZoom * 100) + '%';
+                }
+
+                this.render();
+            }
         },
 
         updateCanvasSize() {
@@ -1351,8 +1407,29 @@
         },
 
         zoomReset() {
-            // Reset to 100%
-            this.zoomTo(1.0);
+            // Reset to fit-to-screen zoom
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            if (!canvasSize) {
+                this.zoomTo(1.0);
+                return;
+            }
+
+            const container = document.querySelector('.canvas-area');
+            if (!container) {
+                this.zoomTo(1.0);
+                return;
+            }
+
+            const containerRect = container.getBoundingClientRect();
+            const padding = 20;
+            const availableWidth = containerRect.width - (padding * 2);
+            const availableHeight = containerRect.height - (padding * 2);
+
+            const zoomX = availableWidth / canvasSize.width;
+            const zoomY = availableHeight / canvasSize.height;
+            const fitZoom = Math.min(zoomX, zoomY, 1);
+
+            this.zoomTo(Math.max(0.1, fitZoom));
         },
 
         zoomTo(targetZoom) {
