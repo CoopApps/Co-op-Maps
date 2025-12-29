@@ -493,6 +493,21 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: move;
+            user-select: none;
+        }
+
+        .tutorial-tooltip h3::before {
+            content: '⋮⋮';
+            font-size: 12px;
+            color: #ccc;
+            margin-right: 4px;
+            letter-spacing: 2px;
+        }
+
+        .tutorial-tooltip.dragging {
+            opacity: 0.9;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
         }
 
         .tutorial-tooltip h3 .step-number {
@@ -1451,6 +1466,100 @@
                 }
             },
 
+            // Dragging state
+            isDragging: false,
+            dragOffsetX: 0,
+            dragOffsetY: 0,
+            customPosition: null, // Store user's custom position
+            dragListenersAdded: false, // Track if document listeners are added
+
+            // Set up drag functionality for tooltip
+            setupDragging: function() {
+                var self = this;
+                var tooltip = document.querySelector('.tutorial-tooltip');
+                var header = tooltip ? tooltip.querySelector('h3') : null;
+
+                if (!header) return;
+
+                // Bind header events (must be done each time since header is recreated)
+                header.addEventListener('mousedown', function(e) {
+                    if (e.target.tagName === 'BUTTON') return; // Don't drag if clicking buttons
+                    self.isDragging = true;
+                    tooltip.classList.add('dragging');
+                    var rect = tooltip.getBoundingClientRect();
+                    self.dragOffsetX = e.clientX - rect.left;
+                    self.dragOffsetY = e.clientY - rect.top;
+                    e.preventDefault();
+                });
+
+                header.addEventListener('touchstart', function(e) {
+                    if (e.target.tagName === 'BUTTON') return;
+                    self.isDragging = true;
+                    tooltip.classList.add('dragging');
+                    var rect = tooltip.getBoundingClientRect();
+                    var touch = e.touches[0];
+                    self.dragOffsetX = touch.clientX - rect.left;
+                    self.dragOffsetY = touch.clientY - rect.top;
+                }, { passive: true });
+
+                // Only add document-level listeners once
+                if (!this.dragListenersAdded) {
+                    document.addEventListener('mousemove', function(e) {
+                        if (!self.isDragging) return;
+                        var tooltip = document.querySelector('.tutorial-tooltip');
+                        if (!tooltip) return;
+
+                        var newLeft = e.clientX - self.dragOffsetX;
+                        var newTop = e.clientY - self.dragOffsetY;
+
+                        // Keep within viewport bounds
+                        newLeft = Math.max(10, Math.min(newLeft, window.innerWidth - tooltip.offsetWidth - 10));
+                        newTop = Math.max(10, Math.min(newTop, window.innerHeight - tooltip.offsetHeight - 10));
+
+                        tooltip.style.left = newLeft + 'px';
+                        tooltip.style.top = newTop + 'px';
+
+                        // Store custom position
+                        self.customPosition = { left: newLeft, top: newTop };
+                    });
+
+                    document.addEventListener('mouseup', function() {
+                        if (self.isDragging) {
+                            self.isDragging = false;
+                            var tooltip = document.querySelector('.tutorial-tooltip');
+                            if (tooltip) tooltip.classList.remove('dragging');
+                        }
+                    });
+
+                    document.addEventListener('touchmove', function(e) {
+                        if (!self.isDragging) return;
+                        var tooltip = document.querySelector('.tutorial-tooltip');
+                        if (!tooltip) return;
+
+                        var touch = e.touches[0];
+                        var newLeft = touch.clientX - self.dragOffsetX;
+                        var newTop = touch.clientY - self.dragOffsetY;
+
+                        newLeft = Math.max(10, Math.min(newLeft, window.innerWidth - tooltip.offsetWidth - 10));
+                        newTop = Math.max(10, Math.min(newTop, window.innerHeight - tooltip.offsetHeight - 10));
+
+                        tooltip.style.left = newLeft + 'px';
+                        tooltip.style.top = newTop + 'px';
+                        self.customPosition = { left: newLeft, top: newTop };
+                    }, { passive: true });
+
+                    document.addEventListener('touchend', function() {
+                        if (self.isDragging) {
+                            self.isDragging = false;
+                            var tooltip = document.querySelector('.tutorial-tooltip');
+                            if (tooltip) tooltip.classList.remove('dragging');
+                        }
+                    });
+
+                    this.dragListenersAdded = true;
+                }
+            },
+
             steps: [
                 // PART 1: INTERFACE OVERVIEW (Steps 1-4)
                 {
@@ -1843,6 +1952,9 @@
                         self.updateStepUI();
                     });
                 }
+
+                // Set up dragging after tooltip is rendered
+                this.setupDragging();
             },
 
             // Update the step UI without changing steps (for when action completes)
