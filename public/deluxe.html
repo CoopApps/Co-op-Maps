@@ -60,6 +60,16 @@
             padding: 0 10px;
             box-shadow: var(--shadow-sm);
             z-index: 5;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .toolbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .toolbar::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 2px;
         }
         .toolbar button {
             padding: 4px 8px;
@@ -593,12 +603,22 @@
         <div class="main">
             <!-- Toolbar -->
             <div class="toolbar">
-                <button onclick="CoopMaps.undo()">↶ Undo</button>
-                <button onclick="CoopMaps.redo()">↷ Redo</button>
+                <button onclick="CoopMaps.undo()" title="Undo">↶ Undo</button>
+                <button onclick="CoopMaps.redo()" title="Redo">↷ Redo</button>
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas?.newDiagram()">New</button>
-                <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear</button>
-                <div class="separator"></div>
+
+                <!-- File Menu -->
+                <div class="align-dropdown">
+                    <button>File ▾</button>
+                    <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.canvas?.newDiagram()">New Diagram</button>
+                        <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear Canvas</button>
+                        <button onclick="CoopMaps.modules.canvas?.printCanvas()">Print</button>
+                        <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
+                        <button onclick="CoopMaps.showSubmitDialog()">Submit to Gallery</button>
+                    </div>
+                </div>
+
                 <select id="canvasSizeSelector" onchange="CoopMaps.changeCanvasSize(this.value)" style="
                     padding: 4px 8px;
                     background: white;
@@ -614,74 +634,54 @@
                     <option value="A2">A2</option>
                     <option value="A1">A1</option>
                 </select>
-                <button id="gridToggleBtn" onclick="CoopMaps.toggleGrid()" title="Toggle Grid">
-                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                        <rect x="2" y="2" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <rect x="12" y="2" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <rect x="2" y="12" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <rect x="12" y="12" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
-                    <span>Grid</span>
-                </button>
+
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto</button>
-                <!-- Hidden: Align dropdown (kept for future use) -->
-                <div class="align-dropdown" style="display: none;">
-                    <button>Align</button>
+
+                <!-- View Menu -->
+                <div class="align-dropdown">
+                    <button>View ▾</button>
                     <div class="align-dropdown-content">
-                        <button onclick="CoopMaps.modules.canvas?.alignLeft()">Align Left</button>
-                        <button onclick="CoopMaps.modules.canvas?.alignCenter()">Align Center</button>
-                        <button onclick="CoopMaps.modules.canvas?.alignRight()">Align Right</button>
-                        <button onclick="CoopMaps.modules.canvas?.alignTop()">Align Top</button>
-                        <button onclick="CoopMaps.modules.canvas?.alignMiddle()">Align Middle</button>
-                        <button onclick="CoopMaps.modules.canvas?.alignBottom()">Align Bottom</button>
-                        <button onclick="CoopMaps.modules.canvas?.distributeHorizontally()">Distribute H</button>
-                        <button onclick="CoopMaps.modules.canvas?.distributeVertically()">Distribute V</button>
+                        <button id="gridToggleBtn" onclick="CoopMaps.toggleGrid()">Toggle Grid</button>
+                        <button id="snapToggleBtn" onclick="CoopMaps.modules.canvas?.toggleSnapToGrid(); this.classList.toggle('active', CoopMaps.modules.canvas?.snapToGrid)">Snap to Grid</button>
+                        <button onclick="CoopMaps.modules.canvas?.toggleMinimap()">Toggle Minimap</button>
+                        <button id="darkModeBtn" onclick="CoopMaps.modules.canvas?.toggleDarkMode(); document.getElementById('darkModeBtn').textContent = CoopMaps.modules.canvas?.darkMode ? 'Light Mode' : 'Dark Mode'">Dark Mode</button>
+                        <button onclick="CoopMaps.modules.layers?.showLayersPanel()">Layers</button>
                     </div>
                 </div>
+
+                <!-- Tools Menu -->
                 <div class="align-dropdown">
-                    <button>Groups</button>
+                    <button>Tools ▾</button>
                     <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto Layout</button>
+                        <button onclick="CoopMaps.toggleConnectorStyle()">
+                            <span id="connectorStyleText">Connector: Ortho</span>
+                        </button>
+                        <button onclick="CoopMaps.modules.canvas?.showAddNoteDialog()">Add Note</button>
+                        <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()">Add Logo</button>
                         <button onclick="CoopMaps.modules.groups?.showCreateGroupDialog()">Create Group</button>
                         <button onclick="CoopMaps.modules.groups?.showGroupsPanel()">Manage Groups</button>
                     </div>
                 </div>
-                <button id="snapToggleBtn" onclick="CoopMaps.modules.canvas?.toggleSnapToGrid(); this.classList.toggle('active', CoopMaps.modules.canvas?.snapToGrid)" title="Snap to Grid">Snap</button>
-                <button onclick="CoopMaps.toggleConnectorStyle()">
-                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                        <path id="connectorStylePath" d="M3 3 L10 3 L10 10 L17 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <circle cx="3" cy="3" r="2" fill="currentColor"/>
-                        <circle cx="17" cy="10" r="2" fill="currentColor"/>
-                    </svg>
-                    <span id="connectorStyleText">Ortho</span>
-                </button>
+
                 <div class="separator"></div>
+
                 <button class="primary" id="relationshipModeBtn" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Relationship</button>
+
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas?.printCanvas()" title="Print Diagram">
-                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                        <path d="M5 8V2h10v6M5 14H3V9h14v5h-2" stroke="currentColor" stroke-width="2"/>
-                        <rect x="5" y="12" width="10" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
-                    <span>Print</span>
-                </button>
-                <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas?.showAddNoteDialog()" title="Add Note">Note</button>
-                <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()" title="Add Logo to Selected Enterprise">Logo</button>
-                <button onclick="CoopMaps.modules.canvas?.toggleMinimap()" title="Toggle Minimap">Map</button>
-                <button id="darkModeBtn" onclick="CoopMaps.modules.canvas?.toggleDarkMode(); document.getElementById('darkModeBtn').textContent = CoopMaps.modules.canvas?.darkMode ? 'Light' : 'Dark'" title="Toggle Dark Mode">Dark</button>
-                <div class="separator"></div>
-                <button onclick="CoopMaps.modules.timeline?.showAddSnapshotDialog()" title="Add Timeline Snapshot">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    <span>+ Snapshot</span>
-                </button>
-                <button onclick="CoopMaps.modules.timeline?.showTimelinePanel()" title="View Timeline">Timeline</button>
-                <button onclick="CoopMaps.modules.layers?.showLayersPanel()" title="Filter Layers">Layers</button>
+
+                <!-- Timeline Menu -->
                 <div class="align-dropdown">
-                    <button>Analysis</button>
+                    <button>Timeline ▾</button>
+                    <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.timeline?.showAddSnapshotDialog()">Add Snapshot</button>
+                        <button onclick="CoopMaps.modules.timeline?.showTimelinePanel()">View Timeline</button>
+                    </div>
+                </div>
+
+                <!-- Analysis Menu (already existed) -->
+                <div class="align-dropdown">
+                    <button>Analysis ▾</button>
                     <div class="align-dropdown-content">
                         <button onclick="CoopMaps.modules.statistics?.showStatisticsPanel()">Statistics</button>
                         <button onclick="CoopMaps.modules.comparison?.showComparisonDialog()">Compare</button>
@@ -689,13 +689,19 @@
                         <button onclick="CoopMaps.modules.dependency?.showDependencyPanel()">Dependencies</button>
                     </div>
                 </div>
+
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
-                <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
-                <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Key</button>
-                <button onclick="CoopMaps.showKeyboardShortcuts()">Shortcuts</button>
-                <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
-                <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms</button>
+
+                <!-- Help Menu -->
+                <div class="align-dropdown">
+                    <button>Help ▾</button>
+                    <div class="align-dropdown-content">
+                        <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Symbol Key</button>
+                        <button onclick="CoopMaps.showKeyboardShortcuts()">Keyboard Shortcuts</button>
+                        <button onclick="CoopMaps.modules.manuals?.showManualDialog()">User Manual</button>
+                        <button onclick="CoopMaps.modules.productInfo?.showInfoDialog()">Terms & Info</button>
+                    </div>
+                </div>
             </div>
             
             <!-- Canvas Area -->
@@ -835,15 +841,8 @@
 
                 // Update button UI
                 const textSpan = document.getElementById('connectorStyleText');
-                const pathElement = document.getElementById('connectorStylePath');
-                if (textSpan && pathElement) {
-                    if (newStyle === 'orthogonal') {
-                        textSpan.textContent = 'Ortho';
-                        pathElement.setAttribute('d', 'M3 3 L10 3 L10 10 L17 10');
-                    } else {
-                        textSpan.textContent = 'Direct';
-                        pathElement.setAttribute('d', 'M3 3 L17 10');
-                    }
+                if (textSpan) {
+                    textSpan.textContent = newStyle === 'orthogonal' ? 'Connector: Ortho' : 'Connector: Direct';
                 }
 
                 // Re-render
