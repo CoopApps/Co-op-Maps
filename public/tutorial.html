@@ -447,6 +447,14 @@
             visibility: visible;
         }
 
+        .tutorial-overlay.allow-interaction {
+            pointer-events: none;
+        }
+
+        .tutorial-overlay.allow-interaction .tutorial-tooltip {
+            pointer-events: auto;
+        }
+
         .tutorial-spotlight {
             position: fixed;
             box-shadow: none;
@@ -1662,6 +1670,13 @@
                     '</div>' +
                 '</div>';
                 overlay.classList.add('active');
+
+                // Allow interaction with canvas/sidebar when step requires action
+                if (requiresAction) {
+                    overlay.classList.add('allow-interaction');
+                } else {
+                    overlay.classList.remove('allow-interaction');
+                }
 
                 // If this step requires action and it's not complete, start watching
                 if (requiresAction && !actionComplete) {
