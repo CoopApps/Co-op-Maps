@@ -66,6 +66,7 @@
         /* Main area */
         .main {
             flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             background: #ecf0f1;
@@ -104,8 +105,9 @@
         /* Canvas Area */
         .canvas-area {
             flex: 1;
-            display: grid;
-            place-items: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background: #d5d8dc;
             overflow: hidden;
         }
@@ -114,7 +116,7 @@
             border: 1px solid #2c3e50;
             cursor: grab;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            margin: auto;
+            flex-shrink: 0;
         }
 
         /* Buttons */
