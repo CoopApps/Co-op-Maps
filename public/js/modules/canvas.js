@@ -70,6 +70,48 @@
             });
 
             this.render();
+
+            // Recalculate fit after layout is complete (fixes initial overflow)
+            requestAnimationFrame(function() {
+                setTimeout(function() {
+                    self.fitToScreen();
+                }, 100);
+            });
+        },
+
+        // Fit canvas to screen without animation
+        fitToScreen() {
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            if (!canvasSize) return;
+
+            const container = document.querySelector('.canvas-area');
+            if (!container) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const padding = 20;
+            const availableWidth = containerRect.width - (padding * 2);
+            const availableHeight = containerRect.height - (padding * 2);
+
+            // Skip if container has no size yet
+            if (availableWidth <= 0 || availableHeight <= 0) return;
+
+            const zoomX = availableWidth / canvasSize.width;
+            const zoomY = availableHeight / canvasSize.height;
+            const fitZoom = Math.min(zoomX, zoomY, 1);
+            const newZoom = Math.max(0.1, fitZoom);
+
+            CoopMaps.state.ui.zoom = newZoom;
+            this.panOffset = { x: 0, y: 0 };
+
+            this.canvas.style.width = (canvasSize.width * newZoom) + 'px';
+            this.canvas.style.height = (canvasSize.height * newZoom) + 'px';
+
+            const zoomDisplay = document.getElementById('zoomLevel');
+            if (zoomDisplay) {
+                zoomDisplay.textContent = Math.round(newZoom * 100) + '%';
+            }
+
+            this.render();
         },
 
         setCanvasSize(size) {
