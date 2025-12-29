@@ -88,7 +88,8 @@
             if (!container) return;
 
             const containerRect = container.getBoundingClientRect();
-            const padding = 20;
+            // Minimal padding - just 5px buffer
+            const padding = 5;
             const availableWidth = containerRect.width - (padding * 2);
             const availableHeight = containerRect.height - (padding * 2);
 
@@ -97,21 +98,38 @@
 
             const zoomX = availableWidth / canvasSize.width;
             const zoomY = availableHeight / canvasSize.height;
-            const fitZoom = Math.min(zoomX, zoomY, 1);
-            const newZoom = Math.max(0.1, fitZoom);
+            const fitZoom = Math.min(zoomX, zoomY);
 
-            CoopMaps.state.ui.zoom = newZoom;
+            // Store the fit-to-screen zoom as our baseline (this = 100%)
+            this.baselineZoom = fitZoom;
+
+            CoopMaps.state.ui.zoom = fitZoom;
             this.panOffset = { x: 0, y: 0 };
 
-            this.canvas.style.width = (canvasSize.width * newZoom) + 'px';
-            this.canvas.style.height = (canvasSize.height * newZoom) + 'px';
+            this.canvas.style.width = (canvasSize.width * fitZoom) + 'px';
+            this.canvas.style.height = (canvasSize.height * fitZoom) + 'px';
 
+            // Fit to screen = 100%
             const zoomDisplay = document.getElementById('zoomLevel');
             if (zoomDisplay) {
-                zoomDisplay.textContent = Math.round(newZoom * 100) + '%';
+                zoomDisplay.textContent = '100%';
             }
 
             this.render();
+        },
+
+        // Get display zoom percentage (relative to fit-to-screen baseline)
+        getDisplayZoom() {
+            if (!this.baselineZoom) return 100;
+            return Math.round((CoopMaps.state.ui.zoom / this.baselineZoom) * 100);
+        },
+
+        // Update zoom display
+        updateZoomDisplay() {
+            const zoomDisplay = document.getElementById('zoomLevel');
+            if (zoomDisplay) {
+                zoomDisplay.textContent = this.getDisplayZoom() + '%';
+            }
         },
 
         setCanvasSize(size) {
@@ -135,36 +153,36 @@
             if (container) {
                 const containerRect = container.getBoundingClientRect();
 
-                // Add padding so canvas doesn't touch edges
-                const padding = 20;
+                // Minimal padding - 5px buffer
+                const padding = 5;
                 const availableWidth = containerRect.width - (padding * 2);
                 const availableHeight = containerRect.height - (padding * 2);
 
                 // Calculate zoom needed to fit canvas in viewport
                 const zoomX = availableWidth / canvasSize.width;
                 const zoomY = availableHeight / canvasSize.height;
-                // Auto-fit: use the smaller zoom to ensure entire canvas fits
-                // Cap at 100% so we don't zoom in beyond actual size
-                const fitZoom = Math.min(zoomX, zoomY, 1);
+                const fitZoom = Math.min(zoomX, zoomY);
+
+                // Store baseline zoom (fit-to-screen = 100%)
+                this.baselineZoom = fitZoom;
 
                 // Store minimum zoom for boundary checking
-                this.minZoom = Math.max(0.05, fitZoom * 0.5); // Allow zooming out further
+                this.minZoom = Math.max(0.05, fitZoom * 0.5);
 
                 // DEFAULT TO FIT ZOOM - canvas always visible on any screen
-                const defaultZoom = Math.max(0.1, fitZoom);
-                CoopMaps.state.ui.zoom = defaultZoom;
+                CoopMaps.state.ui.zoom = fitZoom;
 
                 // Reset pan offset when changing size
                 this.panOffset = { x: 0, y: 0 };
 
                 // Set CSS dimensions to scaled size for proper centering
-                this.canvas.style.width = (canvasSize.width * defaultZoom) + 'px';
-                this.canvas.style.height = (canvasSize.height * defaultZoom) + 'px';
+                this.canvas.style.width = (canvasSize.width * fitZoom) + 'px';
+                this.canvas.style.height = (canvasSize.height * fitZoom) + 'px';
 
-                // Update zoom display if it exists
+                // Update zoom display - fit to screen = 100%
                 const zoomDisplay = document.getElementById('zoomLevel');
                 if (zoomDisplay) {
-                    zoomDisplay.textContent = Math.round(defaultZoom * 100) + '%';
+                    zoomDisplay.textContent = '100%';
                 }
             }
 
@@ -182,35 +200,30 @@
             if (!container) return;
 
             const containerRect = container.getBoundingClientRect();
-            const padding = 20;
+            const padding = 5;
             const availableWidth = containerRect.width - (padding * 2);
             const availableHeight = containerRect.height - (padding * 2);
 
-            // Calculate zoom needed to fit
+            // Calculate new fit zoom
             const zoomX = availableWidth / canvasSize.width;
             const zoomY = availableHeight / canvasSize.height;
-            const fitZoom = Math.min(zoomX, zoomY, 1);
+            const newFitZoom = Math.min(zoomX, zoomY);
 
-            // Only auto-resize if current zoom would cause canvas to overflow
-            const currentZoom = CoopMaps.state.ui.zoom;
-            const canvasDisplayWidth = canvasSize.width * currentZoom;
-            const canvasDisplayHeight = canvasSize.height * currentZoom;
+            // Calculate current display zoom ratio (how much user has zoomed from baseline)
+            const displayRatio = this.baselineZoom ? (CoopMaps.state.ui.zoom / this.baselineZoom) : 1;
 
-            // If canvas is larger than available space, shrink to fit
-            if (canvasDisplayWidth > availableWidth || canvasDisplayHeight > availableHeight) {
-                const newZoom = Math.max(0.1, fitZoom);
-                CoopMaps.state.ui.zoom = newZoom;
+            // Update baseline to new fit zoom
+            this.baselineZoom = newFitZoom;
 
-                this.canvas.style.width = (canvasSize.width * newZoom) + 'px';
-                this.canvas.style.height = (canvasSize.height * newZoom) + 'px';
+            // Apply the same display ratio to new baseline
+            const newZoom = newFitZoom * displayRatio;
+            CoopMaps.state.ui.zoom = newZoom;
 
-                const zoomDisplay = document.getElementById('zoomLevel');
-                if (zoomDisplay) {
-                    zoomDisplay.textContent = Math.round(newZoom * 100) + '%';
-                }
+            this.canvas.style.width = (canvasSize.width * newZoom) + 'px';
+            this.canvas.style.height = (canvasSize.height * newZoom) + 'px';
 
-                this.render();
-            }
+            this.updateZoomDisplay();
+            this.render();
         },
 
         updateCanvasSize() {
@@ -1422,74 +1435,70 @@
             animate();
         },
 
+        // Display zoom levels (relative to fit-to-screen baseline)
+        displayZoomLevels: [50, 75, 100, 125, 150, 200, 300],
+
         zoomIn() {
-            // Find next zoom level up
-            const currentZoom = CoopMaps.state.ui.zoom;
-            let targetZoom = this.zoomLevels[this.zoomLevels.length - 1]; // Default to max
-            for (const level of this.zoomLevels) {
-                if (level > currentZoom + 0.01) { // Small tolerance for floating point
-                    targetZoom = level;
+            // Find next display zoom level up
+            const currentDisplayZoom = this.getDisplayZoom();
+            let targetDisplayZoom = this.displayZoomLevels[this.displayZoomLevels.length - 1];
+            for (const level of this.displayZoomLevels) {
+                if (level > currentDisplayZoom + 1) {
+                    targetDisplayZoom = level;
                     break;
                 }
             }
-            this.zoomTo(targetZoom);
+            this.zoomToDisplay(targetDisplayZoom);
         },
 
         zoomOut() {
-            // Find next zoom level down
-            const currentZoom = CoopMaps.state.ui.zoom;
-            let targetZoom = Math.max(this.minZoom, this.zoomLevels[0]); // Default to min
-            for (let i = this.zoomLevels.length - 1; i >= 0; i--) {
-                if (this.zoomLevels[i] < currentZoom - 0.01) { // Small tolerance for floating point
-                    targetZoom = Math.max(this.minZoom, this.zoomLevels[i]);
+            // Find next display zoom level down
+            const currentDisplayZoom = this.getDisplayZoom();
+            let targetDisplayZoom = this.displayZoomLevels[0];
+            for (let i = this.displayZoomLevels.length - 1; i >= 0; i--) {
+                if (this.displayZoomLevels[i] < currentDisplayZoom - 1) {
+                    targetDisplayZoom = this.displayZoomLevels[i];
                     break;
                 }
             }
-            this.zoomTo(targetZoom);
+            this.zoomToDisplay(targetDisplayZoom);
         },
 
         zoomReset() {
-            // Reset to fit-to-screen zoom
-            const canvasSize = this.canvasSizes[this.currentCanvasSize];
-            if (!canvasSize) {
-                this.zoomTo(1.0);
+            // Reset to 100% (fit-to-screen)
+            this.fitToScreen();
+        },
+
+        // Zoom to a display percentage (100 = fit to screen)
+        zoomToDisplay(displayPercent) {
+            if (!this.baselineZoom) {
+                this.fitToScreen();
                 return;
             }
-
-            const container = document.querySelector('.canvas-area');
-            if (!container) {
-                this.zoomTo(1.0);
-                return;
-            }
-
-            const containerRect = container.getBoundingClientRect();
-            const padding = 20;
-            const availableWidth = containerRect.width - (padding * 2);
-            const availableHeight = containerRect.height - (padding * 2);
-
-            const zoomX = availableWidth / canvasSize.width;
-            const zoomY = availableHeight / canvasSize.height;
-            const fitZoom = Math.min(zoomX, zoomY, 1);
-
-            this.zoomTo(Math.max(0.1, fitZoom));
+            const targetZoom = this.baselineZoom * (displayPercent / 100);
+            this.zoomTo(targetZoom);
         },
 
         zoomTo(targetZoom) {
             const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            if (!canvasSize) return;
 
             // Clamp to valid range
-            targetZoom = Math.max(this.minZoom, Math.min(5.0, targetZoom));
+            const minZoom = this.baselineZoom ? this.baselineZoom * 0.5 : 0.1;
+            const maxZoom = this.baselineZoom ? this.baselineZoom * 3 : 5.0;
+            targetZoom = Math.max(minZoom, Math.min(maxZoom, targetZoom));
 
             // Reset pan offset
             this.panOffset = { x: 0, y: 0 };
+
+            const self = this;
 
             // Skip animation in Express mode
             if (CoopMaps.isExpressMode) {
                 CoopMaps.state.ui.zoom = targetZoom;
                 this.canvas.style.width = (canvasSize.width * targetZoom) + 'px';
                 this.canvas.style.height = (canvasSize.height * targetZoom) + 'px';
-                const zoomDisplay = document.getElementById('zoomLevel');
-                if (zoomDisplay) zoomDisplay.textContent = Math.round(targetZoom * 100) + '%';
+                this.updateZoomDisplay();
                 this.render();
                 return;
             }
@@ -1497,7 +1506,6 @@
             const startZoom = CoopMaps.state.ui.zoom;
             const duration = 200;
             const startTime = Date.now();
-            const self = this;
 
             const animate = () => {
                 const elapsed = Date.now() - startTime;
@@ -1511,10 +1519,7 @@
                 self.canvas.style.height = (canvasSize.height * CoopMaps.state.ui.zoom) + 'px';
 
                 // Update zoom display
-                const zoomDisplay = document.getElementById('zoomLevel');
-                if (zoomDisplay) {
-                    zoomDisplay.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
-                }
+                self.updateZoomDisplay();
 
                 self.render();
 
