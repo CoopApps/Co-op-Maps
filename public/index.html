@@ -18,31 +18,17 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1000px;
-            height: calc(100vh - 40px);
-            max-height: 700px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            background: #fff;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            background: #0f172a;
             color: white;
-            padding: 16px 24px;
+            padding: 0 32px;
+            height: 56px;
             display: flex;
             align-items: center;
             gap: 16px;
@@ -50,10 +36,10 @@
         }
 
         .logo {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -61,86 +47,83 @@
         }
 
         .logo svg {
-            width: 26px;
-            height: 26px;
+            width: 22px;
+            height: 22px;
             stroke: white;
             stroke-width: 2;
             fill: none;
         }
 
         .header-text h1 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
-
-        .header-text p {
-            font-size: 12px;
-            opacity: 0.85;
+            font-size: 18px;
+            font-weight: 600;
         }
 
         .header-right {
             margin-left: auto;
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .header-btn {
-            padding: 8px 14px;
-            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            background: transparent;
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 6px;
             color: white;
             text-decoration: none;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             transition: all 0.2s;
         }
 
         .header-btn:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
         }
 
         /* Main Content */
         .main {
             flex: 1;
             display: flex;
-            padding: 20px;
-            gap: 20px;
+            padding: 32px;
+            gap: 32px;
             min-height: 0;
+            background: #f8fafc;
         }
 
-        /* Left Column - Create Maps */
+        /* Left Column */
         .left-column {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 20px;
+            max-width: 600px;
         }
 
         .section-label {
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #7f8c8d;
-            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 8px;
         }
 
         .mode-cards {
             display: flex;
-            gap: 12px;
+            gap: 16px;
         }
 
         .mode-card {
             flex: 1;
-            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-            border: 2px solid #e9ecef;
+            background: white;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 16px;
+            padding: 24px;
             text-decoration: none;
-            color: #2c3e50;
-            transition: all 0.3s;
+            color: #1e293b;
+            transition: all 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -148,74 +131,76 @@
         }
 
         .mode-card:hover {
-            border-color: #3498db;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(52, 152, 219, 0.2);
+            border-color: #0ea5e9;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+            transform: translateY(-2px);
         }
 
         .mode-icon {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: white;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
         }
 
-        .mode-icon.express { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
-        .mode-icon.deluxe { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
+        .mode-icon.express { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); }
+        .mode-icon.deluxe { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
 
         .mode-card h3 {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            color: #0f172a;
         }
 
         .mode-card p {
-            font-size: 11px;
-            color: #7f8c8d;
-            line-height: 1.4;
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
         }
 
         .mode-badge {
-            margin-top: 8px;
-            padding: 3px 10px;
-            background: #ecf0f1;
-            border-radius: 12px;
-            font-size: 10px;
+            margin-top: 12px;
+            padding: 4px 12px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            font-size: 11px;
             font-weight: 600;
-            color: #7f8c8d;
+            color: #64748b;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
-        .mode-card:first-child .mode-badge { background: #fdecea; color: #c0392b; }
-        .mode-card:last-child .mode-badge { background: #e8f4fc; color: #2980b9; }
+        .mode-card:first-child .mode-badge { background: #fef2f2; color: #e11d48; }
+        .mode-card:last-child .mode-badge { background: #f0f9ff; color: #0284c7; }
 
         /* Tutorial Card */
         .tutorial-card {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
             border-radius: 12px;
-            padding: 14px 18px;
+            padding: 20px 24px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             text-decoration: none;
             color: white;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         .tutorial-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(155, 89, 182, 0.4);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
         }
 
         .tutorial-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             background: rgba(255,255,255,0.2);
             border-radius: 10px;
             display: flex;
@@ -225,27 +210,27 @@
         }
 
         .tutorial-icon svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
         }
 
         .tutorial-text h3 {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             margin-bottom: 2px;
         }
 
         .tutorial-text p {
-            font-size: 11px;
+            font-size: 13px;
             opacity: 0.9;
         }
 
         .tutorial-badge {
             margin-left: auto;
-            padding: 4px 10px;
+            padding: 4px 12px;
             background: rgba(255,255,255,0.2);
-            border-radius: 12px;
-            font-size: 10px;
+            border-radius: 16px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
         }
@@ -260,127 +245,130 @@
 
         .saved-list {
             flex: 1;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
+            background: white;
+            border: 1px solid #e2e8f0;
             border-radius: 10px;
             overflow-y: auto;
             min-height: 0;
         }
 
         .saved-list::-webkit-scrollbar { width: 6px; }
-        .saved-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        .saved-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
         .saved-item {
-            padding: 10px 14px;
-            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.2s;
+            transition: background 0.15s;
         }
 
         .saved-item:last-child { border-bottom: none; }
-        .saved-item:hover { background: #e9ecef; }
+        .saved-item:hover { background: #f8fafc; }
 
         .saved-item-name {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
-            color: #2c3e50;
+            color: #1e293b;
         }
 
         .saved-item-date {
-            font-size: 11px;
-            color: #95a5a6;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 2px;
         }
 
         .saved-item-arrow {
-            color: #bdc3c7;
-            font-size: 14px;
+            color: #cbd5e1;
+            font-size: 16px;
         }
 
         .no-maps {
-            padding: 30px;
+            padding: 40px;
             text-align: center;
-            color: #95a5a6;
-            font-size: 12px;
+            color: #94a3b8;
+            font-size: 13px;
         }
 
         .no-maps svg {
-            width: 32px;
-            height: 32px;
-            margin-bottom: 8px;
+            width: 40px;
+            height: 40px;
+            margin-bottom: 12px;
             opacity: 0.4;
         }
 
-        /* Right Column - Community & Support */
+        /* Right Column */
         .right-column {
-            width: 280px;
+            width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
             flex-shrink: 0;
         }
 
-        .community-card {
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        .info-card {
+            background: white;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 16px;
-            color: white;
+            padding: 20px;
         }
 
-        .community-card h3 {
+        .info-card h3 {
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 6px;
+            color: #0f172a;
+            margin-bottom: 8px;
         }
 
-        .community-card p {
-            font-size: 11px;
-            opacity: 0.85;
-            margin-bottom: 12px;
-            line-height: 1.4;
+        .info-card p {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 16px;
+            line-height: 1.5;
         }
 
-        .community-links {
+        .info-links {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
-        .community-link {
+        .info-link {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            background: rgba(255,255,255,0.1);
+            gap: 12px;
+            padding: 10px 12px;
+            background: #f8fafc;
             border-radius: 8px;
             text-decoration: none;
-            color: white;
-            font-size: 12px;
+            color: #1e293b;
+            font-size: 13px;
             font-weight: 500;
-            transition: background 0.2s;
+            transition: background 0.15s;
         }
 
-        .community-link:hover { background: rgba(255,255,255,0.2); }
+        .info-link:hover { background: #f1f5f9; }
 
-        .community-link-icon {
-            width: 24px;
-            height: 24px;
-            background: rgba(255,255,255,0.15);
+        .info-link-icon {
+            width: 28px;
+            height: 28px;
+            background: #0f172a;
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
+            color: white;
         }
 
         /* Donate Card */
         .donate-card {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             border-radius: 12px;
-            padding: 16px;
+            padding: 20px;
             color: white;
             text-align: center;
         }
@@ -392,29 +380,29 @@
         }
 
         .donate-card p {
-            font-size: 11px;
+            font-size: 12px;
             opacity: 0.9;
-            margin-bottom: 12px;
-            line-height: 1.4;
+            margin-bottom: 14px;
+            line-height: 1.5;
         }
 
         .donate-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 18px;
+            padding: 10px 20px;
             background: white;
             border-radius: 8px;
             text-decoration: none;
-            color: #27ae60;
-            font-size: 12px;
+            color: #059669;
+            font-size: 13px;
             font-weight: 600;
             transition: all 0.2s;
         }
 
         .donate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .donate-btn svg {
@@ -424,19 +412,24 @@
 
         /* Footer */
         .footer {
-            padding: 12px 24px;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
+            padding: 12px 32px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
             text-align: center;
-            font-size: 11px;
-            color: #95a5a6;
+            font-size: 12px;
+            color: #94a3b8;
             flex-shrink: 0;
         }
 
         /* Responsive - Tablet */
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
             .main {
                 flex-direction: column;
+                padding: 24px;
+            }
+
+            .left-column {
+                max-width: none;
             }
 
             .right-column {
@@ -445,15 +438,9 @@
                 flex-wrap: wrap;
             }
 
-            .community-card, .donate-card {
+            .info-card, .donate-card {
                 flex: 1;
-                min-width: 200px;
-            }
-
-            .container {
-                max-height: none;
-                height: auto;
-                min-height: calc(100vh - 40px);
+                min-width: 240px;
             }
 
             html, body {
@@ -463,146 +450,141 @@
 
         /* Responsive - Mobile */
         @media (max-width: 600px) {
-            body { padding: 10px; }
-
-            .container {
-                border-radius: 12px;
-                min-height: calc(100vh - 20px);
-            }
-
             .header {
-                padding: 12px 16px;
+                padding: 0 16px;
+                height: 52px;
             }
 
-            .header-text h1 { font-size: 18px; }
+            .header-text h1 { font-size: 16px; }
             .header-right { display: none; }
 
             .main {
-                padding: 12px;
-                gap: 12px;
+                padding: 16px;
+                gap: 16px;
             }
 
             .mode-cards {
                 flex-direction: column;
             }
 
+            .mode-card {
+                padding: 20px;
+            }
+
             .right-column {
                 flex-direction: column;
             }
 
-            .community-card, .donate-card {
+            .info-card, .donate-card {
                 min-width: 100%;
             }
         }
 
-        /* Very small height screens */
-        @media (max-height: 600px) {
-            .main { padding: 12px; gap: 10px; }
-            .mode-card { padding: 12px; }
-            .mode-icon { width: 40px; height: 40px; font-size: 14px; margin-bottom: 6px; }
-            .tutorial-card { padding: 10px 14px; }
-            .community-card, .donate-card { padding: 12px; }
+        /* Short screens */
+        @media (max-height: 700px) {
+            .main { padding: 20px; gap: 16px; }
+            .mode-card { padding: 16px; }
+            .mode-icon { width: 44px; height: 44px; font-size: 16px; margin-bottom: 12px; }
+            .tutorial-card { padding: 14px 18px; }
+            .info-card, .donate-card { padding: 16px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-                    <line x1="9" y1="3" x2="9" y2="18"/>
-                    <line x1="15" y1="6" x2="15" y2="21"/>
-                </svg>
-            </div>
-            <div class="header-text">
-                <h1>Co-op Maps</h1>
-                <p>Co-operative Ecosystem Mapping Tool</p>
-            </div>
-            <div class="header-right">
-                <a href="./browse.html" class="header-btn">Browse Maps</a>
-                <a href="./admin.html" class="header-btn">Admin</a>
-            </div>
+    <div class="header">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+                <line x1="9" y1="3" x2="9" y2="18"/>
+                <line x1="15" y1="6" x2="15" y2="21"/>
+            </svg>
         </div>
+        <div class="header-text">
+            <h1>Co-op Maps</h1>
+        </div>
+        <div class="header-right">
+            <a href="./browse.html" class="header-btn">Browse Maps</a>
+            <a href="./admin.html" class="header-btn">Admin</a>
+        </div>
+    </div>
 
-        <div class="main">
-            <div class="left-column">
-                <div>
-                    <div class="section-label">Create New Map</div>
-                    <div class="mode-cards">
-                        <a href="./express.html" class="mode-card">
-                            <div class="mode-icon express">EX</div>
-                            <h3>Express Mode</h3>
-                            <p>Quick mapping with essential features</p>
-                            <span class="mode-badge">Simple</span>
-                        </a>
-                        <a href="./deluxe.html" class="mode-card">
-                            <div class="mode-icon deluxe">DX</div>
-                            <h3>Deluxe Mode</h3>
-                            <p>Full-featured with advanced tools</p>
-                            <span class="mode-badge">Full Power</span>
-                        </a>
-                    </div>
-                </div>
-
-                <a href="./tutorial.html" class="tutorial-card">
-                    <div class="tutorial-icon">
-                        <svg viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
-                            <polygon points="10 8 16 12 10 16 10 8"/>
-                        </svg>
-                    </div>
-                    <div class="tutorial-text">
-                        <h3>Interactive Tutorial</h3>
-                        <p>Learn with a guided walkthrough</p>
-                    </div>
-                    <span class="tutorial-badge">New</span>
-                </a>
-
-                <div class="saved-section">
-                    <div class="section-label">Your Saved Maps</div>
-                    <div id="savedMapsList" class="saved-list">
-                        <div class="no-maps">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/>
-                            </svg>
-                            <div>No saved maps yet</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="right-column">
-                <div class="community-card">
-                    <h3>Community</h3>
-                    <p>Explore maps shared by the co-operative community</p>
-                    <div class="community-links">
-                        <a href="./browse.html" class="community-link">
-                            <span class="community-link-icon">B</span>
-                            Browse Community Maps
-                        </a>
-                        <a href="./deluxe.html" class="community-link">
-                            <span class="community-link-icon">S</span>
-                            Submit Your Map
-                        </a>
-                    </div>
-                </div>
-
-                <div class="donate-card">
-                    <h3>Support Co-op Maps</h3>
-                    <p>Help keep this tool free for the co-operative community</p>
-                    <a href="https://opencollective.com/co-op-maps/donate" target="_blank" rel="noopener" class="donate-btn">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                        Donate
+    <div class="main">
+        <div class="left-column">
+            <div>
+                <div class="section-label">Create New Map</div>
+                <div class="mode-cards">
+                    <a href="./express.html" class="mode-card">
+                        <div class="mode-icon express">EX</div>
+                        <h3>Express Mode</h3>
+                        <p>Quick mapping with essential features</p>
+                        <span class="mode-badge">Simple</span>
+                    </a>
+                    <a href="./deluxe.html" class="mode-card">
+                        <div class="mode-icon deluxe">DX</div>
+                        <h3>Deluxe Mode</h3>
+                        <p>Full-featured with advanced tools</p>
+                        <span class="mode-badge">Full Power</span>
                     </a>
                 </div>
             </div>
+
+            <a href="./tutorial.html" class="tutorial-card">
+                <div class="tutorial-icon">
+                    <svg viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
+                        <polygon points="10 8 16 12 10 16 10 8"/>
+                    </svg>
+                </div>
+                <div class="tutorial-text">
+                    <h3>Interactive Tutorial</h3>
+                    <p>Learn with a guided walkthrough</p>
+                </div>
+                <span class="tutorial-badge">New</span>
+            </a>
+
+            <div class="saved-section">
+                <div class="section-label">Your Saved Maps</div>
+                <div id="savedMapsList" class="saved-list">
+                    <div class="no-maps">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/>
+                        </svg>
+                        <div>No saved maps yet</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="footer">
-            Co-op Maps v1.0 | Principle 5 - Co-operation Among Co-operatives
+        <div class="right-column">
+            <div class="info-card">
+                <h3>Community</h3>
+                <p>Explore maps shared by the co-operative community</p>
+                <div class="info-links">
+                    <a href="./browse.html" class="info-link">
+                        <span class="info-link-icon">B</span>
+                        Browse Community Maps
+                    </a>
+                    <a href="./deluxe.html" class="info-link">
+                        <span class="info-link-icon">S</span>
+                        Submit Your Map
+                    </a>
+                </div>
+            </div>
+
+            <div class="donate-card">
+                <h3>Support Co-op Maps</h3>
+                <p>Help keep this tool free for the co-operative community</p>
+                <a href="https://opencollective.com/co-op-maps/donate" target="_blank" rel="noopener" class="donate-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Donate
+                </a>
+            </div>
         </div>
+    </div>
+
+    <div class="footer">
+        Co-op Maps v1.0 | Principle 5 - Co-operation Among Co-operatives
     </div>
 
     <script>
