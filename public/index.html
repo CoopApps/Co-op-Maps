@@ -85,8 +85,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px 24px;
-            gap: 32px;
+            padding: 24px;
+            gap: 20px;
         }
 
         /* Hero */
@@ -95,41 +95,41 @@
         }
 
         .hero-logo {
-            width: 64px;
-            height: 64px;
+            width: 48px;
+            height: 48px;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            border-radius: 16px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 12px;
         }
 
         .hero-logo svg {
-            width: 38px;
-            height: 38px;
+            width: 28px;
+            height: 28px;
             stroke: white;
             stroke-width: 2;
             fill: none;
         }
 
         .hero h2 {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 700;
             color: #0f172a;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .hero p {
-            font-size: 16px;
+            font-size: 14px;
             color: #64748b;
         }
 
         /* Mode Cards */
         .mode-cards {
             display: flex;
-            gap: 20px;
-            max-width: 560px;
+            gap: 16px;
+            max-width: 480px;
             width: 100%;
         }
 
@@ -137,8 +137,8 @@
             flex: 1;
             background: #fff;
             border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 28px 24px;
+            border-radius: 12px;
+            padding: 20px 16px;
             text-decoration: none;
             color: #0f172a;
             text-align: center;
@@ -147,43 +147,43 @@
 
         .mode-card:hover {
             border-color: #3b82f6;
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
-            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
         }
 
         .mode-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             color: white;
-            margin: 0 auto 16px;
+            margin: 0 auto 12px;
         }
 
         .mode-icon.express { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
         .mode-icon.deluxe { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
 
         .mode-card h3 {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .mode-card p {
-            font-size: 14px;
+            font-size: 12px;
             color: #64748b;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .mode-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -196,63 +196,58 @@
         .tutorial-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
+            gap: 6px;
+            padding: 10px 20px;
             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 600;
             transition: all 0.2s;
         }
 
         .tutorial-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
         }
 
         .tutorial-link svg {
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
         }
 
-        /* Saved Maps - Hidden by default, shown via JS */
+        /* Saved Maps - Always visible */
         .saved-section {
-            display: none;
             width: 100%;
-            max-width: 560px;
+            max-width: 480px;
             background: #f8fafc;
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .saved-section.visible {
-            display: block;
+            border-radius: 10px;
+            padding: 16px;
         }
 
         .saved-header {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .saved-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .saved-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.15s;
             border: 1px solid #e2e8f0;
@@ -264,36 +259,43 @@
         }
 
         .saved-item-name {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: #0f172a;
         }
 
         .saved-item-date {
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
         }
 
         .saved-item-arrow {
             color: #94a3b8;
-            font-size: 16px;
+            font-size: 14px;
+        }
+
+        .no-maps {
+            text-align: center;
+            padding: 16px;
+            color: #94a3b8;
+            font-size: 12px;
         }
 
         /* Secondary Links */
         .secondary-links {
             display: flex;
-            gap: 24px;
-            padding-top: 16px;
+            gap: 20px;
+            padding-top: 12px;
             border-top: 1px solid #e2e8f0;
         }
 
         .secondary-link {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             color: #64748b;
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             transition: color 0.15s;
         }
@@ -303,15 +305,15 @@
         }
 
         .secondary-link svg {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
         }
 
         /* Footer */
         .footer {
-            padding: 16px 32px;
+            padding: 12px 24px;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
             border-top: 1px solid #f1f5f9;
         }
@@ -448,12 +450,9 @@
                 }
             }
 
-            const section = document.getElementById('savedSection');
             const list = document.getElementById('savedList');
 
-            // Only show if there are saved maps
             if (savedMaps.length > 0) {
-                section.classList.add('visible');
                 list.innerHTML = savedMaps.map(map => `
                     <div class="saved-item" onclick="loadMap('${map.key}')">
                         <div>
@@ -463,6 +462,8 @@
                         <span class="saved-item-arrow">→</span>
                     </div>
                 `).join('');
+            } else {
+                list.innerHTML = '<div class="no-maps">No saved maps yet</div>';
             }
         }
 
