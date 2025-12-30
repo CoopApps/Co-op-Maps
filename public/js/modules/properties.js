@@ -639,6 +639,169 @@
                     </div>
                     ` : ''}
 
+                    ${selected.type === 'cooperative' ? `
+                    <!-- ICA Cooperative Principles -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                        border: 1px solid #e9ecef;
+                    ">
+                        <h4 style="
+                            font-size: 16px;
+                            color: #2c3e50;
+                            margin: 0 0 12px 0;
+                            font-weight: 600;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        ">
+                            <span style="color: #3498db;">&#9733;</span>
+                            ICA Cooperative Principles
+                        </h4>
+                        <p style="
+                            font-size: 12px;
+                            color: #7f8c8d;
+                            margin-bottom: 16px;
+                            line-height: 1.5;
+                        ">
+                            Track which principles this cooperative actively demonstrates
+                        </p>
+
+                        ${this.renderPrincipleCheckbox(1, 'Voluntary & Open Membership', selected.principles)}
+                        ${this.renderPrincipleCheckbox(2, 'Democratic Member Control', selected.principles)}
+                        ${this.renderPrincipleCheckbox(3, 'Member Economic Participation', selected.principles)}
+                        ${this.renderPrincipleCheckbox(4, 'Autonomy & Independence', selected.principles)}
+                        ${this.renderPrincipleCheckbox(5, 'Education, Training & Information', selected.principles)}
+                        ${this.renderPrincipleCheckbox(6, 'Cooperation Among Cooperatives', selected.principles)}
+                        ${this.renderPrincipleCheckbox(7, 'Concern for Community', selected.principles)}
+                    </div>
+                    ` : ''}
+
+                    <!-- Extended Properties -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                        border: 1px solid #e9ecef;
+                    ">
+                        <h4 style="
+                            font-size: 16px;
+                            color: #2c3e50;
+                            margin: 0 0 20px 0;
+                            font-weight: 600;
+                        ">Extended Properties</h4>
+
+                        <div class="property-field" style="margin-bottom: 16px;">
+                            <label style="
+                                display: block;
+                                font-size: 13px;
+                                color: #546e7a;
+                                margin-bottom: 8px;
+                                font-weight: 500;
+                            ">Sector / Industry</label>
+                            <select onchange="CoopMaps.modules.properties.updateProperty('sector', this.value)"
+                                    style="
+                                        width: 100%;
+                                        padding: 12px 16px;
+                                        border: 2px solid #e9ecef;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        background: #f8f9fa;
+                                        cursor: pointer;
+                                    ">
+                                <option value="" ${!selected.sector ? 'selected' : ''}>-- Select Sector --</option>
+                                <option value="agriculture" ${selected.sector === 'agriculture' ? 'selected' : ''}>Agriculture & Food</option>
+                                <option value="retail" ${selected.sector === 'retail' ? 'selected' : ''}>Retail & Consumer</option>
+                                <option value="finance" ${selected.sector === 'finance' ? 'selected' : ''}>Finance & Banking</option>
+                                <option value="housing" ${selected.sector === 'housing' ? 'selected' : ''}>Housing</option>
+                                <option value="energy" ${selected.sector === 'energy' ? 'selected' : ''}>Energy & Utilities</option>
+                                <option value="healthcare" ${selected.sector === 'healthcare' ? 'selected' : ''}>Healthcare</option>
+                                <option value="education" ${selected.sector === 'education' ? 'selected' : ''}>Education</option>
+                                <option value="technology" ${selected.sector === 'technology' ? 'selected' : ''}>Technology</option>
+                                <option value="manufacturing" ${selected.sector === 'manufacturing' ? 'selected' : ''}>Manufacturing</option>
+                                <option value="services" ${selected.sector === 'services' ? 'selected' : ''}>Professional Services</option>
+                                <option value="transport" ${selected.sector === 'transport' ? 'selected' : ''}>Transport & Logistics</option>
+                                <option value="arts" ${selected.sector === 'arts' ? 'selected' : ''}>Arts & Culture</option>
+                                <option value="social" ${selected.sector === 'social' ? 'selected' : ''}>Social Care</option>
+                                <option value="other" ${selected.sector === 'other' ? 'selected' : ''}>Other</option>
+                            </select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div class="property-field">
+                                <label style="
+                                    display: block;
+                                    font-size: 13px;
+                                    color: #546e7a;
+                                    margin-bottom: 8px;
+                                    font-weight: 500;
+                                ">Members / Employees</label>
+                                <input type="number"
+                                       value="${selected.memberCount || ''}"
+                                       onchange="CoopMaps.modules.properties.updateProperty('memberCount', parseInt(this.value) || 0)"
+                                       placeholder="e.g., 500"
+                                       min="0"
+                                       style="
+                                           width: 100%;
+                                           padding: 12px 16px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           font-size: 14px;
+                                           background: #f8f9fa;
+                                       ">
+                            </div>
+
+                            <div class="property-field">
+                                <label style="
+                                    display: block;
+                                    font-size: 13px;
+                                    color: #546e7a;
+                                    margin-bottom: 8px;
+                                    font-weight: 500;
+                                ">Annual Revenue</label>
+                                <input type="text"
+                                       value="${selected.revenue || ''}"
+                                       onchange="CoopMaps.modules.properties.updateProperty('revenue', this.value)"
+                                       placeholder="e.g., £1.2M"
+                                       style="
+                                           width: 100%;
+                                           padding: 12px 16px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           font-size: 14px;
+                                           background: #f8f9fa;
+                                       ">
+                            </div>
+                        </div>
+
+                        <div class="property-field">
+                            <label style="
+                                display: block;
+                                font-size: 13px;
+                                color: #546e7a;
+                                margin-bottom: 8px;
+                                font-weight: 500;
+                            ">Location / Region</label>
+                            <input type="text"
+                                   value="${selected.location || ''}"
+                                   onchange="CoopMaps.modules.properties.updateProperty('location', this.value)"
+                                   placeholder="e.g., Wales, UK"
+                                   style="
+                                       width: 100%;
+                                       padding: 12px 16px;
+                                       border: 2px solid #e9ecef;
+                                       border-radius: 8px;
+                                       font-size: 14px;
+                                       background: #f8f9fa;
+                                   ">
+                        </div>
+                    </div>
+
                     <!-- Position -->
                     <div class="property-group" style="
                         background: white;
@@ -895,6 +1058,78 @@
                     </div>
                 </label>
             `;
+        },
+
+        renderPrincipleCheckbox(number, label, principles) {
+            const isChecked = principles?.includes(number);
+            const colors = ['#e74c3c', '#3498db', '#27ae60', '#9b59b6', '#f39c12', '#1abc9c', '#e91e63'];
+            const color = colors[(number - 1) % colors.length];
+
+            return `
+                <label style="
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    padding: 10px 14px;
+                    background: ${isChecked ? color + '15' : '#f8f9fa'};
+                    border: 2px solid ${isChecked ? color : '#e9ecef'};
+                    border-radius: 8px;
+                    margin-bottom: 6px;
+                    transition: all 0.2s ease;
+                "
+                onmouseover="this.style.background='${isChecked ? color + '25' : '#e3f2fd'}'"
+                onmouseout="this.style.background='${isChecked ? color + '15' : '#f8f9fa'}'">
+                    <input type="checkbox"
+                           ${isChecked ? 'checked' : ''}
+                           onchange="CoopMaps.modules.properties.togglePrinciple(${number})"
+                           style="
+                               width: 16px;
+                               height: 16px;
+                               margin-right: 10px;
+                               cursor: pointer;
+                           ">
+                    <span style="
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 22px;
+                        height: 22px;
+                        background: ${color};
+                        color: white;
+                        border-radius: 50%;
+                        font-size: 11px;
+                        font-weight: 600;
+                        margin-right: 10px;
+                    ">${number}</span>
+                    <span style="font-size: 13px; color: #2c3e50; font-weight: ${isChecked ? '500' : '400'};">
+                        ${label}
+                    </span>
+                </label>
+            `;
+        },
+
+        togglePrinciple(principleNumber) {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (!selected) return;
+
+            CoopMaps.saveState();
+
+            if (!selected.principles) {
+                selected.principles = [];
+            }
+
+            const index = selected.principles.indexOf(principleNumber);
+            if (index === -1) {
+                selected.principles.push(principleNumber);
+                selected.principles.sort((a, b) => a - b);
+            } else {
+                selected.principles.splice(index, 1);
+            }
+
+            CoopMaps.updateSidebar();
+            if (CoopMaps.modules.canvas) {
+                CoopMaps.modules.canvas.render();
+            }
         },
 
         getTypeName(typeId) {

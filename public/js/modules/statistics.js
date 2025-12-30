@@ -61,6 +61,43 @@
                 ? Math.round((relationships.length / possibleConnections) * 100)
                 : 0;
 
+            // Intercooperation Score - measures cooperation among cooperatives
+            const coopIds = new Set(enterprises.filter(e => e.type === 'cooperative').map(e => e.id));
+            const coopToCoopRelationships = relationships.filter(r =>
+                coopIds.has(r.fromId) && coopIds.has(r.toId)
+            ).length;
+            const coopInvolvedRelationships = relationships.filter(r =>
+                coopIds.has(r.fromId) || coopIds.has(r.toId)
+            ).length;
+            const intercooperationScore = coopInvolvedRelationships > 0
+                ? Math.round((coopToCoopRelationships / coopInvolvedRelationships) * 100)
+                : 0;
+
+            // Sector breakdown
+            const sectorCounts = {};
+            enterprises.forEach(e => {
+                if (e.sector) {
+                    sectorCounts[e.sector] = (sectorCounts[e.sector] || 0) + 1;
+                }
+            });
+
+            // Total members/employees
+            const totalMembers = enterprises.reduce((sum, e) => sum + (e.memberCount || 0), 0);
+
+            // Principles adherence (for cooperatives)
+            const coops = enterprises.filter(e => e.type === 'cooperative');
+            const principlesCounts = [0, 0, 0, 0, 0, 0, 0];
+            coops.forEach(coop => {
+                if (coop.principles) {
+                    coop.principles.forEach(p => {
+                        if (p >= 1 && p <= 7) principlesCounts[p - 1]++;
+                    });
+                }
+            });
+            const avgPrinciples = coops.length > 0
+                ? (principlesCounts.reduce((a, b) => a + b, 0) / coops.length).toFixed(1)
+                : 0;
+
             return {
                 totals: {
                     enterprises: enterprises.length,
@@ -75,7 +112,15 @@
                 density,
                 averageConnections: enterprises.length > 0
                     ? (relationships.length * 2 / enterprises.length).toFixed(1)
-                    : 0
+                    : 0,
+                // New co-op specific stats
+                intercooperationScore,
+                coopToCoopRelationships,
+                sectorCounts,
+                totalMembers,
+                avgPrinciples,
+                principlesCounts,
+                coopCount
             };
         },
 
@@ -214,6 +259,64 @@
                         <div style="font-size: 12px; opacity: 0.9;">Density</div>
                     </div>
                 </div>
+
+                <!-- Co-operative Specific Stats -->
+                ${stats.coopCount > 0 ? `
+                <div style="
+                    background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+                    padding: 20px;
+                    border-radius: ${isExpress ? '0' : '12px'};
+                    margin-bottom: 25px;
+                    color: white;
+                ">
+                    <h3 style="margin: 0 0 15px 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">&#9733;</span>
+                        Intercooperation Analysis
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.15); border-radius: 8px;">
+                            <div style="font-size: 28px; font-weight: bold;">${stats.intercooperationScore}%</div>
+                            <div style="font-size: 11px; opacity: 0.9;">Intercooperation Score</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.15); border-radius: 8px;">
+                            <div style="font-size: 28px; font-weight: bold;">${stats.coopToCoopRelationships}</div>
+                            <div style="font-size: 11px; opacity: 0.9;">Co-op to Co-op Links</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.15); border-radius: 8px;">
+                            <div style="font-size: 28px; font-weight: bold;">${stats.avgPrinciples}</div>
+                            <div style="font-size: 11px; opacity: 0.9;">Avg Principles/Co-op</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.15); border-radius: 8px;">
+                            <div style="font-size: 28px; font-weight: bold;">${stats.totalMembers > 0 ? stats.totalMembers.toLocaleString() : '-'}</div>
+                            <div style="font-size: 11px; opacity: 0.9;">Total Members</div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Sector Breakdown -->
+                ${Object.keys(stats.sectorCounts).length > 0 ? `
+                <div style="
+                    background: ${isExpress ? '#fff' : '#f0f4f8'};
+                    padding: 20px;
+                    border-radius: ${isExpress ? '0' : '12px'};
+                    margin-bottom: 25px;
+                    border: ${isExpress ? '1px solid #bdc3c7' : 'none'};
+                ">
+                    <h3 style="margin: 0 0 15px 0; font-size: 14px; color: #7f8c8d;">Sector Breakdown</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${Object.entries(stats.sectorCounts).map(([sector, count]) => `
+                            <span style="
+                                background: #3498db;
+                                color: white;
+                                padding: 6px 12px;
+                                border-radius: 20px;
+                                font-size: 12px;
+                            ">${sector.charAt(0).toUpperCase() + sector.slice(1)}: ${count}</span>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
 
                 <!-- Two Column Layout -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">

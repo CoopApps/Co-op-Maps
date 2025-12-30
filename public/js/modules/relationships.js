@@ -21,6 +21,14 @@
             'INNER': { label: 'Inner Segment', color: '#95a5a6', style: 'dashed', letter: '' }
         },
 
+        // Flow direction options
+        flowDirections: {
+            'none': { label: 'No Flow', icon: '—' },
+            'forward': { label: 'Forward →', icon: '→' },
+            'backward': { label: '← Backward', icon: '←' },
+            'bidirectional': { label: '↔ Both Ways', icon: '↔' }
+        },
+
         // Segmentation marker types
         segmentationTypes: {
             start: {
@@ -228,6 +236,40 @@
             html += `
                     </div>
                 </div>
+
+                <!-- Flow Direction Section -->
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #34495e;">
+                        Flow Direction <span style="font-weight: normal; color: #95a5a6;">(optional)</span>
+                    </label>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+            `;
+
+            Object.entries(this.flowDirections).forEach(([key, flow]) => {
+                html += `
+                    <button class="flow-option" data-flow="${key}" style="
+                        padding: 12px 8px;
+                        border: 2px solid ${key === 'none' ? '#3498db' : '#ecf0f1'};
+                        border-radius: 8px;
+                        background: ${key === 'none' ? '#3498db10' : 'white'};
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        text-align: center;
+                    " onmouseover="if(!this.classList.contains('selected')) { this.style.borderColor='#3498db'; this.style.transform='translateY(-2px)'; }"
+                       onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#ecf0f1'; this.style.transform='translateY(0)'; }">
+                        <div style="font-size: 18px; margin-bottom: 2px;">${flow.icon}</div>
+                        <div style="font-size: 11px; color: #7f8c8d;">${flow.label}</div>
+                    </button>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <p style="margin: 8px 0 0 0; font-size: 11px; color: #95a5a6;">
+                        Show flow of resources, funds, or services along the relationship
+                    </p>
+                </div>
+
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
                     <button id="cancelRelBtn" style="
                         padding: 10px 24px;
@@ -257,6 +299,7 @@
             document.body.appendChild(modal);
 
             let selectedType = null;
+            let selectedFlow = 'none';
 
             // Bind type selection
             typeDialog.querySelectorAll('.rel-type-option').forEach(btn => {
@@ -280,6 +323,27 @@
                 });
             });
 
+            // Bind flow direction selection
+            typeDialog.querySelectorAll('.flow-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    typeDialog.querySelectorAll('.flow-option').forEach(b => {
+                        b.classList.remove('selected');
+                        b.style.borderColor = '#ecf0f1';
+                        b.style.background = 'white';
+                    });
+                    btn.classList.add('selected');
+                    btn.style.borderColor = '#3498db';
+                    btn.style.background = '#3498db10';
+                    selectedFlow = btn.dataset.flow;
+                });
+            });
+
+            // Select 'none' by default
+            const defaultFlowBtn = typeDialog.querySelector('.flow-option[data-flow="none"]');
+            if (defaultFlowBtn) {
+                defaultFlowBtn.classList.add('selected');
+            }
+
             // Cancel button
             document.getElementById('cancelRelBtn').addEventListener('click', () => {
                 modal.remove();
@@ -290,7 +354,7 @@
             document.getElementById('nextStepBtn').addEventListener('click', () => {
                 if (selectedType) {
                     modal.remove();
-                    this.showSegmentationDialog(startEnt, endEnt, selectedType);
+                    this.showSegmentationDialog(startEnt, endEnt, selectedType, selectedFlow);
                 }
             });
 
@@ -303,13 +367,13 @@
             });
         },
 
-        showSegmentationDialog(startEnt, endEnt, relType) {
+        showSegmentationDialog(startEnt, endEnt, relType, flowDirection = 'none') {
             // Only show if either enterprise is a generic set
             const needsSegmentation = startEnt.isGenericSet || endEnt.isGenericSet;
 
             if (!needsSegmentation) {
                 // Create relationship directly
-                this.createRelationship(startEnt, endEnt, relType, 'individual', 'individual');
+                this.createRelationship(startEnt, endEnt, relType, 'individual', 'individual', flowDirection);
                 return;
             }
 
@@ -501,7 +565,7 @@
             // Create button
             document.getElementById('createRelBtn').addEventListener('click', () => {
                 modal.remove();
-                this.createRelationship(startEnt, endEnt, relType, startSeg, endSeg);
+                this.createRelationship(startEnt, endEnt, relType, startSeg, endSeg, flowDirection);
             });
 
             // Close on backdrop click
@@ -513,14 +577,15 @@
             });
         },
 
-        createRelationship(startEnt, endEnt, type, startSeg, endSeg) {
+        createRelationship(startEnt, endEnt, type, startSeg, endSeg, flowDirection = 'none') {
             const relationship = {
                 id: CoopMaps.generateId(),
                 startEnterpriseId: startEnt.id,
                 endEnterpriseId: endEnt.id,
                 type: type,
                 startSegmentation: startSeg || 'individual',
-                endSegmentation: endSeg || 'individual'
+                endSegmentation: endSeg || 'individual',
+                flowDirection: flowDirection
             };
 
             CoopMaps.state.data.relationships.push(relationship);
@@ -747,9 +812,10 @@
                 ctx.stroke();
                 ctx.restore();
 
-                // Draw markers and badges
+                // Draw markers, badges, and flow arrows
                 this.drawSegmentationMarkers(ctx, start, end, relationships[0]);
                 this.drawRelationshipBadges(ctx, [start, end], relationships);
+                this.drawFlowArrows(ctx, [start, end], relationships[0].flowDirection, relationships[0].type);
 
                 return;
             }
@@ -802,9 +868,10 @@
             ctx.stroke();
             ctx.restore();
 
-            // Draw markers and badges
+            // Draw markers, badges, and flow arrows
             this.drawSegmentationMarkers(ctx, start, end, relationships[0]);
             this.drawRelationshipBadges(ctx, [start, end], relationships);
+            this.drawFlowArrows(ctx, [start, end], relationships[0].flowDirection, relationships[0].type);
         },
 
         // Draw all relationships using orthogonal (right-angle) style
@@ -891,6 +958,9 @@
 
             // Draw relationship badges
             this.drawRelationshipBadges(ctx, path, relationships);
+
+            // Draw flow direction arrows
+            this.drawFlowArrows(ctx, path, relationships[0].flowDirection, relationships[0].type);
         },
 
         calculateOrthogonalPath(startEnt, endEnt, isBidirectional) {
@@ -1125,6 +1195,105 @@
             ctx.restore();
         },
 
+        // Draw flow direction arrows along the relationship line
+        drawFlowArrows(ctx, path, flowDirection, relType) {
+            if (!flowDirection || flowDirection === 'none') return;
+            if (!path || path.length < 2) return;
+
+            const type = this.relationshipTypes[relType];
+            const color = type ? type.color : '#34495e';
+
+            ctx.save();
+
+            // Calculate total path length
+            let totalLength = 0;
+            for (let i = 1; i < path.length; i++) {
+                const dx = path[i].x - path[i - 1].x;
+                const dy = path[i].y - path[i - 1].y;
+                totalLength += Math.sqrt(dx * dx + dy * dy);
+            }
+
+            // Determine arrow positions (at 25% and 75% of path)
+            const positions = [0.30, 0.70];
+
+            positions.forEach(pos => {
+                let targetDist = pos * totalLength;
+                let currentDist = 0;
+
+                for (let i = 1; i < path.length; i++) {
+                    const dx = path[i].x - path[i - 1].x;
+                    const dy = path[i].y - path[i - 1].y;
+                    const segLength = Math.sqrt(dx * dx + dy * dy);
+
+                    if (currentDist + segLength >= targetDist) {
+                        // Found the segment
+                        const t = (targetDist - currentDist) / segLength;
+                        const x = path[i - 1].x + dx * t;
+                        const y = path[i - 1].y + dy * t;
+                        const angle = Math.atan2(dy, dx);
+
+                        // Draw flow chevron
+                        ctx.save();
+                        ctx.translate(x, y);
+
+                        // Determine rotation based on flow direction
+                        if (flowDirection === 'forward') {
+                            ctx.rotate(angle);
+                        } else if (flowDirection === 'backward') {
+                            ctx.rotate(angle + Math.PI);
+                        }
+
+                        // Draw the chevron arrow
+                        ctx.strokeStyle = color;
+                        ctx.fillStyle = color;
+                        ctx.lineWidth = 2.5;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+
+                        if (flowDirection === 'bidirectional') {
+                            // Draw double-headed arrow
+                            ctx.rotate(angle);
+
+                            // Forward chevron
+                            ctx.beginPath();
+                            ctx.moveTo(-4, -5);
+                            ctx.lineTo(4, 0);
+                            ctx.lineTo(-4, 5);
+                            ctx.stroke();
+
+                            // Backward chevron
+                            ctx.beginPath();
+                            ctx.moveTo(4, -5);
+                            ctx.lineTo(-4, 0);
+                            ctx.lineTo(4, 5);
+                            ctx.stroke();
+                        } else {
+                            // Single direction chevron
+                            ctx.beginPath();
+                            ctx.moveTo(-5, -6);
+                            ctx.lineTo(5, 0);
+                            ctx.lineTo(-5, 6);
+                            ctx.stroke();
+
+                            // Add filled tip for better visibility
+                            ctx.beginPath();
+                            ctx.moveTo(5, 0);
+                            ctx.lineTo(-1, -4);
+                            ctx.lineTo(-1, 4);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+
+                        ctx.restore();
+                        break;
+                    }
+                    currentDist += segLength;
+                }
+            });
+
+            ctx.restore();
+        },
+
         drawRelationshipBadges(ctx, path, relationships) {
             if (!path || path.length < 2) return;
 
@@ -1287,12 +1456,32 @@
             const startEnt = enterprises.find(e => e.id === relationship.startEnterpriseId);
             const endEnt = enterprises.find(e => e.id === relationship.endEnterpriseId);
 
+            const currentFlow = relationship.flowDirection || 'none';
+            const flowLabel = this.flowDirections[currentFlow]?.label || 'No Flow';
+
             menu.innerHTML = `
                 <div style="padding: 8px 16px; font-size: 12px; color: #7f8c8d; border-bottom: 1px solid #ecf0f1;">
                     ${type ? type.label : 'Relationship'}
                 </div>
                 <div style="padding: 4px 16px; font-size: 11px; color: #95a5a6;">
                     ${startEnt ? startEnt.name : 'Unknown'} → ${endEnt ? endEnt.name : 'Unknown'}
+                </div>
+                <div style="padding: 8px 16px; border-bottom: 1px solid #ecf0f1;">
+                    <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 6px;">Flow Direction</div>
+                    <div style="display: flex; gap: 4px;">
+                        ${Object.entries(this.flowDirections).map(([key, flow]) => `
+                            <button class="flow-ctx-btn" data-flow="${key}" style="
+                                padding: 6px 10px;
+                                border: 1px solid ${currentFlow === key ? '#3498db' : '#ecf0f1'};
+                                border-radius: 4px;
+                                background: ${currentFlow === key ? '#3498db10' : 'white'};
+                                color: ${currentFlow === key ? '#3498db' : '#7f8c8d'};
+                                cursor: pointer;
+                                font-size: 14px;
+                                transition: all 0.2s;
+                            " title="${flow.label}">${flow.icon}</button>
+                        `).join('')}
+                    </div>
                 </div>
                 <button id="deleteRelBtn" style="
                     width: 100%;
@@ -1311,6 +1500,15 @@
 
             document.body.appendChild(menu);
 
+            // Flow direction buttons
+            menu.querySelectorAll('.flow-ctx-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const newFlow = btn.dataset.flow;
+                    this.updateRelationshipFlow(relationship.id, newFlow);
+                    menu.remove();
+                });
+            });
+
             // Delete button
             document.getElementById('deleteRelBtn').addEventListener('click', () => {
                 this.deleteRelationship(relationship.id);
@@ -1327,6 +1525,24 @@
                 };
                 document.addEventListener('click', closeMenu);
             }, 0);
+        },
+
+        updateRelationshipFlow(relationshipId, flowDirection) {
+            const relationship = CoopMaps.state.data.relationships.find(r => r.id === relationshipId);
+
+            if (relationship) {
+                CoopMaps.saveState();
+                relationship.flowDirection = flowDirection;
+
+                const flowLabel = this.flowDirections[flowDirection]?.label || 'No Flow';
+                CoopMaps.showNotification(`Flow direction: ${flowLabel}`, 'success');
+
+                document.dispatchEvent(new CustomEvent('diagram-changed'));
+
+                if (CoopMaps.modules.canvas) {
+                    CoopMaps.modules.canvas.render();
+                }
+            }
         },
 
         deleteRelationship(relationshipId) {
