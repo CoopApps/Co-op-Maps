@@ -60,6 +60,22 @@
             padding: 0 10px;
             box-shadow: var(--shadow-sm);
             z-index: 5;
+            overflow-x: auto;
+            overflow-y: hidden;
+            flex-shrink: 0;
+        }
+        .toolbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .toolbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .toolbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        .toolbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
         }
         .toolbar button {
             padding: 4px 8px;
