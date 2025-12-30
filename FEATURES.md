@@ -1,6 +1,111 @@
-# Co-opMaps Advanced Features Implementation Guide
+# Co-op Maps Advanced Features Implementation Guide
 
-This document describes all the advanced features added to Co-opMaps and how to complete their implementation.
+This document describes all the advanced features added to Co-op Maps and how to complete their implementation.
+
+---
+
+## 📱 Client-Side Features
+
+### Search & Find (Ctrl+F)
+**Status**: ✅ Complete
+**Files**: `public/js/modules/canvas.js`
+
+**Features**:
+- Keyboard shortcut Ctrl+F (Cmd+F on Mac) opens search dialog
+- Real-time filtering of enterprises by name
+- Highlighting of matching enterprises on canvas
+- Navigation between search results
+- Auto-pan to centre selected result
+- Search box in header for quick lookup
+
+### CSV Import
+**Status**: ✅ Complete
+**Files**: `public/js/modules/import.js`
+
+**Features**:
+- Four import templates: Simple, Basic, Standard, Full
+- File upload or paste CSV data
+- Preview before import
+- Type normalisation (accepts "co-operative", "cooperative", "coop")
+- Auto-positioning of imported enterprises
+- Support for sector, member count, location fields
+
+### ICA Co-operative Principles
+**Status**: ✅ Complete
+**Files**: `public/js/modules/properties.js`
+
+**Features**:
+- 7 ICA principles checklist for co-operatives
+- Visual checkboxes in Properties panel
+- Saved with enterprise data
+- Tracked in statistics for ecosystem analysis
+
+**The 7 Principles**:
+1. Voluntary and Open Membership
+2. Democratic Member Control
+3. Member Economic Participation
+4. Autonomy and Independence
+5. Education, Training and Information
+6. Co-operation Among Co-operatives
+7. Concern for Community
+
+### Extended Properties
+**Status**: ✅ Complete
+**Files**: `public/js/modules/properties.js`
+
+**Features**:
+- Sector/Industry classification dropdown
+- Member count numeric field
+- Annual revenue field
+- Geographic location field for clustering
+
+### Flow Direction Arrows
+**Status**: ✅ Complete
+**Files**: `public/js/modules/relationships.js`
+
+**Features**:
+- Four flow options: No Flow, Forward, Backward, Bidirectional
+- Visual chevron arrows drawn along relationship lines
+- Set during relationship creation
+- Change via right-click context menu on relationships
+- Arrows use relationship type colour
+
+### Intercooperation Analysis (Statistics)
+**Status**: ✅ Complete
+**Files**: `public/js/modules/statistics.js`
+
+**Features**:
+- Intercooperation Score (% of co-op to co-op relationships)
+- Sector breakdown visualisation
+- Principles adherence tracking per principle
+- Total members across ecosystem
+- Most connected enterprises list
+
+### PWA Support
+**Status**: ✅ Complete
+**Files**: `public/manifest.json`, `public/sw.js`, `public/icons/icon.svg`
+
+**Features**:
+- Progressive Web App manifest
+- Service worker for offline caching
+- Install as desktop application
+- Network-first with cache fallback strategy
+
+### Expanded Tutorial
+**Status**: ✅ Complete
+**Files**: `public/tutorial.html`
+
+**Features**:
+- 31 interactive steps across 12 parts
+- Covers all new features
+- Flow direction instructions
+- Co-operative principles tutorial
+- Search and statistics guidance
+- CSV import walkthrough
+
+---
+
+## 🖥️ Server-Side Features
 
 ## ✅ Completed Features
 

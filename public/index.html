@@ -313,13 +313,91 @@
             height: 12px;
         }
 
+        /* Principle 5 Section */
+        .principle5-section {
+            width: 100%;
+            max-width: 480px;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 10px;
+            padding: 16px 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .principle5-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .principle5-logo {
+            width: 32px;
+            height: 32px;
+            background: #3b82f6;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .principle5-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .principle5-subtitle {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .principle5-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .principle5-link:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        .principle5-link svg {
+            width: 14px;
+            height: 14px;
+        }
+
         /* Footer */
         .footer {
-            padding: 8px 24px;
+            padding: 10px 24px;
             text-align: center;
-            font-size: 10px;
-            color: #94a3b8;
+            font-size: 11px;
+            color: #64748b;
             border-top: 1px solid #f1f5f9;
+        }
+
+        .footer a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
         }
 
         /* Responsive */
@@ -414,6 +492,25 @@
             <div id="savedList" class="saved-list"></div>
         </div>
 
+        <div class="principle5-section">
+            <div class="principle5-header">
+                <div class="principle5-logo">P5</div>
+                <div class="principle5-title">A Principle 5 Product</div>
+            </div>
+            <p class="principle5-subtitle">
+                Principle 5 is the ICA principle of <strong>Co-operation Among Co-operatives</strong>.<br>
+                We build tools to strengthen the co-operative movement.
+            </p>
+            <a href="https://www.principle5.coop/" target="_blank" rel="noopener" class="principle5-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                Visit principle5.coop
+            </a>
+        </div>
+
         <div class="secondary-links">
             <a href="./browse.html" class="secondary-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -432,7 +529,7 @@
     </div>
 
     <div class="footer">
-        Co-op Maps v1.0 | Principle 5 - Co-operation Among Co-operatives
+        Co-op Maps v1.0 | A <a href="https://www.principle5.coop/" target="_blank" rel="noopener">Principle 5</a> product | ICA Principle 5: Co-operation Among Co-operatives
     </div>
 
     <script>

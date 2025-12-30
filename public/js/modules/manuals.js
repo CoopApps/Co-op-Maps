@@ -206,8 +206,10 @@
             const sections = [
                 { id: 'getting-started', label: 'Getting Started', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>' },
                 { id: 'enterprises', label: 'Enterprises', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/></svg>' },
+                { id: 'coop-features', label: 'Co-op Features', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
                 { id: 'relationships', label: 'Relationships', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' },
                 { id: 'diagrams', label: 'Diagrams', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' },
+                { id: 'search-import', label: 'Search & Import', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' },
                 { id: 'shortcuts', label: 'Shortcuts', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h8M6 16h.001M10 16h8"/></svg>' },
                 { id: 'tips', label: 'Tips & Tricks', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2v1M4.22 4.22l.77.77M1 12h1M4.22 19.78l.77-.77M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"/></svg>' }
             ];
@@ -270,8 +272,10 @@
                     ">
                         ${this.renderSectionTab('getting-started', 'Getting Started')}
                         ${this.renderSectionTab('enterprises', 'Enterprises')}
+                        ${this.renderSectionTab('coop-features', 'Co-op Features')}
                         ${this.renderSectionTab('relationships', 'Relationships')}
                         ${this.renderSectionTab('diagrams', 'Diagrams')}
+                        ${this.renderSectionTab('search-import', 'Search & Import')}
                         ${this.renderSectionTab('shortcuts', 'Shortcuts')}
                         ${this.renderSectionTab('tips', 'Tips & Tricks')}
                     </div>
@@ -423,8 +427,10 @@
             const content = {
                 'getting-started': this.getGettingStartedContent(),
                 'enterprises': this.getEnterprisesContent(),
+                'coop-features': this.getCoopFeaturesContent(),
                 'relationships': this.getRelationshipsContent(),
                 'diagrams': this.getDiagramsContent(),
+                'search-import': this.getSearchImportContent(),
                 'shortcuts': this.getShortcutsContent(),
                 'tips': this.getTipsContent()
             };
@@ -436,7 +442,7 @@
             return `
                 <h4>Welcome to Co-op Maps</h4>
                 <p>
-                    Co-op Maps is a powerful tool for mapping and visualizing co-operative ecosystems.
+                    Co-op Maps is a powerful tool for mapping and visualising co-operative ecosystems.
                     This manual will help you get started with creating your first diagram.
                 </p>
 
@@ -487,8 +493,8 @@
                 <p>Co-op Maps supports six different enterprise types:</p>
 
                 <ul>
-                    <li><strong>Co-operative (Rectangle):</strong> Member-owned and democratically controlled organizations</li>
-                    <li><strong>Non-co-operative Mutual (Rounded Rectangle):</strong> Mutual benefit organizations without democratic member control</li>
+                    <li><strong>Co-operative (Rectangle):</strong> Member-owned and democratically controlled organisations</li>
+                    <li><strong>Non-co-operative Mutual (Rounded Rectangle):</strong> Mutual benefit organisations without democratic member control</li>
                     <li><strong>Social Enterprise (Pill Shape):</strong> Businesses with social or environmental objectives</li>
                     <li><strong>Private Enterprise (Ellipse):</strong> Privately owned for-profit business</li>
                     <li><strong>State Enterprise (Diamond):</strong> Government-owned and operated enterprises</li>
@@ -527,9 +533,9 @@
                     <li><strong>Tertiary (T):</strong> Retail, distribution, services - Top</li>
                 </ul>
 
-                <h4>Enterprise Customization</h4>
+                <h4>Enterprise Customisation</h4>
                 <ul>
-                    <li><strong>Fill Color:</strong> Change the background color using preset colors or a custom color picker</li>
+                    <li><strong>Fill Colour:</strong> Change the background colour using preset colours or a custom colour picker</li>
                     <li><strong>Logo/Image:</strong> Add a logo or image to any enterprise (click Logo button or use context menu)</li>
                     <li><strong>Lock/Unlock:</strong> Lock enterprises to prevent accidental movement</li>
                 </ul>
@@ -545,6 +551,61 @@
                     <li><strong>Send to Back:</strong> Move behind other enterprises</li>
                 </ul>
             `;
+        },
+
+        getCoopFeaturesContent() {
+            return \`
+                <h4>ICA Co-operative Principles</h4>
+                <p>Co-op Maps allows you to track adherence to the 7 International Co-operative Alliance (ICA) principles for each co-operative:</p>
+                <ol>
+                    <li><strong>Voluntary and Open Membership:</strong> Co-operatives are voluntary organisations, open to all</li>
+                    <li><strong>Democratic Member Control:</strong> One member, one vote</li>
+                    <li><strong>Member Economic Participation:</strong> Members contribute equitably to capital</li>
+                    <li><strong>Autonomy and Independence:</strong> Self-help organisations controlled by members</li>
+                    <li><strong>Education, Training and Information:</strong> Co-ops provide education for members</li>
+                    <li><strong>Co-operation Among Co-operatives:</strong> Working together through local, regional, national and international structures</li>
+                    <li><strong>Concern for Community:</strong> Work for sustainable development of communities</li>
+                </ol>
+                <p>Select a co-operative and use the Properties panel to check which principles it follows.</p>
+
+                <h4>Extended Properties</h4>
+                <p>Co-op Maps provides additional data fields for comprehensive ecosystem mapping:</p>
+                <ul>
+                    <li><strong>Sector:</strong> Industry classification (Agriculture, Finance, Retail, Housing, etc.)</li>
+                    <li><strong>Member Count:</strong> Number of members in the organisation</li>
+                    <li><strong>Annual Revenue:</strong> Financial size indicator</li>
+                    <li><strong>Location:</strong> Geographic area for regional clustering</li>
+                </ul>
+
+                <h4>Intercooperation Score</h4>
+                <p>The Statistics panel includes an <strong>Intercooperation Score</strong> that measures how well co-operatives in your ecosystem work together:</p>
+                <ul>
+                    <li>Calculated as the percentage of co-op relationships that are co-op-to-co-op</li>
+                    <li>Higher scores indicate stronger co-operative solidarity</li>
+                    <li>Helps identify opportunities to strengthen Principle 6</li>
+                </ul>
+
+                <h4>Statistics Panel</h4>
+                <p>Access comprehensive ecosystem analytics via the Statistics button:</p>
+                <ul>
+                    <li><strong>Enterprise Counts:</strong> Breakdown by type (co-operatives, social enterprises, etc.)</li>
+                    <li><strong>Relationship Analysis:</strong> Total connections and types</li>
+                    <li><strong>Sector Breakdown:</strong> Distribution across industries</li>
+                    <li><strong>Principles Adherence:</strong> How many co-ops follow each ICA principle</li>
+                    <li><strong>Most Connected:</strong> Enterprises with the most relationships</li>
+                    <li><strong>Total Members:</strong> Combined membership across all enterprises</li>
+                </ul>
+
+                <h4>About Principle 5</h4>
+                <p>
+                    Co-op Maps is a <strong>Principle 5</strong> product, named after the fifth ICA principle:
+                    <em>Co-operation Among Co-operatives</em>. We build tools to strengthen the co-operative movement
+                    by making it easier to visualise and understand co-operative ecosystems.
+                </p>
+                <p>
+                    Visit <a href="https://www.principle5.coop/" target="_blank" rel="noopener" style="color: #3498db;">principle5.coop</a> to learn more.
+                </p>
+            \`;
         },
 
         getRelationshipsContent() {
@@ -586,13 +647,30 @@
                     <li>Dashed lines indicate subset connections</li>
                 </ul>
 
+                <h4>Flow Direction</h4>
+                <p>Relationships can show the direction of resource, fund, or service flow:</p>
+                <ul>
+                    <li><strong>No Flow (—):</strong> No directional flow shown</li>
+                    <li><strong>Forward (→):</strong> Flow from start to end enterprise</li>
+                    <li><strong>Backward (←):</strong> Flow from end to start enterprise</li>
+                    <li><strong>Bidirectional (↔):</strong> Flow in both directions</li>
+                </ul>
+                <p>Set flow direction when creating a relationship, or right-click on an existing relationship to change it.</p>
+
                 <h4>Visual Indicators</h4>
                 <p>Relationships use visual cues to convey information:</p>
                 <ul>
                     <li><strong>Line Style:</strong> Solid for full connections, dashed for subsets</li>
-                    <li><strong>Badges:</strong> Colored circles with letters indicate relationship type</li>
-                    <li><strong>Arrows:</strong> Show direction of relationship</li>
+                    <li><strong>Badges:</strong> Coloured circles with letters indicate relationship type</li>
+                    <li><strong>Flow Arrows:</strong> Chevron arrows along the line show flow direction</li>
                     <li><strong>Markers:</strong> Special symbols for generic set connections</li>
+                </ul>
+
+                <h4>Editing Relationships</h4>
+                <p>Right-click on any relationship line to access:</p>
+                <ul>
+                    <li><strong>Flow Direction:</strong> Change how resources flow along the relationship</li>
+                    <li><strong>Delete:</strong> Remove the relationship</li>
                 </ul>
             `;
         },
@@ -627,7 +705,7 @@
                 <p>Edit diagram metadata in the Properties tab when nothing is selected:</p>
                 <ul>
                     <li><strong>Title:</strong> Name of your diagram</li>
-                    <li><strong>Author:</strong> Your name or organization</li>
+                    <li><strong>Author:</strong> Your name or organisation</li>
                     <li><strong>Date:</strong> Creation or modification date</li>
                     <li><strong>WDR:</strong> Worldwide Diagram Reference (optional)</li>
                     <li><strong>Scope:</strong> Geographic extent, time period, and economic sectors</li>
@@ -642,6 +720,58 @@
                     <li>Browser typically allows 5-10MB of storage</li>
                 </ul>
             `;
+        },
+
+        getSearchImportContent() {
+            return \`
+                <h4>Search & Find</h4>
+                <p>Quickly locate enterprises in your diagram:</p>
+                <ul>
+                    <li><strong>Search Box:</strong> Use the search box in the header to filter enterprises by name</li>
+                    <li><strong>Keyboard Shortcut:</strong> Press <code>Ctrl+F</code> (or <code>Cmd+F</code> on Mac) to open the search dialog</li>
+                    <li><strong>Highlighting:</strong> Matching enterprises are highlighted on the canvas</li>
+                    <li><strong>Navigation:</strong> Use arrow buttons to navigate between matches</li>
+                    <li><strong>Pan to Result:</strong> The canvas automatically pans to centre each match</li>
+                </ul>
+
+                <h4>CSV Import</h4>
+                <p>Bulk-import enterprises from CSV files for faster data entry:</p>
+                <ol>
+                    <li>Click the <strong>Import</strong> button in the toolbar</li>
+                    <li>Choose a template that matches your data format</li>
+                    <li>Paste CSV data or upload a file</li>
+                    <li>Preview the data and click Import</li>
+                </ol>
+
+                <h4>Import Templates</h4>
+                <p>Choose from four templates based on your data:</p>
+                <ul>
+                    <li><strong>Simple:</strong> Name only - just a list of enterprise names</li>
+                    <li><strong>Basic:</strong> Name + Type - include enterprise type (co-operative, social, private)</li>
+                    <li><strong>Standard:</strong> Name, Type + Description - add descriptions</li>
+                    <li><strong>Full Details:</strong> All fields including sector, member count, location</li>
+                </ul>
+
+                <h4>CSV Format Tips</h4>
+                <ul>
+                    <li>First row should contain column headers</li>
+                    <li>Use "co-operative", "cooperative", or "coop" for co-operative type</li>
+                    <li>Use "social" for social enterprises</li>
+                    <li>Use "private" for private enterprises</li>
+                    <li>Imported enterprises are automatically positioned on the canvas</li>
+                    <li>You can rearrange them afterwards or use Auto Layout</li>
+                </ul>
+
+                <h4>Example CSV</h4>
+                <p>Here's an example of a Basic format CSV:</p>
+                <pre style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 13px; overflow-x: auto;">
+name,type
+Green Valley Food Co-op,co-operative
+Community Credit Union,co-operative
+Local Bakery Collective,co-operative
+Organic Farms Ltd,private
+Social Housing Trust,social</pre>
+            \`;
         },
 
         getShortcutsContent() {
@@ -667,6 +797,11 @@
                         <td style="padding: 12px;">Redo</td>
                         <td style="padding: 12px;"><code>Ctrl+Shift+Z</code></td>
                         <td style="padding: 12px;"><code>Cmd+Shift+Z</code></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <td style="padding: 12px;">Find/Search</td>
+                        <td style="padding: 12px;"><code>Ctrl+F</code></td>
+                        <td style="padding: 12px;"><code>Cmd+F</code></td>
                     </tr>
                     <tr style="border-bottom: 1px solid #f8f9fa;">
                         <td style="padding: 12px;">Copy Selected</td>
