@@ -170,6 +170,7 @@
 
         .mode-icon.express { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
         .mode-icon.deluxe { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .mode-icon.tutorial { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
 
         .mode-card h3 {
             font-size: 14px;
@@ -195,31 +196,7 @@
 
         .mode-card.express .mode-badge { background: #fef2f2; color: #dc2626; }
         .mode-card.deluxe .mode-badge { background: #eff6ff; color: #1d4ed8; }
-
-        /* Tutorial */
-        .tutorial-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .tutorial-link:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-        }
-
-        .tutorial-link svg {
-            width: 12px;
-            height: 12px;
-        }
+        .mode-card.tutorial .mode-badge { background: #f5f3ff; color: #7c3aed; }
 
         /* Saved Maps - Always visible */
         .saved-section {
@@ -558,14 +535,13 @@
                 <p>Full-featured with advanced tools</p>
                 <span class="mode-badge">Full Power</span>
             </a>
+            <a href="./tutorial.html" class="mode-card tutorial">
+                <div class="mode-icon tutorial">▶</div>
+                <h3>Tutorial</h3>
+                <p>Learn with interactive guide</p>
+                <span class="mode-badge">Learn</span>
+            </a>
         </div>
-
-        <a href="./tutorial.html" class="tutorial-link">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="10 8 16 12 10 16 10 8"/>
-            </svg>
-            Interactive Tutorial
-        </a>
 
         <div class="info-cards">
             <div class="principle5-section">
