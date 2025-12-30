@@ -12,6 +12,7 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { connectDB } = require('./db/connection');
 const { connectRedis } = require('./db/redis');
 const { initializeSocketHandlers } = require('./sockets/index');
+const { rateLimiters } = require('./middleware/rateLimiter');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -79,13 +80,13 @@ app.get('/health', (req, res) => {
     });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/diagrams', diagramRoutes);
-app.use('/api/diagrams', collaboratorRoutes);
-app.use('/api/collaborators', collaboratorRoutes);
-app.use('/api/public', publicRoutes);
+// API Routes with rate limiting
+app.use('/api/auth', authRoutes); // Auth has its own stricter rate limiting
+app.use('/api/users', rateLimiters.api, userRoutes);
+app.use('/api/diagrams', rateLimiters.api, diagramRoutes);
+app.use('/api/diagrams', rateLimiters.api, collaboratorRoutes);
+app.use('/api/collaborators', rateLimiters.api, collaboratorRoutes);
+app.use('/api/public', rateLimiters.publicApi, publicRoutes);
 
 // Serve static files (for the frontend)
 app.use(express.static('public'));

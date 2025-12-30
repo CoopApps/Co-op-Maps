@@ -452,26 +452,43 @@
             }
 
             const list = document.getElementById('savedList');
+            list.innerHTML = '';
 
             if (savedMaps.length > 0) {
-                list.innerHTML = savedMaps.map(map => `
-                    <div class="saved-item" onclick="loadMap('${map.key}')">
-                        <div>
-                            <div class="saved-item-name">${escapeHtml(map.name)}</div>
-                            <div class="saved-item-date">${escapeHtml(map.date)}</div>
-                        </div>
-                        <span class="saved-item-arrow">→</span>
-                    </div>
-                `).join('');
-            } else {
-                list.innerHTML = '<div class="no-maps">No saved maps yet</div>';
-            }
-        }
+                savedMaps.forEach(map => {
+                    const item = document.createElement('div');
+                    item.className = 'saved-item';
+                    item.dataset.mapKey = map.key;
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+                    const info = document.createElement('div');
+
+                    const name = document.createElement('div');
+                    name.className = 'saved-item-name';
+                    name.textContent = map.name;
+
+                    const date = document.createElement('div');
+                    date.className = 'saved-item-date';
+                    date.textContent = map.date;
+
+                    info.appendChild(name);
+                    info.appendChild(date);
+
+                    const arrow = document.createElement('span');
+                    arrow.className = 'saved-item-arrow';
+                    arrow.textContent = '→';
+
+                    item.appendChild(info);
+                    item.appendChild(arrow);
+
+                    item.addEventListener('click', () => loadMap(map.key));
+                    list.appendChild(item);
+                });
+            } else {
+                const noMaps = document.createElement('div');
+                noMaps.className = 'no-maps';
+                noMaps.textContent = 'No saved maps yet';
+                list.appendChild(noMaps);
+            }
         }
 
         function loadMap(key) {
