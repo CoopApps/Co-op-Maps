@@ -313,13 +313,20 @@
             height: 12px;
         }
 
+        /* Info Cards Row */
+        .info-cards {
+            display: flex;
+            gap: 16px;
+            max-width: 480px;
+            width: 100%;
+        }
+
         /* Principle 5 Section */
         .principle5-section {
-            width: 100%;
-            max-width: 480px;
+            flex: 1;
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             border-radius: 10px;
-            padding: 16px 20px;
+            padding: 14px 16px;
             color: white;
             text-align: center;
         }
@@ -383,11 +390,10 @@
 
         /* Donate Section */
         .donate-section {
-            width: 100%;
-            max-width: 480px;
+            flex: 1;
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
             border-radius: 10px;
-            padding: 16px 20px;
+            padding: 14px 16px;
             color: white;
             text-align: center;
         }
@@ -426,40 +432,6 @@
             color: rgba(255,255,255,0.9);
             margin-bottom: 12px;
             line-height: 1.5;
-        }
-
-        .donate-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 14px;
-            padding: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 6px;
-        }
-
-        .opencollective-logo {
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .opencollective-logo svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .opencollective-text {
-            font-size: 11px;
-            color: rgba(255,255,255,0.9);
-            text-align: left;
-            line-height: 1.4;
         }
 
         .donate-button {
@@ -526,7 +498,8 @@
                 font-size: 18px;
             }
 
-            .mode-cards {
+            .mode-cards,
+            .info-cards {
                 flex-direction: column;
                 gap: 10px;
             }
@@ -594,56 +567,44 @@
             Interactive Tutorial
         </a>
 
-        <div class="principle5-section">
-            <div class="principle5-header">
-                <div class="principle5-logo">P5</div>
-                <div class="principle5-title">A Principle 5 Product</div>
+        <div class="info-cards">
+            <div class="principle5-section">
+                <div class="principle5-header">
+                    <div class="principle5-logo">P5</div>
+                    <div class="principle5-title">A Principle 5 Product</div>
+                </div>
+                <p class="principle5-subtitle">
+                    ICA Principle 5: <strong>Co-operation Among Co-operatives</strong>
+                </p>
+                <a href="https://www.principle5.coop/" target="_blank" rel="noopener" class="principle5-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    Visit principle5.coop
+                </a>
             </div>
-            <p class="principle5-subtitle">
-                Principle 5 is the ICA principle of <strong>Co-operation Among Co-operatives</strong>.<br>
-                We build tools to strengthen the co-operative movement.
-            </p>
-            <a href="https://www.principle5.coop/" target="_blank" rel="noopener" class="principle5-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    <polyline points="15 3 21 3 21 9"/>
-                    <line x1="10" y1="14" x2="21" y2="3"/>
-                </svg>
-                Visit principle5.coop
-            </a>
-        </div>
 
-        <div class="donate-section">
-            <div class="donate-header">
-                <div class="donate-icon">
+            <div class="donate-section">
+                <div class="donate-header">
+                    <div class="donate-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                    </div>
+                    <div class="donate-title">Support Us</div>
+                </div>
+                <p class="donate-subtitle">
+                    Help keep Co-op Maps free via <strong>Open Collective</strong>
+                </p>
+                <a href="https://opencollective.com/co-op-maps/donate" target="_blank" rel="noopener" class="donate-button">
                     <svg viewBox="0 0 24 24">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                     </svg>
-                </div>
-                <div class="donate-title">Support Co-op Maps</div>
+                    Donate
+                </a>
             </div>
-            <p class="donate-subtitle">
-                Help us keep Co-op Maps free and open source for the co-operative movement.<br>
-                Your donations fund development, hosting, and new features.
-            </p>
-            <div class="donate-info">
-                <div class="opencollective-logo">
-                    <svg viewBox="0 0 32 32" fill="#7A9EB8">
-                        <path d="M16 0C7.2 0 0 7.2 0 16s7.2 16 16 16 16-7.2 16-16S24.8 0 16 0zm0 28.8c-7.1 0-12.8-5.7-12.8-12.8S8.9 3.2 16 3.2 28.8 8.9 28.8 16 23.1 28.8 16 28.8z"/>
-                        <path d="M26.7 8.3c-1.4-2.1-3.4-3.7-5.8-4.7l-2.5 4.3c1.4.6 2.6 1.5 3.5 2.8 1.9 2.8 1.9 6.4 0 9.2-.9 1.3-2.1 2.2-3.5 2.8l2.5 4.3c2.4-1 4.4-2.6 5.8-4.7 3.1-4.5 3.1-10.3 0-14z"/>
-                    </svg>
-                </div>
-                <span class="opencollective-text">
-                    <strong>Open Collective</strong> provides transparent, community-funded sponsorship.<br>
-                    Every contribution is publicly tracked and goes directly to the project.
-                </span>
-            </div>
-            <a href="https://opencollective.com/co-op-maps/donate" target="_blank" rel="noopener" class="donate-button">
-                <svg viewBox="0 0 24 24">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                Donate on Open Collective
-            </a>
         </div>
 
         <div id="savedSection" class="saved-section">
