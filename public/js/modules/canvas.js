@@ -730,6 +730,12 @@
                         self.render();
                     }
                 }
+
+                // Find/Search (Ctrl/Cmd+F)
+                if (modKey && e.key === 'f') {
+                    e.preventDefault();
+                    self.showSearchDialog();
+                }
             });
         },
 
@@ -826,6 +832,9 @@
 
             // Draw multi-select highlights
             this.drawMultiSelectHighlights();
+
+            // Draw search result highlights
+            this.drawSearchHighlights();
 
             this.ctx.restore();
 
@@ -2457,6 +2466,40 @@
             this.ctx.restore();
         },
 
+        // Draw highlights for search results
+        drawSearchHighlights() {
+            if (this.searchResults.length === 0 || this.isExporting) return;
+
+            this.ctx.save();
+
+            this.searchResults.forEach((item, index) => {
+                const isCurrent = index === this.currentSearchIndex;
+
+                // Draw highlight box
+                this.ctx.strokeStyle = isCurrent ? '#e74c3c' : '#f39c12';
+                this.ctx.lineWidth = isCurrent ? 4 : 2;
+                this.ctx.setLineDash(isCurrent ? [] : [5, 3]);
+
+                this.ctx.beginPath();
+                this.ctx.rect(item.x - 8, item.y - 8, item.width + 16, item.height + 16);
+                this.ctx.stroke();
+
+                // Draw a subtle glow for current result
+                if (isCurrent) {
+                    this.ctx.shadowColor = '#e74c3c';
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.rect(item.x - 8, item.y - 8, item.width + 16, item.height + 16);
+                    this.ctx.stroke();
+                    this.ctx.shadowBlur = 0;
+                }
+            });
+
+            this.ctx.restore();
+        },
+
         // ===== COPY/PASTE FUNCTIONALITY =====
 
         copySelected() {
@@ -2809,6 +2852,187 @@
             `;
             document.body.appendChild(modal);
             document.getElementById('noteText').focus();
+        },
+
+        // ===== SEARCH / FIND =====
+
+        searchResults: [],
+        currentSearchIndex: -1,
+
+        showSearchDialog() {
+            // Remove existing search dialog if any
+            const existing = document.getElementById('searchDialog');
+            if (existing) {
+                existing.remove();
+                return;
+            }
+
+            const self = this;
+            const dialog = document.createElement('div');
+            dialog.id = 'searchDialog';
+            dialog.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                padding: 12px;
+                z-index: 1500;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                min-width: 280px;
+            `;
+
+            dialog.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="text" id="searchInput" placeholder="Find enterprise..." style="
+                        flex: 1;
+                        padding: 8px 12px;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        font-size: 14px;
+                        outline: none;
+                    ">
+                    <button id="searchClose" style="
+                        background: none;
+                        border: none;
+                        cursor: pointer;
+                        padding: 4px;
+                        color: #666;
+                        font-size: 18px;
+                    ">&times;</button>
+                </div>
+                <div id="searchStatus" style="
+                    font-size: 12px;
+                    color: #666;
+                    display: none;
+                "></div>
+                <div id="searchNav" style="
+                    display: none;
+                    gap: 8px;
+                    align-items: center;
+                ">
+                    <button id="searchPrev" style="
+                        padding: 4px 12px;
+                        border: 1px solid #ddd;
+                        background: #f5f5f5;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    ">&uarr; Prev</button>
+                    <button id="searchNext" style="
+                        padding: 4px 12px;
+                        border: 1px solid #ddd;
+                        background: #f5f5f5;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    ">&darr; Next</button>
+                    <span id="searchCount" style="font-size: 12px; color: #666;"></span>
+                </div>
+            `;
+
+            document.body.appendChild(dialog);
+
+            const input = document.getElementById('searchInput');
+            const status = document.getElementById('searchStatus');
+            const nav = document.getElementById('searchNav');
+            const countSpan = document.getElementById('searchCount');
+
+            input.focus();
+
+            // Search function
+            const doSearch = () => {
+                const query = input.value.trim().toLowerCase();
+                if (!query) {
+                    self.searchResults = [];
+                    self.currentSearchIndex = -1;
+                    status.style.display = 'none';
+                    nav.style.display = 'none';
+                    self.render();
+                    return;
+                }
+
+                self.searchResults = CoopMaps.state.data.enterprises.filter(e =>
+                    e.name.toLowerCase().includes(query)
+                );
+
+                if (self.searchResults.length === 0) {
+                    status.textContent = 'No matches found';
+                    status.style.display = 'block';
+                    nav.style.display = 'none';
+                    self.currentSearchIndex = -1;
+                } else {
+                    status.style.display = 'none';
+                    nav.style.display = 'flex';
+                    self.currentSearchIndex = 0;
+                    countSpan.textContent = `1 of ${self.searchResults.length}`;
+                    self.panToEnterprise(self.searchResults[0]);
+                }
+                self.render();
+            };
+
+            // Navigate to next/prev result
+            const navigateSearch = (direction) => {
+                if (self.searchResults.length === 0) return;
+
+                self.currentSearchIndex += direction;
+                if (self.currentSearchIndex >= self.searchResults.length) {
+                    self.currentSearchIndex = 0;
+                } else if (self.currentSearchIndex < 0) {
+                    self.currentSearchIndex = self.searchResults.length - 1;
+                }
+
+                countSpan.textContent = `${self.currentSearchIndex + 1} of ${self.searchResults.length}`;
+                self.panToEnterprise(self.searchResults[self.currentSearchIndex]);
+                self.render();
+            };
+
+            input.addEventListener('input', doSearch);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    navigateSearch(e.shiftKey ? -1 : 1);
+                } else if (e.key === 'Escape') {
+                    self.closeSearchDialog();
+                }
+            });
+
+            document.getElementById('searchClose').addEventListener('click', () => self.closeSearchDialog());
+            document.getElementById('searchPrev').addEventListener('click', () => navigateSearch(-1));
+            document.getElementById('searchNext').addEventListener('click', () => navigateSearch(1));
+        },
+
+        closeSearchDialog() {
+            const dialog = document.getElementById('searchDialog');
+            if (dialog) dialog.remove();
+            this.searchResults = [];
+            this.currentSearchIndex = -1;
+            this.render();
+        },
+
+        panToEnterprise(enterprise) {
+            if (!enterprise) return;
+
+            // Calculate center of enterprise
+            const centerX = enterprise.x + enterprise.width / 2;
+            const centerY = enterprise.y + enterprise.height / 2;
+
+            // Get canvas container dimensions
+            const container = this.canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+
+            // Calculate pan offset to center the enterprise
+            const zoom = CoopMaps.state.ui.zoom;
+            this.panOffset.x = (containerWidth / 2) - (centerX * zoom);
+            this.panOffset.y = (containerHeight / 2) - (centerY * zoom);
+
+            // Select the enterprise
+            CoopMaps.state.data.selectedItem = enterprise;
+            this.selectedItems = [enterprise];
+
+            this.render();
         },
 
         // ===== DARK MODE =====

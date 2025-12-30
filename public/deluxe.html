@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="description" content="Co-op Maps Deluxe - Full-featured cooperative ecosystem mapping">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon.svg">
     <title>Co-op Maps v1.0 - Co-operative Ecosystem Mapping Tool</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -713,6 +717,7 @@
                 </div>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
+                <button onclick="CoopMaps.modules.import?.showImportDialog()">Import CSV</button>
                 <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
                 <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Key</button>
                 <button onclick="CoopMaps.showKeyboardShortcuts()">Shortcuts</button>
@@ -1555,6 +1560,7 @@
     <script src="./js/modules/reports.js"></script>
     <script src="./js/modules/dependency.js"></script>
     <script src="./js/modules/collaboration.js"></script>
+    <script src="./js/modules/import.js"></script>
 
     <!-- Initialize app AFTER all modules loaded -->
     <script>

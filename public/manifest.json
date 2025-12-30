@@ -1,0 +1,49 @@
+{
+  "name": "Co-op Maps",
+  "short_name": "Co-op Maps",
+  "description": "Map and visualize cooperative ecosystems - Principle 5: Cooperation Among Cooperatives",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#3b82f6",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["productivity", "business", "utilities"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Deluxe Mode",
+      "short_name": "Deluxe",
+      "description": "Open Co-op Maps in Deluxe mode",
+      "url": "/deluxe.html",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Express Mode",
+      "short_name": "Express",
+      "description": "Open Co-op Maps in Express mode",
+      "url": "/express.html",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Tutorial",
+      "short_name": "Tutorial",
+      "description": "Learn how to use Co-op Maps",
+      "url": "/tutorial.html",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ]
+}
