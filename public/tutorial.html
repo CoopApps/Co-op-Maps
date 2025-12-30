@@ -2329,7 +2329,24 @@
                     allowInteraction: true
                 },
 
-                // PART 4: UNDERSTANDING THE SYMBOLS
+                // PART 4: FLOW DIRECTION ON RELATIONSHIPS
+                {
+                    target: '#canvasArea',
+                    title: 'Flow Direction Arrows',
+                    content: 'Relationships can show <strong>flow direction</strong> - where resources, funds, or services move.<br><br><strong>Right-click</strong> on any relationship line to see the context menu with flow options:<br>• <strong>→ Forward</strong><br>• <strong>← Backward</strong><br>• <strong>↔ Both Ways</strong>',
+                    position: 'left',
+                    allowInteraction: true
+                },
+
+                {
+                    target: '#canvasArea',
+                    title: 'Try Changing Flow Direction',
+                    content: '<strong>YOUR TURN:</strong> Right-click on one of your relationship lines and change its flow direction.<br><br>Flow arrows appear along the line showing which way resources move - perfect for mapping supply chains!',
+                    position: 'left',
+                    allowInteraction: true
+                },
+
+                // PART 5: UNDERSTANDING THE SYMBOLS
                 {
                     target: '#sidebar-content',
                     title: 'Understanding Roles',
@@ -2346,7 +2363,87 @@
                     allowInteraction: true
                 },
 
-                // PART 5: SAVING & EXPORTING
+                // PART 6: COOPERATIVE PRINCIPLES
+                {
+                    target: '.sidebar-tab[data-tab="properties"]',
+                    title: 'ICA Cooperative Principles',
+                    content: 'For <strong>Cooperatives</strong>, you can track adherence to the 7 ICA Principles:<br><br>1. Voluntary Membership<br>2. Democratic Control<br>3. Member Economic Participation<br>4. Autonomy & Independence<br>5. Education & Training<br>6. Cooperation Among Co-ops<br>7. Concern for Community',
+                    position: 'right',
+                    allowInteraction: true
+                },
+
+                {
+                    target: '.sidebar-tab[data-tab="properties"]',
+                    title: 'Try Setting Principles',
+                    content: '<strong>YOUR TURN:</strong> Select a <strong>co-operative</strong> on the canvas, then scroll down in the Properties panel to find the <strong>Cooperative Principles</strong> section.<br><br>Check the principles that this co-op follows!',
+                    position: 'right',
+                    allowInteraction: true,
+                    onEnter: function() {
+                        document.querySelector('.sidebar-tab[data-tab="properties"]').click();
+                    }
+                },
+
+                // PART 7: EXTENDED PROPERTIES
+                {
+                    target: '.sidebar-tab[data-tab="properties"]',
+                    title: 'Extended Properties',
+                    content: 'The Properties panel now includes additional fields:<br><br>• <strong>Sector</strong> - Industry classification<br>• <strong>Member Count</strong> - Number of members<br>• <strong>Annual Revenue</strong> - Financial size<br>• <strong>Location</strong> - Geographic clustering<br><br>These help analyze your ecosystem!',
+                    position: 'right',
+                    allowInteraction: true
+                },
+
+                // PART 8: SEARCH FEATURE
+                {
+                    target: '#searchInput',
+                    title: 'Search Your Map',
+                    content: 'Use the <strong>Search</strong> box in the header to quickly find enterprises by name.<br><br>You can also press <strong>Ctrl+F</strong> (or Cmd+F on Mac) to open a search dialog that highlights and navigates between matches!',
+                    position: 'bottom',
+                    allowInteraction: true
+                },
+
+                {
+                    target: '#canvasArea',
+                    title: 'Try Searching',
+                    content: '<strong>YOUR TURN:</strong> Press <strong>Ctrl+F</strong> to open the search dialog. Type part of an enterprise name to find it.<br><br>Use the arrow buttons to navigate between matches - the canvas will pan to center each result!',
+                    position: 'left',
+                    allowInteraction: true
+                },
+
+                // PART 9: STATISTICS
+                {
+                    target: '#mainToolbar',
+                    title: 'Ecosystem Statistics',
+                    content: 'Click the <strong>Statistics</strong> button in the toolbar to see a comprehensive analysis of your ecosystem:<br><br>• Enterprise & relationship counts<br>• <strong>Intercooperation Score</strong><br>• Sector breakdown<br>• Cooperative principles adherence<br>• Most connected enterprises',
+                    position: 'bottom',
+                    allowInteraction: true
+                },
+
+                {
+                    target: '#canvasArea',
+                    title: 'Intercooperation Score',
+                    content: 'The <strong>Intercooperation Score</strong> measures how well cooperatives work together. It shows the percentage of relationships that are co-op to co-op.<br><br>A higher score means stronger cooperative solidarity!',
+                    position: 'left',
+                    allowInteraction: true
+                },
+
+                // PART 10: CSV IMPORT
+                {
+                    target: '#mainToolbar',
+                    title: 'Import Data',
+                    content: 'Have lots of enterprises to add? Use the <strong>Import</strong> button to bulk-import from CSV files!<br><br>Choose from templates:<br>• <strong>Simple</strong> - Just names<br>• <strong>Basic</strong> - Name + Type<br>• <strong>Standard</strong> - With descriptions<br>• <strong>Full</strong> - All details',
+                    position: 'bottom',
+                    allowInteraction: true
+                },
+
+                {
+                    target: '#canvasArea',
+                    title: 'CSV Format Tips',
+                    content: 'When preparing your CSV:<br><br>• First row should be column headers<br>• Use "cooperative", "social", "private" for types<br>• Enterprises are auto-positioned on import<br>• You can paste directly or upload a file',
+                    position: 'left',
+                    allowInteraction: true
+                },
+
+                // PART 11: SAVING & EXPORTING
                 {
                     target: '.sidebar-tab[data-tab="diagrams"]',
                     title: 'Save Your Map',
@@ -2361,12 +2458,21 @@
                     position: 'bottom'
                 },
 
-                // Final step
+                // PART 12: BUSINESS DETAILS
                 {
                     target: '.sidebar-tab[data-tab="business"]',
                     title: 'Add Rich Details',
                     content: 'The <strong>Business</strong> tab lets you add detailed info:<br><br>• Website and location<br>• Description and sector<br>• Founding date and size<br><br>This enriches your map with real data!',
                     position: 'right'
+                },
+
+                // FINAL STEP
+                {
+                    target: '#canvasArea',
+                    title: 'You\'re Ready!',
+                    content: 'Congratulations! You\'ve learned all the essential features of Co-op Maps:<br><br>✓ Creating enterprises<br>✓ Building relationships with flow direction<br>✓ Cooperative principles tracking<br>✓ Extended properties<br>✓ Search and statistics<br>✓ Import and export<br><br><strong>Now go map your cooperative ecosystem!</strong>',
+                    position: 'left',
+                    allowInteraction: true
                 }
             ],
 
@@ -2385,16 +2491,17 @@
                         '</svg>' +
                     '</div>' +
                     '<h2>Build Your First Co-op Map!</h2>' +
-                    '<p>This <strong>interactive tutorial</strong> guides you through creating a cooperative ecosystem map. You\'ll drag symbols, create relationships, and build a real map!</p>' +
-                    '<ul style="text-align: left; margin: 15px auto; max-width: 340px; line-height: 1.8;">' +
-                        '<li><strong>Explore</strong> the interface and tools</li>' +
-                        '<li><strong>Drag 5 enterprises</strong> onto the canvas</li>' +
-                        '<li><strong>Customize</strong> names, roles & tiers</li>' +
-                        '<li><strong>Draw relationships</strong> between enterprises</li>' +
-                        '<li><strong>Build</strong> a complete ecosystem map</li>' +
-                        '<li><strong>Save & export</strong> your work</li>' +
+                    '<p>This <strong>interactive tutorial</strong> guides you through creating a cooperative ecosystem map. You\'ll learn all the features step by step!</p>' +
+                    '<ul style="text-align: left; margin: 15px auto; max-width: 380px; line-height: 1.8;">' +
+                        '<li><strong>Create enterprises</strong> - co-ops, social, private</li>' +
+                        '<li><strong>Draw relationships</strong> with flow direction</li>' +
+                        '<li><strong>Track co-op principles</strong> (7 ICA principles)</li>' +
+                        '<li><strong>Add extended data</strong> - sector, members, location</li>' +
+                        '<li><strong>Search & analyze</strong> your ecosystem</li>' +
+                        '<li><strong>Import CSV data</strong> for bulk entry</li>' +
+                        '<li><strong>Export</strong> as PNG, SVG, or PDF</li>' +
                     '</ul>' +
-                    '<p style="margin-top: 10px; font-size: 14px; color: #7f8c8d;">Estimated time: 8-10 minutes (interactive)</p>' +
+                    '<p style="margin-top: 10px; font-size: 14px; color: #7f8c8d;">Estimated time: 12-15 minutes (interactive)</p>' +
                     '<div class="welcome-actions">' +
                         '<button class="btn-start" onclick="Tutorial.startTutorial()">Start Tutorial</button>' +
                         '<button class="btn-exit" onclick="Tutorial.exitTutorial()">Skip Tutorial</button>' +
