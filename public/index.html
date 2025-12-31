@@ -26,21 +26,21 @@
             flex-direction: column;
         }
 
-        /* Header */
+        /* Header - scales with viewport */
         .header {
             background: #1e293b;
             color: white;
-            padding: 0 24px;
-            height: 36px;
+            padding: 0 clamp(12px, 3vw, 24px);
+            height: clamp(32px, 5vh, 44px);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: clamp(6px, 1vw, 10px);
             flex-shrink: 0;
         }
 
         .logo {
-            width: 24px;
-            height: 24px;
+            width: clamp(20px, 3vh, 28px);
+            height: clamp(20px, 3vh, 28px);
             background: #3b82f6;
             border-radius: 4px;
             display: flex;
@@ -49,30 +49,30 @@
         }
 
         .logo svg {
-            width: 14px;
-            height: 14px;
+            width: 60%;
+            height: 60%;
             stroke: white;
             stroke-width: 2;
             fill: none;
         }
 
         .header h1 {
-            font-size: 13px;
+            font-size: clamp(11px, 1.5vh, 14px);
             font-weight: 600;
         }
 
         .header-right {
             margin-left: auto;
             display: flex;
-            gap: 8px;
+            gap: clamp(4px, 1vw, 8px);
         }
 
         .header-link {
             color: rgba(255,255,255,0.7);
             text-decoration: none;
-            font-size: 11px;
+            font-size: clamp(10px, 1.3vh, 13px);
             font-weight: 500;
-            padding: 6px 12px;
+            padding: clamp(4px, 0.8vh, 6px) clamp(8px, 1.5vw, 12px);
             border-radius: 4px;
             transition: all 0.15s;
         }
@@ -82,58 +82,59 @@
             background: rgba(255,255,255,0.1);
         }
 
-        /* Main */
+        /* Main - fills available space */
         .main {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 12px 24px;
-            gap: 10px;
+            padding: clamp(8px, 2vh, 20px) clamp(12px, 3vw, 24px);
+            gap: clamp(6px, 1.5vh, 14px);
+            overflow-y: auto;
         }
 
-        /* Hero */
+        /* Hero - scales with viewport */
         .hero {
             text-align: center;
         }
 
         .hero-logo {
-            width: 32px;
-            height: 32px;
+            width: clamp(28px, 5vh, 48px);
+            height: clamp(28px, 5vh, 48px);
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            border-radius: 8px;
+            border-radius: clamp(6px, 1vh, 10px);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 4px;
+            margin: 0 auto clamp(2px, 0.5vh, 8px);
         }
 
         .hero-logo svg {
-            width: 18px;
-            height: 18px;
+            width: 55%;
+            height: 55%;
             stroke: white;
             stroke-width: 2;
             fill: none;
         }
 
         .hero h2 {
-            font-size: 18px;
+            font-size: clamp(16px, 2.5vh, 24px);
             font-weight: 700;
             color: #0f172a;
             margin-bottom: 0;
         }
 
         .hero p {
-            font-size: 12px;
+            font-size: clamp(10px, 1.5vh, 14px);
             color: #64748b;
         }
 
-        /* Mode Cards */
+        /* Mode Cards - flexible sizing */
         .mode-cards {
             display: flex;
-            gap: 10px;
-            max-width: 480px;
+            gap: clamp(6px, 1.5vw, 16px);
+            max-width: min(90vw, 520px);
             width: 100%;
         }
 
@@ -141,8 +142,8 @@
             flex: 1;
             background: #fff;
             border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 10px 8px;
+            border-radius: clamp(6px, 1vh, 10px);
+            padding: clamp(8px, 1.5vh, 16px) clamp(6px, 1vw, 14px);
             text-decoration: none;
             color: #0f172a;
             text-align: center;
@@ -156,16 +157,16 @@
         }
 
         .mode-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: clamp(28px, 4.5vh, 44px);
+            height: clamp(28px, 4.5vh, 44px);
+            border-radius: clamp(6px, 1vh, 10px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: clamp(12px, 1.8vh, 18px);
             font-weight: 700;
             color: white;
-            margin: 0 auto 4px;
+            margin: 0 auto clamp(2px, 0.5vh, 8px);
         }
 
         .mode-icon.express { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
@@ -173,22 +174,22 @@
         .mode-icon.tutorial { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
 
         .mode-card h3 {
-            font-size: 13px;
+            font-size: clamp(11px, 1.6vh, 15px);
             font-weight: 600;
             margin-bottom: 1px;
         }
 
         .mode-card p {
-            font-size: 10px;
+            font-size: clamp(9px, 1.2vh, 12px);
             color: #64748b;
-            margin-bottom: 4px;
+            margin-bottom: clamp(2px, 0.5vh, 6px);
         }
 
         .mode-badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: clamp(1px, 0.3vh, 3px) clamp(6px, 1vw, 10px);
             border-radius: 20px;
-            font-size: 9px;
+            font-size: clamp(8px, 1vh, 10px);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -198,35 +199,182 @@
         .mode-card.deluxe .mode-badge { background: #eff6ff; color: #1d4ed8; }
         .mode-card.tutorial .mode-badge { background: #f5f3ff; color: #7c3aed; }
 
-        /* Saved Maps - Always visible */
+        /* Info Cards Row */
+        .info-cards {
+            display: flex;
+            gap: clamp(6px, 1.5vw, 16px);
+            max-width: min(90vw, 520px);
+            width: 100%;
+        }
+
+        /* Principle 5 Section */
+        .principle5-section {
+            flex: 1;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: clamp(6px, 1vh, 10px);
+            padding: clamp(8px, 1.5vh, 16px) clamp(8px, 1.5vw, 16px);
+            color: white;
+            text-align: center;
+        }
+
+        .principle5-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(4px, 0.8vw, 10px);
+            margin-bottom: clamp(2px, 0.5vh, 8px);
+        }
+
+        .principle5-logo {
+            width: clamp(20px, 3vh, 32px);
+            height: clamp(20px, 3vh, 32px);
+            background: #3b82f6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: clamp(9px, 1.3vh, 14px);
+        }
+
+        .principle5-title {
+            font-size: clamp(11px, 1.6vh, 16px);
+            font-weight: 700;
+        }
+
+        .principle5-subtitle {
+            font-size: clamp(9px, 1.2vh, 12px);
+            color: rgba(255,255,255,0.8);
+            margin-bottom: clamp(4px, 1vh, 12px);
+            line-height: 1.4;
+        }
+
+        .principle5-link {
+            display: inline-flex;
+            align-items: center;
+            gap: clamp(2px, 0.5vw, 6px);
+            padding: clamp(4px, 0.6vh, 8px) clamp(8px, 1.2vw, 16px);
+            background: rgba(255,255,255,0.15);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: clamp(9px, 1.2vh, 12px);
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .principle5-link:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        .principle5-link svg {
+            width: clamp(8px, 1.2vh, 14px);
+            height: clamp(8px, 1.2vh, 14px);
+        }
+
+        /* Donate Section */
+        .donate-section {
+            flex: 1;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border-radius: clamp(6px, 1vh, 10px);
+            padding: clamp(8px, 1.5vh, 16px) clamp(8px, 1.5vw, 16px);
+            color: white;
+            text-align: center;
+        }
+
+        .donate-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(4px, 0.8vw, 10px);
+            margin-bottom: clamp(2px, 0.5vh, 8px);
+        }
+
+        .donate-icon {
+            width: clamp(20px, 3vh, 32px);
+            height: clamp(20px, 3vh, 32px);
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .donate-icon svg {
+            width: 55%;
+            height: 55%;
+            fill: white;
+        }
+
+        .donate-title {
+            font-size: clamp(11px, 1.6vh, 16px);
+            font-weight: 700;
+        }
+
+        .donate-subtitle {
+            font-size: clamp(9px, 1.2vh, 12px);
+            color: rgba(255,255,255,0.9);
+            margin-bottom: clamp(4px, 1vh, 12px);
+            line-height: 1.4;
+        }
+
+        .donate-button {
+            display: inline-flex;
+            align-items: center;
+            gap: clamp(2px, 0.5vw, 6px);
+            padding: clamp(4px, 0.6vh, 8px) clamp(8px, 1.5vw, 16px);
+            background: white;
+            color: #047857;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: clamp(9px, 1.2vh, 12px);
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .donate-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .donate-button svg {
+            width: clamp(10px, 1.4vh, 14px);
+            height: clamp(10px, 1.4vh, 14px);
+            fill: #047857;
+        }
+
+        /* Saved Maps */
         .saved-section {
             width: 100%;
-            max-width: 480px;
+            max-width: min(90vw, 520px);
             background: #f8fafc;
-            border-radius: 6px;
-            padding: 8px;
+            border-radius: clamp(4px, 0.8vh, 8px);
+            padding: clamp(6px, 1vh, 12px);
         }
 
         .saved-header {
-            font-size: 9px;
+            font-size: clamp(8px, 1.1vh, 10px);
             font-weight: 600;
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: clamp(2px, 0.5vh, 8px);
         }
 
         .saved-list {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: clamp(2px, 0.5vh, 6px);
         }
 
         .saved-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 10px;
+            padding: clamp(4px, 0.8vh, 8px) clamp(8px, 1.2vw, 12px);
             background: white;
             border-radius: 4px;
             cursor: pointer;
@@ -240,43 +388,43 @@
         }
 
         .saved-item-name {
-            font-size: 11px;
+            font-size: clamp(10px, 1.3vh, 12px);
             font-weight: 500;
             color: #0f172a;
         }
 
         .saved-item-date {
-            font-size: 9px;
+            font-size: clamp(8px, 1vh, 10px);
             color: #94a3b8;
         }
 
         .saved-item-arrow {
             color: #94a3b8;
-            font-size: 11px;
+            font-size: clamp(10px, 1.3vh, 12px);
         }
 
         .no-maps {
             text-align: center;
-            padding: 8px;
+            padding: clamp(6px, 1vh, 12px);
             color: #94a3b8;
-            font-size: 10px;
+            font-size: clamp(9px, 1.2vh, 11px);
         }
 
         /* Secondary Links */
         .secondary-links {
             display: flex;
-            gap: 12px;
-            padding-top: 6px;
+            gap: clamp(8px, 2vw, 16px);
+            padding-top: clamp(4px, 0.8vh, 10px);
             border-top: 1px solid #e2e8f0;
         }
 
         .secondary-link {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: clamp(2px, 0.4vw, 4px);
             color: #64748b;
             text-decoration: none;
-            font-size: 10px;
+            font-size: clamp(9px, 1.2vh, 11px);
             font-weight: 500;
             transition: color 0.15s;
         }
@@ -286,164 +434,18 @@
         }
 
         .secondary-link svg {
-            width: 10px;
-            height: 10px;
-        }
-
-        /* Info Cards Row */
-        .info-cards {
-            display: flex;
-            gap: 10px;
-            max-width: 480px;
-            width: 100%;
-        }
-
-        /* Principle 5 Section */
-        .principle5-section {
-            flex: 1;
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            border-radius: 8px;
-            padding: 10px 12px;
-            color: white;
-            text-align: center;
-        }
-
-        .principle5-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 4px;
-        }
-
-        .principle5-logo {
-            width: 24px;
-            height: 24px;
-            background: #3b82f6;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 11px;
-        }
-
-        .principle5-title {
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .principle5-subtitle {
-            font-size: 10px;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-
-        .principle5-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 5px 10px;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 500;
-            transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .principle5-link:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-1px);
-        }
-
-        .principle5-link svg {
-            width: 10px;
-            height: 10px;
-        }
-
-        /* Donate Section */
-        .donate-section {
-            flex: 1;
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            border-radius: 8px;
-            padding: 10px 12px;
-            color: white;
-            text-align: center;
-        }
-
-        .donate-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 4px;
-        }
-
-        .donate-icon {
-            width: 24px;
-            height: 24px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .donate-icon svg {
-            width: 14px;
-            height: 14px;
-            fill: white;
-        }
-
-        .donate-title {
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .donate-subtitle {
-            font-size: 10px;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-
-        .donate-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 5px 12px;
-            background: white;
-            color: #047857;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            transition: all 0.2s;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-
-        .donate-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        }
-
-        .donate-button svg {
-            width: 12px;
-            height: 12px;
-            fill: #047857;
+            width: clamp(9px, 1.2vh, 12px);
+            height: clamp(9px, 1.2vh, 12px);
         }
 
         /* Footer */
         .footer {
-            padding: 6px 24px;
+            padding: clamp(4px, 0.8vh, 10px) clamp(12px, 3vw, 24px);
             text-align: center;
-            font-size: 10px;
+            font-size: clamp(9px, 1.1vh, 11px);
             color: #64748b;
             border-top: 1px solid #f1f5f9;
+            flex-shrink: 0;
         }
 
         .footer a {
@@ -456,39 +458,17 @@
             text-decoration: underline;
         }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .header {
-                padding: 0 12px;
-            }
-
-            .header-right {
-                display: none;
-            }
-
-            .main {
-                padding: 12px 12px;
-                gap: 12px;
-            }
-
-            .hero h2 {
-                font-size: 18px;
-            }
-
+        /* Responsive - stack on narrow screens */
+        @media (max-width: 500px) {
             .mode-cards,
             .info-cards {
                 flex-direction: column;
-                gap: 10px;
-            }
-
-            .mode-card {
-                padding: 12px 10px;
+                gap: clamp(6px, 1.5vh, 10px);
             }
 
             .secondary-links {
                 flex-wrap: wrap;
                 justify-content: center;
-                gap: 12px;
             }
         }
     </style>
