@@ -156,21 +156,40 @@
                                 margin-bottom: 8px;
                                 font-weight: 500;
                             ">WDR (Worldwide Diagram Reference)</label>
-                            <input type="text"
-                                   value="${metadata.wdr || ''}"
-                                   onchange="CoopMaps.modules.properties.updateDiagramProperty('wdr', this.value)"
-                                   placeholder="e.g., WDR-2024-001"
-                                   style="
-                                       width: 100%;
-                                       padding: 12px 16px;
-                                       border: 2px solid #e9ecef;
-                                       border-radius: 8px;
-                                       font-size: 14px;
-                                       transition: all 0.2s ease;
-                                       background: #f8f9fa;
-                                   "
-                                   onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
-                                   onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                            ">
+                                <div style="
+                                    flex: 1;
+                                    padding: 12px 16px;
+                                    border: 2px solid #e9ecef;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                    background: #f1f5f9;
+                                    color: #475569;
+                                    font-family: monospace;
+                                ">${metadata.wdrStatus === 'approved' ? metadata.approvedWdr : metadata.wdr || 'Not assigned'}</div>
+                                <span style="
+                                    padding: 4px 10px;
+                                    border-radius: 12px;
+                                    font-size: 11px;
+                                    font-weight: 600;
+                                    text-transform: uppercase;
+                                    ${metadata.wdrStatus === 'approved'
+                                        ? 'background: #dcfce7; color: #166534;'
+                                        : 'background: #fef3c7; color: #92400e;'}
+                                ">${metadata.wdrStatus === 'approved' ? 'Approved' : 'Provisional'}</span>
+                            </div>
+                            <p style="
+                                font-size: 11px;
+                                color: #94a3b8;
+                                margin-top: 8px;
+                                line-height: 1.4;
+                            ">${metadata.wdrStatus === 'approved'
+                                ? 'This diagram has been approved and assigned an official WDR.'
+                                : 'This provisional reference will be replaced with an official WDR once the diagram is approved after submission.'}</p>
                         </div>
                     </div>
 

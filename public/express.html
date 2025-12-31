@@ -429,7 +429,9 @@
                         title: 'New Diagram',
                         author: '',
                         date: new Date().toISOString().split('T')[0],
-                        wdr: '',
+                        wdr: 'WDR-PROV-' + Date.now().toString(36).toUpperCase(),
+                        wdrStatus: 'provisional',
+                        approvedWdr: '',
                         canvasSize: 'A4',
                         connectorStyle: 'orthogonal',
                         scope: { geographic: '', timePeriod: '', economicSectors: '' }

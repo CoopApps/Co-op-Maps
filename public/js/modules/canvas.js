@@ -1358,7 +1358,9 @@
                     title: 'Untitled Diagram',
                     author: '',
                     date: new Date().toISOString().split('T')[0],
-                    wdr: '',
+                    wdr: 'WDR-PROV-' + Date.now().toString(36).toUpperCase(),
+                    wdrStatus: 'provisional',
+                    approvedWdr: '',
                     scope: {
                         geographic: 'local',
                         economic: '',
