@@ -504,6 +504,38 @@
             }
         }
 
+        .tutorial-tooltip .drag-bar {
+            background: linear-gradient(to bottom, #e0e0e0, #d0d0d0);
+            border-radius: 8px 8px 0 0;
+            margin: -24px -24px 16px -24px;
+            padding: 8px;
+            cursor: move;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: background 0.2s;
+        }
+
+        .tutorial-tooltip .drag-bar:hover {
+            background: linear-gradient(to bottom, #d0d0d0, #c0c0c0);
+        }
+
+        .tutorial-tooltip .drag-bar::before {
+            content: '';
+            width: 40px;
+            height: 4px;
+            background: #999;
+            border-radius: 2px;
+        }
+
+        .tutorial-tooltip .drag-bar span {
+            font-size: 11px;
+            color: #666;
+            margin-left: 8px;
+        }
+
         .tutorial-tooltip h3 {
             color: var(--dark);
             font-size: 18px;
@@ -511,16 +543,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            cursor: move;
-            user-select: none;
-        }
-
-        .tutorial-tooltip h3::before {
-            content: '⋮⋮';
-            font-size: 12px;
-            color: #ccc;
-            margin-right: 4px;
-            letter-spacing: 2px;
         }
 
         .tutorial-tooltip.dragging {
@@ -856,6 +878,13 @@
                 max-width: 320px !important;
                 padding: 16px;
             }
+            .tutorial-tooltip .drag-bar {
+                margin: -16px -16px 12px -16px;
+                padding: 6px;
+            }
+            .tutorial-tooltip .drag-bar span {
+                font-size: 10px;
+            }
             .tutorial-tooltip h3 {
                 font-size: 15px;
             }
@@ -898,6 +927,13 @@
             .tutorial-tooltip {
                 max-width: 300px !important;
                 padding: 14px;
+            }
+            .tutorial-tooltip .drag-bar {
+                margin: -14px -14px 10px -14px;
+                padding: 5px;
+            }
+            .tutorial-tooltip .drag-bar span {
+                font-size: 9px;
             }
             .tutorial-tooltip h3 {
                 font-size: 14px;
@@ -2062,13 +2098,12 @@
             setupDragging: function() {
                 var self = this;
                 var tooltip = document.querySelector('.tutorial-tooltip');
-                var header = tooltip ? tooltip.querySelector('h3') : null;
+                var dragBar = tooltip ? tooltip.querySelector('.drag-bar') : null;
 
-                if (!header) return;
+                if (!dragBar) return;
 
-                // Bind header events (must be done each time since header is recreated)
-                header.addEventListener('mousedown', function(e) {
-                    if (e.target.tagName === 'BUTTON') return; // Don't drag if clicking buttons
+                // Bind drag bar events (must be done each time since drag bar is recreated)
+                dragBar.addEventListener('mousedown', function(e) {
                     self.isDragging = true;
                     tooltip.classList.add('dragging');
                     var rect = tooltip.getBoundingClientRect();
@@ -2077,8 +2112,7 @@
                     e.preventDefault();
                 });
 
-                header.addEventListener('touchstart', function(e) {
-                    if (e.target.tagName === 'BUTTON') return;
+                dragBar.addEventListener('touchstart', function(e) {
                     self.isDragging = true;
                     tooltip.classList.add('dragging');
                     var rect = tooltip.getBoundingClientRect();
@@ -2618,6 +2652,7 @@
                 var nextBtnDisabled = (!actionComplete && requiresAction) ? 'disabled' : '';
 
                 overlay.innerHTML = '<div class="tutorial-tooltip" style="top: ' + tooltipTop + 'px; left: ' + tooltipLeft + 'px; width: ' + tooltipWidth + 'px;">' +
+                    '<div class="drag-bar"><span>drag to move</span></div>' +
                     '<div class="tutorial-progress">' + progressDots + '</div>' +
                     '<h3><span class="step-number">' + (this.currentStep + 1) + '</span>' + step.title + '</h3>' +
                     '<p>' + step.content + '</p>' +
