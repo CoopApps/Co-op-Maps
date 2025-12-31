@@ -208,7 +208,11 @@
                 { id: 'enterprises', label: 'Enterprises', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-8h6v8"/></svg>' },
                 { id: 'coop-features', label: 'Co-op Features', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
                 { id: 'relationships', label: 'Relationships', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' },
-                { id: 'diagrams', label: 'Diagrams', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' },
+                { id: 'groups-layers', label: 'Groups & Layers', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
+                { id: 'timeline', label: 'Timeline', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' },
+                { id: 'analytics', label: 'Analytics', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' },
+                { id: 'collaboration', label: 'Collaboration', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
+                { id: 'diagrams', label: 'Diagrams', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' },
                 { id: 'search-import', label: 'Search & Import', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' },
                 { id: 'shortcuts', label: 'Shortcuts', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h8M6 16h.001M10 16h8"/></svg>' },
                 { id: 'tips', label: 'Tips & Tricks', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2v1M4.22 4.22l.77.77M1 12h1M4.22 19.78l.77-.77M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"/></svg>' }
@@ -274,6 +278,10 @@
                         ${this.renderSectionTab('enterprises', 'Enterprises')}
                         ${this.renderSectionTab('coop-features', 'Co-op Features')}
                         ${this.renderSectionTab('relationships', 'Relationships')}
+                        ${this.renderSectionTab('groups-layers', 'Groups & Layers')}
+                        ${this.renderSectionTab('timeline', 'Timeline')}
+                        ${this.renderSectionTab('analytics', 'Analytics')}
+                        ${this.renderSectionTab('collaboration', 'Collaboration')}
                         ${this.renderSectionTab('diagrams', 'Diagrams')}
                         ${this.renderSectionTab('search-import', 'Search & Import')}
                         ${this.renderSectionTab('shortcuts', 'Shortcuts')}
@@ -429,6 +437,10 @@
                 'enterprises': this.getEnterprisesContent(),
                 'coop-features': this.getCoopFeaturesContent(),
                 'relationships': this.getRelationshipsContent(),
+                'groups-layers': this.getGroupsLayersContent(),
+                'timeline': this.getTimelineContent(),
+                'analytics': this.getAnalyticsContent(),
+                'collaboration': this.getCollaborationContent(),
                 'diagrams': this.getDiagramsContent(),
                 'search-import': this.getSearchImportContent(),
                 'shortcuts': this.getShortcutsContent(),
@@ -948,6 +960,367 @@ Social Housing Trust,social</pre>
                     <li><strong>Ownership Structures:</strong> Use ownership relationships to show control</li>
                     <li><strong>Network Analysis:</strong> Show complex inter-relationships</li>
                     <li><strong>Governance Maps:</strong> Highlight governance relationships</li>
+                </ul>
+            `;
+        },
+
+        getGroupsLayersContent() {
+            return `
+                <h4>Groups</h4>
+                <p>Groups allow you to organize related enterprises together for better visual clarity and easier management.</p>
+
+                <h5>Creating Groups</h5>
+                <ul>
+                    <li><strong>Select Multiple:</strong> Hold Shift and click enterprises to select multiple items</li>
+                    <li><strong>Create Group:</strong> Right-click the selection and choose "Group" or use View &gt; Groups &gt; Create Group</li>
+                    <li><strong>Group Name:</strong> Enter a descriptive name for your group</li>
+                    <li><strong>Visual Boundary:</strong> Groups are displayed with a coloured boundary around member enterprises</li>
+                </ul>
+
+                <h5>Managing Groups</h5>
+                <ul>
+                    <li><strong>Move Group:</strong> Click and drag the group header to move all members together</li>
+                    <li><strong>Resize Group:</strong> Drag group edges to manually adjust the boundary</li>
+                    <li><strong>Add to Group:</strong> Drag an enterprise into an existing group boundary</li>
+                    <li><strong>Remove from Group:</strong> Right-click an enterprise and select "Remove from Group"</li>
+                    <li><strong>Dissolve Group:</strong> Right-click the group header and select "Ungroup" to dissolve</li>
+                    <li><strong>Edit Properties:</strong> Double-click the group header to edit name and colour</li>
+                </ul>
+
+                <h5>Group Features</h5>
+                <ul>
+                    <li><strong>Collapse/Expand:</strong> Click the collapse icon to hide group contents, showing only the group box</li>
+                    <li><strong>Custom Colours:</strong> Each group can have its own background colour for visual distinction</li>
+                    <li><strong>Nested Groups:</strong> Groups can contain other groups for hierarchical organization</li>
+                    <li><strong>Auto-resize:</strong> Groups automatically resize to fit their contents</li>
+                </ul>
+
+                <h4>Layers</h4>
+                <p>Layers let you filter the visibility of enterprises and relationships by type, making it easier to focus on specific aspects of your diagram.</p>
+
+                <h5>Accessing Layers</h5>
+                <ul>
+                    <li><strong>Layers Panel:</strong> Click View &gt; Layers or use the Layers toolbar button</li>
+                    <li><strong>Two Categories:</strong> Filter by relationship types or enterprise types</li>
+                </ul>
+
+                <h5>Relationship Layers</h5>
+                <p>Toggle visibility for each relationship type:</p>
+                <ul>
+                    <li><strong>G - Governance:</strong> Show/hide governance relationships (red)</li>
+                    <li><strong>I - Investment:</strong> Show/hide investment relationships (green)</li>
+                    <li><strong>L - Asset Lock:</strong> Show/hide asset lock relationships (orange)</li>
+                    <li><strong>M - Membership:</strong> Show/hide membership relationships (purple)</li>
+                    <li><strong>O - Ownership:</strong> Show/hide ownership relationships (dark grey)</li>
+                    <li><strong>P - Partnership:</strong> Show/hide partnership relationships (blue)</li>
+                    <li><strong>S - Supply:</strong> Show/hide supply chain relationships (teal)</li>
+                    <li><strong>Inner Segment:</strong> Show/hide inner segment connections</li>
+                </ul>
+
+                <h5>Enterprise Layers</h5>
+                <p>Toggle visibility for each enterprise type:</p>
+                <ul>
+                    <li><strong>Co-operative:</strong> Blue circles</li>
+                    <li><strong>Non-co-op Mutual:</strong> Purple circles</li>
+                    <li><strong>Social Enterprise:</strong> Yellow squares</li>
+                    <li><strong>Private:</strong> Red triangles</li>
+                    <li><strong>State:</strong> Green diamonds</li>
+                    <li><strong>Excluded:</strong> Grey crossed circles</li>
+                    <li><strong>Partnership:</strong> Teal house shapes</li>
+                    <li><strong>Public Listed:</strong> Orange hexagons</li>
+                    <li><strong>Charity:</strong> Pink hearts</li>
+                    <li><strong>Community Org:</strong> Cyan pentagons</li>
+                </ul>
+
+                <h5>Quick Filters</h5>
+                <ul>
+                    <li><strong>Governance Only:</strong> Show only governance relationships</li>
+                    <li><strong>Supply Chain Only:</strong> Show only supply relationships</li>
+                    <li><strong>Co-ops Only:</strong> Show only co-operative enterprises</li>
+                    <li><strong>Show All:</strong> Reset all layers to visible</li>
+                    <li><strong>All/None Buttons:</strong> Quickly show or hide all items in a category</li>
+                </ul>
+
+                <h5>Layer Persistence</h5>
+                <ul>
+                    <li>Layer visibility settings are saved locally and persist between sessions</li>
+                    <li>Hidden elements are still part of the diagram - they're just not displayed</li>
+                    <li>Exports include all elements regardless of layer visibility</li>
+                </ul>
+            `;
+        },
+
+        getTimelineContent() {
+            return `
+                <h4>Timeline & Snapshots</h4>
+                <p>The Timeline feature allows you to create point-in-time snapshots of your diagram, enabling you to track changes over time and compare different versions.</p>
+
+                <h5>Understanding Timeline</h5>
+                <ul>
+                    <li><strong>Snapshots:</strong> Saved states of your diagram at specific points in time</li>
+                    <li><strong>Non-destructive:</strong> Creating snapshots doesn't affect your current work</li>
+                    <li><strong>Compare Changes:</strong> See what changed between different versions</li>
+                    <li><strong>Restore:</strong> Return to any previous snapshot if needed</li>
+                </ul>
+
+                <h5>Accessing Timeline</h5>
+                <ul>
+                    <li><strong>Timeline Panel:</strong> Click View &gt; Timeline or use the clock icon in the toolbar</li>
+                    <li><strong>Panel Location:</strong> Opens as a side panel showing all snapshots</li>
+                </ul>
+
+                <h5>Creating Snapshots</h5>
+                <ul>
+                    <li><strong>Manual Snapshot:</strong> Click "Create Snapshot" in the Timeline panel</li>
+                    <li><strong>Snapshot Name:</strong> Enter a descriptive name (e.g., "Before restructuring", "Q1 2025 state")</li>
+                    <li><strong>Automatic Metadata:</strong> Date and time are automatically recorded</li>
+                    <li><strong>Description:</strong> Optionally add notes about what this snapshot represents</li>
+                </ul>
+
+                <h5>Managing Snapshots</h5>
+                <ul>
+                    <li><strong>View Snapshot:</strong> Click on a snapshot to preview it (read-only)</li>
+                    <li><strong>Restore Snapshot:</strong> Click "Restore" to revert the diagram to that state</li>
+                    <li><strong>Delete Snapshot:</strong> Remove snapshots you no longer need</li>
+                    <li><strong>Rename:</strong> Update snapshot names to keep them organized</li>
+                    <li><strong>Compare:</strong> Select two snapshots to see differences highlighted</li>
+                </ul>
+
+                <h5>What's Captured</h5>
+                <p>Each snapshot saves:</p>
+                <ul>
+                    <li>All enterprises and their properties (name, type, position, etc.)</li>
+                    <li>All relationships and their types</li>
+                    <li>Group configurations</li>
+                    <li>Diagram properties and metadata</li>
+                    <li>Canvas settings (size, zoom, pan position)</li>
+                </ul>
+
+                <h5>Use Cases</h5>
+                <ul>
+                    <li><strong>Track Evolution:</strong> Document how your co-operative ecosystem changes over time</li>
+                    <li><strong>Before Major Changes:</strong> Create a snapshot before restructuring relationships</li>
+                    <li><strong>Version Control:</strong> Maintain different versions for different stakeholders</li>
+                    <li><strong>Undo Safety Net:</strong> Create snapshots before experimental changes</li>
+                    <li><strong>Historical Record:</strong> Build a timeline of organizational development</li>
+                </ul>
+
+                <h5>Best Practices</h5>
+                <ul>
+                    <li><strong>Name Meaningfully:</strong> Use descriptive names that explain the state</li>
+                    <li><strong>Regular Snapshots:</strong> Create snapshots at significant milestones</li>
+                    <li><strong>Add Descriptions:</strong> Include context about why changes were made</li>
+                    <li><strong>Clean Up:</strong> Delete redundant snapshots to keep the timeline manageable</li>
+                </ul>
+            `;
+        },
+
+        getAnalyticsContent() {
+            return `
+                <h4>Statistics Panel</h4>
+                <p>The Statistics panel provides comprehensive analytics about your co-operative ecosystem.</p>
+
+                <h5>Accessing Statistics</h5>
+                <ul>
+                    <li><strong>Menu:</strong> View &gt; Statistics or use the chart icon in the toolbar</li>
+                    <li><strong>Keyboard:</strong> No default shortcut (can be customized)</li>
+                </ul>
+
+                <h5>Summary Statistics</h5>
+                <ul>
+                    <li><strong>Total Enterprises:</strong> Count of all enterprises in the diagram</li>
+                    <li><strong>Total Relationships:</strong> Count of all connections</li>
+                    <li><strong>Co-operative Percentage:</strong> What proportion of enterprises are co-operatives</li>
+                    <li><strong>Network Density:</strong> Ratio of actual to possible connections (higher = more interconnected)</li>
+                </ul>
+
+                <h5>Intercooperation Analysis</h5>
+                <p>Special metrics for co-operative ecosystems:</p>
+                <ul>
+                    <li><strong>Intercooperation Score:</strong> Percentage of co-op relationships that connect co-ops to other co-ops (measures Principle 6 adherence)</li>
+                    <li><strong>Co-op to Co-op Links:</strong> Number of relationships between co-operatives</li>
+                    <li><strong>Average Principles per Co-op:</strong> How many ICA Principles are typically adhered to</li>
+                    <li><strong>Total Members:</strong> Aggregate membership across all enterprises</li>
+                </ul>
+
+                <h5>Breakdown Charts</h5>
+                <ul>
+                    <li><strong>Enterprise Types:</strong> Distribution of different enterprise types with counts</li>
+                    <li><strong>Relationship Types:</strong> Distribution of relationship types (G, I, L, M, O, P, S)</li>
+                    <li><strong>Sector Breakdown:</strong> Enterprises grouped by their industry sector</li>
+                </ul>
+
+                <h5>Network Analysis</h5>
+                <ul>
+                    <li><strong>Most Connected:</strong> Top 5 enterprises with the most relationships</li>
+                    <li><strong>Average Connections:</strong> Mean number of connections per enterprise</li>
+                    <li><strong>Isolated Enterprises:</strong> Warning about enterprises with no connections</li>
+                </ul>
+
+                <h4>Reports Panel</h4>
+                <p>Generate comprehensive reports about your ecosystem for sharing and documentation.</p>
+
+                <h5>Accessing Reports</h5>
+                <ul>
+                    <li><strong>Menu:</strong> File &gt; Generate Report or View &gt; Reports</li>
+                </ul>
+
+                <h5>Report Types</h5>
+                <ul>
+                    <li><strong>Summary Report:</strong> Overview with key statistics - ideal for executive summaries</li>
+                    <li><strong>Detailed Report:</strong> Full listing of all enterprises and relationships with properties</li>
+                    <li><strong>Governance Report:</strong> Focused on governance, ownership, and membership relationships</li>
+                </ul>
+
+                <h5>Export Formats</h5>
+                <ul>
+                    <li><strong>TXT (Plain Text):</strong> Simple text format for basic documentation</li>
+                    <li><strong>HTML (Web Page):</strong> Formatted report that opens in any browser, includes styling</li>
+                    <li><strong>CSV (Spreadsheet):</strong> Data export for use in Excel, Google Sheets, or databases</li>
+                </ul>
+
+                <h5>Report Contents</h5>
+                <ul>
+                    <li>Diagram metadata (title, author, date, WDR)</li>
+                    <li>Summary statistics</li>
+                    <li>Enterprise type and relationship type breakdowns</li>
+                    <li>Full enterprise listings (in detailed/governance reports)</li>
+                    <li>Relationship listings with start/end enterprises</li>
+                </ul>
+
+                <h4>Dependency Analysis</h4>
+                <p>Analyse critical paths and dependencies to understand ecosystem vulnerabilities.</p>
+
+                <h5>Accessing Dependency Analysis</h5>
+                <ul>
+                    <li><strong>Menu:</strong> View &gt; Dependencies or Analyze &gt; Dependency Analysis</li>
+                </ul>
+
+                <h5>Critical Enterprises</h5>
+                <p>Enterprises ranked by their impact on the ecosystem:</p>
+                <ul>
+                    <li><strong>Impact Score:</strong> Combined measure of incoming connections, outgoing connections, and downstream dependents</li>
+                    <li><strong>In-Degree:</strong> Number of relationships pointing TO this enterprise</li>
+                    <li><strong>Out-Degree:</strong> Number of relationships pointing FROM this enterprise</li>
+                    <li><strong>Downstream Count:</strong> How many enterprises depend on this one (directly or indirectly)</li>
+                </ul>
+
+                <h5>Dependency Chains</h5>
+                <ul>
+                    <li><strong>Chain Visualization:</strong> Shows the longest dependency paths in your ecosystem</li>
+                    <li><strong>Chain Length:</strong> Number of enterprises in each dependency chain</li>
+                    <li><strong>Root Nodes:</strong> Enterprises that don't depend on others (chain starters)</li>
+                </ul>
+
+                <h5>Circular Dependencies</h5>
+                <ul>
+                    <li><strong>Detection:</strong> Automatically identifies circular dependency loops</li>
+                    <li><strong>Warning:</strong> Red alert if circular dependencies are found</li>
+                    <li><strong>Path Display:</strong> Shows the exact path of the circular dependency</li>
+                    <li><strong>Green Indicator:</strong> Confirmation when no circular dependencies exist</li>
+                </ul>
+
+                <h5>Graph Statistics</h5>
+                <ul>
+                    <li><strong>Total Nodes:</strong> Number of enterprises in the analysis</li>
+                    <li><strong>Total Edges:</strong> Number of relationships analysed</li>
+                    <li><strong>Max Chain Length:</strong> Longest dependency path found</li>
+                </ul>
+
+                <h5>Use Cases</h5>
+                <ul>
+                    <li><strong>Risk Assessment:</strong> Identify critical enterprises whose failure would affect many others</li>
+                    <li><strong>Supply Chain Analysis:</strong> Understand dependencies in your supply network</li>
+                    <li><strong>Governance Review:</strong> Identify concentration of control</li>
+                    <li><strong>Resilience Planning:</strong> Find single points of failure</li>
+                </ul>
+            `;
+        },
+
+        getCollaborationContent() {
+            return `
+                <h4>Map Protection</h4>
+                <p>Co-op Maps includes password protection to enable secure collaborative editing of shared maps.</p>
+
+                <h5>How It Works</h5>
+                <ul>
+                    <li><strong>Password Required:</strong> When saving to the cloud, you must set a password</li>
+                    <li><strong>Shared Access:</strong> Share the password with collaborators to allow them to edit</li>
+                    <li><strong>View-Only Mode:</strong> Anyone can view a protected map, but editing requires the password</li>
+                    <li><strong>Local Security:</strong> Password is hashed client-side before storage</li>
+                </ul>
+
+                <h5>Setting a Password</h5>
+                <ul>
+                    <li><strong>First Save:</strong> When you first save a map to the cloud, you'll be prompted to set a password</li>
+                    <li><strong>Requirements:</strong> Password must be at least 4 characters</li>
+                    <li><strong>Confirmation:</strong> You must enter the password twice to confirm</li>
+                    <li><strong>Remember It:</strong> Only a Principle 5 admin can reset a forgotten password</li>
+                </ul>
+
+                <h5>Unlocking a Map</h5>
+                <ul>
+                    <li><strong>Automatic Prompt:</strong> When opening a protected map, you'll see the unlock dialog</li>
+                    <li><strong>Enter Password:</strong> Type the password to unlock for editing</li>
+                    <li><strong>View Only:</strong> Click "View Only" to browse without editing privileges</li>
+                    <li><strong>Session-based:</strong> Unlock persists until you close the map</li>
+                </ul>
+
+                <h5>View-Only Mode</h5>
+                <ul>
+                    <li><strong>Red Indicator:</strong> A "Read-Only Mode" badge appears at the bottom of the screen</li>
+                    <li><strong>Click to Unlock:</strong> Click the indicator to enter the password and unlock</li>
+                    <li><strong>Full Navigation:</strong> You can pan, zoom, and view all details</li>
+                    <li><strong>No Modifications:</strong> Cannot add, edit, or delete enterprises or relationships</li>
+                </ul>
+
+                <h5>Changing Passwords</h5>
+                <ul>
+                    <li><strong>Access:</strong> File &gt; Security &gt; Change Password (or Diagram Settings)</li>
+                    <li><strong>Requirement:</strong> Must be unlocked first to change password</li>
+                    <li><strong>Notify Collaborators:</strong> Remember to share the new password with your team</li>
+                </ul>
+
+                <h5>Removing Protection</h5>
+                <ul>
+                    <li><strong>Access:</strong> File &gt; Security &gt; Remove Protection</li>
+                    <li><strong>Requirement:</strong> Must be unlocked first</li>
+                    <li><strong>Confirmation:</strong> You'll be asked to confirm removal</li>
+                    <li><strong>Result:</strong> Anyone can edit the map without a password</li>
+                </ul>
+
+                <h4>Collaborative Editing</h4>
+                <p>Work together with others on the same co-operative ecosystem map.</p>
+
+                <h5>Sharing Maps</h5>
+                <ul>
+                    <li><strong>Cloud Save:</strong> Save your map to the cloud to enable sharing</li>
+                    <li><strong>Share Link:</strong> Copy the map URL to share with collaborators</li>
+                    <li><strong>Share Password:</strong> Provide the editing password separately (never in the URL)</li>
+                </ul>
+
+                <h5>Collaboration Best Practices</h5>
+                <ul>
+                    <li><strong>Communicate:</strong> Coordinate with collaborators about who is editing when</li>
+                    <li><strong>Save Frequently:</strong> Save changes regularly to avoid conflicts</li>
+                    <li><strong>Use Snapshots:</strong> Create snapshots before major changes</li>
+                    <li><strong>Document Changes:</strong> Use diagram notes to explain modifications</li>
+                    <li><strong>Version Names:</strong> Include version info in diagram titles if needed</li>
+                </ul>
+
+                <h5>Security Considerations</h5>
+                <ul>
+                    <li><strong>Password Strength:</strong> Use a strong, unique password for important maps</li>
+                    <li><strong>Share Securely:</strong> Don't share passwords via unsecured channels</li>
+                    <li><strong>Review Access:</strong> Change passwords when collaborators leave the project</li>
+                    <li><strong>Local Copies:</strong> Keep local backups of important maps</li>
+                </ul>
+
+                <h5>Metadata Tracking</h5>
+                <ul>
+                    <li><strong>Created Date:</strong> When password protection was first set</li>
+                    <li><strong>Last Edited:</strong> Timestamp of most recent authenticated edit</li>
+                    <li><strong>Diagram Properties:</strong> Author field for attribution</li>
                 </ul>
             `;
         },
