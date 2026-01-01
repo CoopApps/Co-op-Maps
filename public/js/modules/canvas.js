@@ -54,6 +54,9 @@
             // Initialize dark mode from stored preference
             this.initDarkMode();
 
+            // Initialize fullscreen listener
+            this.initFullscreenListener();
+
             this.bindCanvasEvents();
             this.setupDragAndDrop();
             this.setupKeyboardShortcuts();
@@ -3060,6 +3063,58 @@
                 this.darkMode = true;
                 document.body.classList.add('dark-mode');
             }
+        },
+
+        // ===== FULLSCREEN =====
+
+        isFullscreen: false,
+
+        toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                // Enter fullscreen
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+                this.isFullscreen = true;
+                const textEl = document.getElementById('fullscreenText');
+                if (textEl) textEl.textContent = 'Exit';
+                const btn = document.getElementById('fullscreenBtn');
+                if (btn) btn.style.background = 'rgba(52, 152, 219, 0.8)';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                this.isFullscreen = false;
+                const textEl = document.getElementById('fullscreenText');
+                if (textEl) textEl.textContent = 'Fullscreen';
+                const btn = document.getElementById('fullscreenBtn');
+                if (btn) btn.style.background = 'rgba(255,255,255,0.15)';
+            }
+        },
+
+        initFullscreenListener() {
+            document.addEventListener('fullscreenchange', () => {
+                this.isFullscreen = !!document.fullscreenElement;
+                const textEl = document.getElementById('fullscreenText');
+                const btn = document.getElementById('fullscreenBtn');
+                if (this.isFullscreen) {
+                    if (textEl) textEl.textContent = 'Exit';
+                    if (btn) btn.style.background = 'rgba(52, 152, 219, 0.8)';
+                } else {
+                    if (textEl) textEl.textContent = 'Fullscreen';
+                    if (btn) btn.style.background = 'rgba(255,255,255,0.15)';
+                }
+            });
         },
 
         // ===== MINIMAP =====

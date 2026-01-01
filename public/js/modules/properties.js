@@ -891,6 +891,75 @@
                     <!-- Relationships Info -->
                     ${this.renderRelationshipsInfo(selected)}
 
+                    <!-- Logo -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                        border: 1px solid #e9ecef;
+                    ">
+                        <h4 style="
+                            font-size: 16px;
+                            color: #2c3e50;
+                            margin: 0 0 16px 0;
+                            font-weight: 600;
+                        ">Logo / Image</h4>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()"
+                                    style="
+                                        flex: 1;
+                                        min-width: 120px;
+                                        padding: 12px 16px;
+                                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                                        color: white;
+                                        border: none;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        font-weight: 500;
+                                        cursor: pointer;
+                                        transition: all 0.2s ease;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        gap: 8px;
+                                    "
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(52, 152, 219, 0.3)';"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                ${selected.logo ? 'Change Logo' : 'Add Logo'}
+                            </button>
+                            ${selected.logo ? `
+                            <button onclick="CoopMaps.modules.canvas?.removeLogoFromEnterprise()"
+                                    style="
+                                        padding: 12px 16px;
+                                        background: #f8f9fa;
+                                        color: #e74c3c;
+                                        border: 2px solid #e9ecef;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        font-weight: 500;
+                                        cursor: pointer;
+                                        transition: all 0.2s ease;
+                                    "
+                                    onmouseover="this.style.borderColor='#e74c3c'; this.style.background='#fef5f5';"
+                                    onmouseout="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                                Remove
+                            </button>
+                            ` : ''}
+                        </div>
+                        ${selected.logo ? `
+                        <div style="margin-top: 12px; text-align: center;">
+                            <img src="${selected.logo}" style="max-width: 80px; max-height: 80px; border-radius: 8px; border: 1px solid #e9ecef;" />
+                        </div>
+                        ` : ''}
+                    </div>
+
                     <!-- Actions -->
                     <div class="property-group" style="
                         background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
