@@ -566,7 +566,7 @@
         },
 
         getCoopFeaturesContent() {
-            return \`
+            return `
                 <h4>ICA Co-operative Principles</h4>
                 <p>Co-op Maps allows you to track adherence to the 7 International Co-operative Alliance (ICA) principles for each co-operative:</p>
                 <ol>
@@ -617,7 +617,7 @@
                 <p>
                     Visit <a href="https://www.principle5.coop/" target="_blank" rel="noopener" style="color: #3498db;">principle5.coop</a> to learn more.
                 </p>
-            \`;
+            `;
         },
 
         getRelationshipsContent() {
@@ -735,7 +735,7 @@
         },
 
         getSearchImportContent() {
-            return \`
+            return `
                 <h4>Search & Find</h4>
                 <p>Quickly locate enterprises in your diagram:</p>
                 <ul>
@@ -783,7 +783,7 @@ Community Credit Union,co-operative
 Local Bakery Collective,co-operative
 Organic Farms Ltd,private
 Social Housing Trust,social</pre>
-            \`;
+            `;
         },
 
         getShortcutsContent() {
