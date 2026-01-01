@@ -25,19 +25,19 @@
             const stats = CoopMaps.modules.enterprises ? CoopMaps.modules.enterprises.getStatistics() : null;
 
             return `
-                <div style="animation: fadeIn 0.3s ease;">
+                <div style="${CoopMaps.isExpressMode ? '' : 'animation: fadeIn 0.3s ease;'}">
                     <!-- Header -->
                     <div style="
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        padding: 25px;
-                        margin: -25px -25px 25px -25px;
-                        border-radius: 0 0 16px 16px;
+                        background: ${CoopMaps.isExpressMode ? '#667eea' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '25px'};
+                        margin: ${CoopMaps.isExpressMode ? '-15px -15px 15px -15px' : '-25px -25px 25px -25px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 0 0 16px 16px;'}
                         color: white;
-                        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+                        ${CoopMaps.isExpressMode ? 'border-bottom: 2px solid #5a6fd6;' : 'box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);'}
                     ">
                         <h3 style="
-                            font-size: 20px;
-                            margin: 0 0 8px 0;
+                            font-size: ${CoopMaps.isExpressMode ? '14px' : '20px'};
+                            margin: 0 0 ${CoopMaps.isExpressMode ? '4px' : '8px'} 0;
                             font-weight: 600;
                             display: flex;
                             align-items: center;
@@ -45,7 +45,7 @@
                         ">
                             Diagram Properties
                         </h3>
-                        <p style="margin: 0; opacity: 0.9; font-size: 14px;">
+                        <p style="margin: 0; opacity: 0.9; font-size: ${CoopMaps.isExpressMode ? '12px' : '14px'};">
                             Configure your co-operative ecosystem diagram
                         </p>
                     </div>
@@ -53,11 +53,11 @@
                     <!-- Basic Properties -->
                     <div class="property-group" style="
                         background: white;
-                        padding: 20px;
-                        border-radius: 12px;
-                        margin-bottom: 20px;
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                        border: 1px solid #e9ecef;
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 12px;'}
+                        margin-bottom: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);'}
+                        border: ${CoopMaps.isExpressMode ? '2px solid #7f8c8d' : '1px solid #e9ecef'};
                     ">
                         <h4 style="
                             font-size: 16px;
@@ -400,20 +400,20 @@
             const showRolesAndTiers = (selected.type === 'cooperative' || selected.type === 'ncm') && selected.type !== 'excluded';
 
             return `
-                <div style="animation: fadeIn 0.3s ease;">
+                <div style="${CoopMaps.isExpressMode ? '' : 'animation: fadeIn 0.3s ease;'}">
                     <!-- Header with Enterprise Info -->
                     <div style="
-                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-                        padding: 20px;
-                        margin: -25px -25px 25px -25px;
-                        border-radius: 0 0 16px 16px;
+                        background: ${CoopMaps.isExpressMode ? '#3498db' : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)'};
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        margin: ${CoopMaps.isExpressMode ? '-15px -15px 15px -15px' : '-25px -25px 25px -25px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 0 0 16px 16px;'}
                         color: white;
-                        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+                        ${CoopMaps.isExpressMode ? 'border-bottom: 2px solid #2980b9;' : 'box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);'}
                     ">
-                        <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: ${CoopMaps.isExpressMode ? '10px' : '15px'};">
                             <div style="flex: 1;">
                                 <h3 style="
-                                    font-size: 18px;
+                                    font-size: ${CoopMaps.isExpressMode ? '14px' : '18px'};
                                     margin: 0 0 4px 0;
                                     font-weight: 600;
                                 ">
@@ -894,97 +894,88 @@
                     <!-- Logo -->
                     <div class="property-group" style="
                         background: white;
-                        padding: 20px;
-                        border-radius: 12px;
-                        margin-bottom: 20px;
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                        border: 1px solid #e9ecef;
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 12px;'}
+                        margin-bottom: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);'}
+                        border: ${CoopMaps.isExpressMode ? '2px solid #7f8c8d' : '1px solid #e9ecef'};
                     ">
                         <h4 style="
-                            font-size: 16px;
+                            font-size: ${CoopMaps.isExpressMode ? '13px' : '16px'};
                             color: #2c3e50;
-                            margin: 0 0 16px 0;
+                            margin: 0 0 ${CoopMaps.isExpressMode ? '10px' : '16px'} 0;
                             font-weight: 600;
                         ">Logo / Image</h4>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()"
                                     style="
                                         flex: 1;
-                                        min-width: 120px;
-                                        padding: 12px 16px;
-                                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                                        min-width: 100px;
+                                        padding: ${CoopMaps.isExpressMode ? '8px 12px' : '12px 16px'};
+                                        background: ${CoopMaps.isExpressMode ? '#3498db' : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)'};
                                         color: white;
-                                        border: none;
-                                        border-radius: 8px;
-                                        font-size: 14px;
+                                        border: ${CoopMaps.isExpressMode ? '1px solid #2980b9' : 'none'};
+                                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                                        font-size: ${CoopMaps.isExpressMode ? '12px' : '14px'};
                                         font-weight: 500;
                                         cursor: pointer;
-                                        transition: all 0.2s ease;
                                         display: flex;
                                         align-items: center;
                                         justify-content: center;
-                                        gap: 8px;
-                                    "
-                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(52, 152, 219, 0.3)';"
-                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        gap: 6px;
+                                    ">
+                                ${CoopMaps.isExpressMode ? '' : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                     <circle cx="8.5" cy="8.5" r="1.5"/>
                                     <polyline points="21 15 16 10 5 21"/>
-                                </svg>
+                                </svg>`}
                                 ${selected.logo ? 'Change Logo' : 'Add Logo'}
                             </button>
                             ${selected.logo ? `
                             <button onclick="CoopMaps.modules.canvas?.removeLogoFromEnterprise()"
                                     style="
-                                        padding: 12px 16px;
-                                        background: #f8f9fa;
+                                        padding: ${CoopMaps.isExpressMode ? '8px 12px' : '12px 16px'};
+                                        background: ${CoopMaps.isExpressMode ? '#ecf0f1' : '#f8f9fa'};
                                         color: #e74c3c;
-                                        border: 2px solid #e9ecef;
-                                        border-radius: 8px;
-                                        font-size: 14px;
+                                        border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '2px solid #e9ecef'};
+                                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                                        font-size: ${CoopMaps.isExpressMode ? '12px' : '14px'};
                                         font-weight: 500;
                                         cursor: pointer;
-                                        transition: all 0.2s ease;
-                                    "
-                                    onmouseover="this.style.borderColor='#e74c3c'; this.style.background='#fef5f5';"
-                                    onmouseout="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                                    ">
                                 Remove
                             </button>
                             ` : ''}
                         </div>
                         ${selected.logo ? `
                         <div style="margin-top: 12px; text-align: center;">
-                            <img src="${selected.logo}" style="max-width: 80px; max-height: 80px; border-radius: 8px; border: 1px solid #e9ecef;" />
+                            <img src="${selected.logo}" style="max-width: 80px; max-height: 80px; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} border: 1px solid ${CoopMaps.isExpressMode ? '#7f8c8d' : '#e9ecef'};" />
                         </div>
                         ` : ''}
                     </div>
 
                     <!-- Actions -->
                     <div class="property-group" style="
-                        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-                        padding: 20px;
-                        border-radius: 12px;
-                        box-shadow: 0 2px 8px rgba(238, 90, 36, 0.2);
+                        background: ${CoopMaps.isExpressMode ? '#e74c3c' : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)'};
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 12px;'}
+                        ${CoopMaps.isExpressMode ? 'border: 2px solid #c0392b;' : 'box-shadow: 0 2px 8px rgba(238, 90, 36, 0.2);'}
                         text-align: center;
                     ">
                         <button onclick="CoopMaps.modules.properties.deleteSelected()"
                                 style="
                                     background: white;
                                     color: #e74c3c;
-                                    border: none;
-                                    padding: 12px 24px;
-                                    font-size: 14px;
+                                    border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : 'none'};
+                                    padding: ${CoopMaps.isExpressMode ? '8px 16px' : '12px 24px'};
+                                    font-size: ${CoopMaps.isExpressMode ? '12px' : '14px'};
                                     font-weight: 600;
                                     cursor: pointer;
-                                    border-radius: 8px;
-                                    transition: all 0.2s ease;
+                                    ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
                                     display: inline-flex;
                                     align-items: center;
                                     gap: 8px;
-                                "
-                                onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
-                                onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                                ">
                             Delete Enterprise
                         </button>
                     </div>
@@ -994,19 +985,19 @@
                         text-align: center;
                         font-size: 11px;
                         color: #95a5a6;
-                        margin-top: 20px;
+                        margin-top: ${CoopMaps.isExpressMode ? '15px' : '20px'};
                     ">
                         Added: ${new Date(selected.dateAdded).toLocaleString()}
                     </div>
                     ` : ''}
                 </div>
 
-                <style>
+                ${CoopMaps.isExpressMode ? '' : `<style>
                     @keyframes fadeIn {
                         from { opacity: 0; transform: translateY(10px); }
                         to { opacity: 1; transform: translateY(0); }
                     }
-                </style>
+                </style>`}
             `;
         },
 
