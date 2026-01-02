@@ -954,6 +954,66 @@
                         ` : ''}
                     </div>
 
+                    <!-- Business Info -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 12px;'}
+                        margin-bottom: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);'}
+                        border: ${CoopMaps.isExpressMode ? '2px solid #7f8c8d' : '1px solid #e9ecef'};
+                    ">
+                        <h4 style="
+                            font-size: ${CoopMaps.isExpressMode ? '13px' : '16px'};
+                            color: #2c3e50;
+                            margin: 0 0 ${CoopMaps.isExpressMode ? '10px' : '16px'} 0;
+                            font-weight: 600;
+                        ">Business Information</h4>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Description</label>
+                            <textarea
+                                onchange="CoopMaps.modules.properties.updateBusinessInfo('description', this.value)"
+                                placeholder="Brief description..."
+                                style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; min-height: ${CoopMaps.isExpressMode ? '50px' : '60px'}; resize: vertical; font-family: inherit; box-sizing: border-box;"
+                            >${selected.businessInfo?.description || ''}</textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: ${CoopMaps.isExpressMode ? '8px' : '12px'}; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Website</label>
+                                <input type="url" value="${selected.businessInfo?.website || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('website', this.value)"
+                                    placeholder="https://..."
+                                    style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Location</label>
+                                <input type="text" value="${selected.businessInfo?.location || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('location', this.value)"
+                                    placeholder="City, Country"
+                                    style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: ${CoopMaps.isExpressMode ? '8px' : '12px'};">
+                            <div>
+                                <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Year Founded</label>
+                                <input type="number" value="${selected.businessInfo?.yearFounded || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('yearFounded', this.value)"
+                                    placeholder="e.g., 1995"
+                                    style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Members/Staff</label>
+                                <input type="number" value="${selected.businessInfo?.members || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('members', this.value)"
+                                    placeholder="e.g., 50"
+                                    style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; box-sizing: border-box;">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Actions -->
                     <div class="property-group" style="
                         background: ${CoopMaps.isExpressMode ? '#e74c3c' : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)'};
