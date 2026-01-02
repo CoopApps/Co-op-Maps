@@ -515,6 +515,374 @@
             };
         },
 
+        // Submit map for consideration to be published on community browse page
+        showSubmitForConsiderationDialog() {
+            // Remove existing modal
+            const existing = document.getElementById('submitMapModal');
+            if (existing) existing.remove();
+
+            const diagramName = CoopMaps.state.data.diagramProperties?.name ||
+                                CoopMaps.state.data.diagramProperties?.title || 'Untitled Map';
+            const diagramDesc = CoopMaps.state.data.diagramProperties?.description || '';
+            const author = CoopMaps.state.data.diagramProperties?.author || '';
+
+            const useAnimation = !CoopMaps.isExpressMode;
+
+            const modal = document.createElement('div');
+            modal.id = 'submitMapModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, ${CoopMaps.isExpressMode ? '0.7' : '0.8'});
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                ${useAnimation ? 'animation: fadeIn 0.3s ease;' : ''}
+            `;
+
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    ${CoopMaps.isExpressMode ? 'border: 2px solid #7f8c8d;' : 'border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);'}
+                    padding: ${CoopMaps.isExpressMode ? '20px' : '30px'};
+                    max-width: 500px;
+                    width: 90%;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    ${useAnimation ? 'animation: slideIn 0.3s ease;' : ''}
+                ">
+                    <h2 style="
+                        margin: 0 0 10px 0;
+                        color: #2c3e50;
+                        font-size: ${CoopMaps.isExpressMode ? '16px' : '20px'};
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    ">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2">
+                            <path d="M22 2L11 13"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                        </svg>
+                        Submit for Consideration
+                    </h2>
+
+                    <p style="color: #7f8c8d; margin-bottom: 20px; font-size: 14px; line-height: 1.5;">
+                        Submit your map for review by Principle 5. If approved, it will be published to the
+                        <a href="browse.html" target="_blank" style="color: #3498db;">Community Maps gallery</a>
+                        for others to view and learn from.
+                    </p>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">
+                            Map Title *
+                        </label>
+                        <input type="text" id="submitMapTitle" value="${this.escapeHtml(diagramName)}" style="
+                            width: 100%;
+                            padding: 10px;
+                            border: ${CoopMaps.isExpressMode ? '2px inset #bdc3c7' : '1px solid #ddd'};
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            font-size: 14px;
+                            box-sizing: border-box;
+                        ">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">
+                            Author/Organization *
+                        </label>
+                        <input type="text" id="submitMapAuthor" value="${this.escapeHtml(author)}" placeholder="Your name or organization" style="
+                            width: 100%;
+                            padding: 10px;
+                            border: ${CoopMaps.isExpressMode ? '2px inset #bdc3c7' : '1px solid #ddd'};
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            font-size: 14px;
+                            box-sizing: border-box;
+                        ">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">
+                            Email Address *
+                        </label>
+                        <input type="email" id="submitMapEmail" placeholder="your@email.com" style="
+                            width: 100%;
+                            padding: 10px;
+                            border: ${CoopMaps.isExpressMode ? '2px inset #bdc3c7' : '1px solid #ddd'};
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            font-size: 14px;
+                            box-sizing: border-box;
+                        ">
+                        <small style="color: #95a5a6; font-size: 12px;">We'll notify you when your map is reviewed</small>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">
+                            Description
+                        </label>
+                        <textarea id="submitMapDescription" placeholder="Describe your cooperative ecosystem map..." style="
+                            width: 100%;
+                            padding: 10px;
+                            border: ${CoopMaps.isExpressMode ? '2px inset #bdc3c7' : '1px solid #ddd'};
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            font-size: 14px;
+                            box-sizing: border-box;
+                            min-height: 80px;
+                            resize: vertical;
+                            font-family: inherit;
+                        ">${this.escapeHtml(diagramDesc)}</textarea>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">
+                            Tags (comma-separated)
+                        </label>
+                        <input type="text" id="submitMapTags" placeholder="e.g., worker-owned, regional, food" style="
+                            width: 100%;
+                            padding: 10px;
+                            border: ${CoopMaps.isExpressMode ? '2px inset #bdc3c7' : '1px solid #ddd'};
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            font-size: 14px;
+                            box-sizing: border-box;
+                        ">
+                    </div>
+
+                    <div style="
+                        background: ${CoopMaps.isExpressMode ? '#f5f5f5' : '#f8f9fa'};
+                        padding: 15px;
+                        ${CoopMaps.isExpressMode ? 'border: 1px solid #bdc3c7;' : 'border-radius: 8px;'}
+                        margin-bottom: 20px;
+                        font-size: 13px;
+                        color: #7f8c8d;
+                    ">
+                        <strong style="color: #2c3e50;">What happens next?</strong>
+                        <ul style="margin: 10px 0 0 20px; padding: 0;">
+                            <li>Your map will be reviewed by Principle 5 moderators</li>
+                            <li>You'll receive an email notification about the decision</li>
+                            <li>Approved maps appear on the Community Maps page</li>
+                            <li>You can still edit your local copy after submission</li>
+                        </ul>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="document.getElementById('submitMapModal').remove()" style="
+                            flex: 1;
+                            padding: 12px;
+                            border: ${CoopMaps.isExpressMode ? '2px outset #bdc3c7' : '1px solid #ddd'};
+                            background: ${CoopMaps.isExpressMode ? '#ecf0f1' : '#f8f9fa'};
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: #2c3e50;
+                        ">
+                            Cancel
+                        </button>
+                        <button onclick="CoopMaps.modules.persistence.submitMapForConsideration()" style="
+                            flex: 1;
+                            padding: 12px;
+                            border: none;
+                            background: ${CoopMaps.isExpressMode ? '#27ae60' : 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)'};
+                            color: white;
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: 600;
+                        ">
+                            Submit for Review
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+
+            // Close on Escape
+            const escHandler = (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
+        },
+
+        async submitMapForConsideration() {
+            const title = document.getElementById('submitMapTitle')?.value?.trim();
+            const author = document.getElementById('submitMapAuthor')?.value?.trim();
+            const email = document.getElementById('submitMapEmail')?.value?.trim();
+            const description = document.getElementById('submitMapDescription')?.value?.trim();
+            const tagsInput = document.getElementById('submitMapTags')?.value?.trim();
+
+            // Validation
+            if (!title) {
+                alert('Please enter a map title');
+                return;
+            }
+            if (!author) {
+                alert('Please enter your name or organization');
+                return;
+            }
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            // Parse tags
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+            // Generate thumbnail
+            const thumbnail = this.generateThumbnail();
+
+            // Prepare submission data
+            const mapData = {
+                title: title,
+                author: author,
+                email: email,
+                description: description || '',
+                tags: tags,
+                thumbnail: thumbnail,
+                diagramData: {
+                    enterprises: CoopMaps.state.data.enterprises,
+                    relationships: CoopMaps.state.data.relationships,
+                    groups: CoopMaps.state.data.groups || [],
+                    timeline: CoopMaps.state.data.timeline || [],
+                    diagramProperties: {
+                        ...CoopMaps.state.data.diagramProperties,
+                        title: title,
+                        author: author,
+                        description: description
+                    }
+                }
+            };
+
+            try {
+                // Show loading state
+                const submitBtn = document.querySelector('#submitMapModal button:last-child');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting...';
+                }
+
+                // Submit via API
+                const response = await CoopMapsAPI.submitMap(mapData);
+
+                // Close modal
+                document.getElementById('submitMapModal')?.remove();
+
+                // Show success message
+                if (CoopMaps.isExpressMode) {
+                    alert('Success! Your map has been submitted for review. You will receive an email notification when it has been reviewed.');
+                } else {
+                    this.showSubmissionSuccessDialog(response);
+                }
+
+            } catch (error) {
+                console.error('Submission error:', error);
+
+                // Re-enable button
+                const submitBtn = document.querySelector('#submitMapModal button:last-child');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit for Review';
+                }
+
+                alert('Failed to submit map: ' + (error.message || 'Unknown error. Please try again.'));
+            }
+        },
+
+        showSubmissionSuccessDialog(response) {
+            const successModal = document.createElement('div');
+            successModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+
+            successModal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 16px;
+                    padding: 40px;
+                    max-width: 450px;
+                    width: 90%;
+                    text-align: center;
+                    animation: slideIn 0.3s ease;
+                ">
+                    <div style="
+                        width: 80px;
+                        height: 80px;
+                        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+                        border-radius: 50%;
+                        margin: 0 auto 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+
+                    <h2 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 24px;">
+                        Submitted Successfully!
+                    </h2>
+
+                    <p style="color: #7f8c8d; margin-bottom: 25px; line-height: 1.6;">
+                        Your map has been submitted for review. The Principle 5 team will review it
+                        and you'll receive an email notification with the decision.
+                    </p>
+
+                    ${response?.submissionId ? `
+                    <p style="color: #95a5a6; font-size: 13px; margin-bottom: 20px;">
+                        Submission ID: <code style="background: #f5f5f5; padding: 2px 8px; border-radius: 4px;">${response.submissionId}</code>
+                    </p>
+                    ` : ''}
+
+                    <button onclick="this.closest('div').parentElement.remove()" style="
+                        padding: 14px 40px;
+                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        font-weight: 600;
+                    ">
+                        Done
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(successModal);
+
+            successModal.addEventListener('click', (e) => {
+                if (e.target === successModal) successModal.remove();
+            });
+        },
+
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        },
+
         render() {
             const diagrams = this.getAllDiagrams();
             const currentDiagram = this.getCurrentDiagramInfo();
@@ -553,6 +921,7 @@
                         display: flex;
                         gap: 12px;
                         margin-bottom: 25px;
+                        flex-wrap: wrap;
                     ">
                         <button onclick="CoopMaps.modules.persistence.saveAsNewDiagram()" style="
                             padding: 10px 20px;
@@ -575,6 +944,17 @@
                             font-weight: 600;
                             transition: all 0.3s ease;
                         ">Import from File</button>
+
+                        <button onclick="CoopMaps.modules.persistence.showSubmitForConsiderationDialog()" style="
+                            padding: 10px 20px;
+                            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            transition: all 0.3s ease;
+                        ">📤 Submit to Gallery</button>
                     </div>
 
                     <div class="saved-diagrams">

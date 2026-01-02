@@ -20,6 +20,7 @@ const userRoutes = require('./routes/users');
 const diagramRoutes = require('./routes/diagrams');
 const collaboratorRoutes = require('./routes/collaborators');
 const publicRoutes = require('./routes/public');
+const mapsRoutes = require('./routes/maps');
 
 const app = express();
 const server = http.createServer(app);
@@ -87,6 +88,7 @@ app.use('/api/diagrams', rateLimiters.api, diagramRoutes);
 app.use('/api/diagrams', rateLimiters.api, collaboratorRoutes);
 app.use('/api/collaborators', rateLimiters.api, collaboratorRoutes);
 app.use('/api/public', rateLimiters.publicApi, publicRoutes);
+app.use('/api/maps', rateLimiters.publicApi, mapsRoutes);
 
 // Serve static files (for the frontend)
 app.use(express.static('public'));
