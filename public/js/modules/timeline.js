@@ -371,7 +371,7 @@
                         ${snapshotList}
                     </div>
 
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button onclick="CoopMaps.modules.timeline.closePanelDialog(); CoopMaps.modules.timeline.showAddSnapshotDialog();" style="
                             flex: 1;
                             padding: 12px;
@@ -381,6 +381,7 @@
                             ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
                             cursor: pointer;
                             font-weight: 600;
+                            min-width: 120px;
                         ">+ Add Snapshot</button>
                         ${timeline.length > 1 ? `
                             <button onclick="CoopMaps.modules.timeline.closePanelDialog(); CoopMaps.modules.timeline.togglePlayback();" style="
@@ -392,8 +393,20 @@
                                 ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
                                 cursor: pointer;
                                 font-weight: 600;
+                                min-width: 120px;
                             ">${this.isPlaying ? '⏸ Pause' : '▶ Play Timeline'}</button>
                         ` : ''}
+                        <button onclick="CoopMaps.modules.timeline.exportTimelineAsHTML();" style="
+                            flex: 1;
+                            padding: 12px;
+                            background: ${CoopMaps.isExpressMode ? '#e67e22' : 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)'};
+                            color: white;
+                            border: none;
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            cursor: pointer;
+                            font-weight: 600;
+                            min-width: 120px;
+                        ">📤 Export Timeline</button>
                     </div>
                 </div>
             `;
@@ -694,6 +707,342 @@
         // Check if timeline has snapshots
         hasSnapshots() {
             return (CoopMaps.state.data.timeline || []).length > 0;
+        },
+
+        // Export timeline as standalone HTML viewer
+        exportTimelineAsHTML() {
+            const timeline = CoopMaps.state.data.timeline || [];
+            if (timeline.length === 0) {
+                alert('No snapshots to export. Add at least one snapshot first.');
+                return;
+            }
+
+            const diagramName = CoopMaps.state.data.diagramProperties?.name || 'Co-op Map Timeline';
+            const diagramDesc = CoopMaps.state.data.diagramProperties?.description || '';
+
+            // Build standalone HTML with embedded data and viewer
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${this.escapeHtml(diagramName)} - Timeline Viewer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 { font-size: 24px; margin-bottom: 5px; }
+        .header p { color: rgba(255,255,255,0.7); font-size: 14px; }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 80px);
+        }
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        #mapCanvas {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .timeline-controls {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .control-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .control-btn:hover { transform: scale(1.05); }
+        .control-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .nav-btn { background: #3498db; color: white; }
+        .play-btn { background: #27ae60; color: white; min-width: 100px; }
+        .play-btn.playing { background: #e74c3c; }
+        .timeline-dots {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dot:hover { background: rgba(255,255,255,0.6); }
+        .dot.active { background: #3498db; transform: scale(1.3); }
+        .snapshot-info {
+            text-align: center;
+            min-width: 200px;
+        }
+        .snapshot-label { font-weight: 600; font-size: 18px; }
+        .snapshot-date { color: rgba(255,255,255,0.6); font-size: 14px; }
+        .snapshot-notes { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 5px; }
+        .info-panel {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .info-panel strong { color: #3498db; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>${this.escapeHtml(diagramName)}</h1>
+        ${diagramDesc ? `<p>${this.escapeHtml(diagramDesc)}</p>` : ''}
+    </div>
+
+    <div class="main-container">
+        <div class="canvas-container">
+            <canvas id="mapCanvas" width="1200" height="800"></canvas>
+            <div class="info-panel">
+                <strong>${timeline.length}</strong> snapshots |
+                <strong id="currentIndex">1</strong> of ${timeline.length}
+            </div>
+        </div>
+
+        <div class="timeline-controls">
+            <button class="control-btn nav-btn" id="prevBtn" onclick="viewer.prev()">◀ Previous</button>
+            <button class="control-btn play-btn" id="playBtn" onclick="viewer.togglePlay()">▶ Play</button>
+            <button class="control-btn nav-btn" id="nextBtn" onclick="viewer.next()">Next ▶</button>
+
+            <div class="timeline-dots" id="dotsContainer"></div>
+
+            <div class="snapshot-info">
+                <div class="snapshot-label" id="snapshotLabel"></div>
+                <div class="snapshot-date" id="snapshotDate"></div>
+                <div class="snapshot-notes" id="snapshotNotes"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Embedded timeline data
+        const timelineData = ${JSON.stringify(timeline)};
+
+        const viewer = {
+            currentIndex: 0,
+            isPlaying: false,
+            playInterval: null,
+            playSpeed: 3000,
+            canvas: null,
+            ctx: null,
+
+            init() {
+                this.canvas = document.getElementById('mapCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.createDots();
+                this.showSnapshot(0);
+            },
+
+            createDots() {
+                const container = document.getElementById('dotsContainer');
+                container.innerHTML = timelineData.map((_, i) =>
+                    '<div class="dot" onclick="viewer.showSnapshot(' + i + ')" title="' +
+                    timelineData[i].label + '"></div>'
+                ).join('');
+            },
+
+            showSnapshot(index) {
+                if (index < 0 || index >= timelineData.length) return;
+                this.currentIndex = index;
+                const snapshot = timelineData[index];
+
+                // Update UI
+                document.getElementById('currentIndex').textContent = index + 1;
+                document.getElementById('snapshotLabel').textContent = snapshot.label;
+                document.getElementById('snapshotDate').textContent = snapshot.date;
+                document.getElementById('snapshotNotes').textContent = snapshot.notes || '';
+
+                // Update dots
+                document.querySelectorAll('.dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+
+                // Update buttons
+                document.getElementById('prevBtn').disabled = index === 0;
+                document.getElementById('nextBtn').disabled = index === timelineData.length - 1;
+
+                // Render map
+                this.renderMap(snapshot.data);
+            },
+
+            renderMap(data) {
+                const ctx = this.ctx;
+                const canvas = this.canvas;
+
+                // Clear canvas
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw grid
+                ctx.strokeStyle = '#e9ecef';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < canvas.width; x += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < canvas.height; y += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+
+                // Draw relationships first
+                if (data.relationships) {
+                    data.relationships.forEach(rel => {
+                        const from = data.enterprises.find(e => e.id === rel.from);
+                        const to = data.enterprises.find(e => e.id === rel.to);
+                        if (from && to) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = rel.color || '#95a5a6';
+                            ctx.lineWidth = rel.strength === 'strong' ? 3 : rel.strength === 'weak' ? 1 : 2;
+                            ctx.moveTo(from.x, from.y);
+                            ctx.lineTo(to.x, to.y);
+                            ctx.stroke();
+                        }
+                    });
+                }
+
+                // Draw enterprises
+                if (data.enterprises) {
+                    data.enterprises.forEach(ent => {
+                        const size = ent.size || 60;
+                        const x = ent.x;
+                        const y = ent.y;
+
+                        // Shadow
+                        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                        ctx.beginPath();
+                        ctx.arc(x + 3, y + 3, size/2, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Circle
+                        ctx.fillStyle = ent.color || '#3498db';
+                        ctx.beginPath();
+                        ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Border
+                        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        // Label
+                        ctx.fillStyle = '#2c3e50';
+                        ctx.font = 'bold 12px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'top';
+                        ctx.fillText(ent.name || 'Enterprise', x, y + size/2 + 8);
+                    });
+                }
+            },
+
+            prev() {
+                if (this.currentIndex > 0) {
+                    this.showSnapshot(this.currentIndex - 1);
+                }
+            },
+
+            next() {
+                if (this.currentIndex < timelineData.length - 1) {
+                    this.showSnapshot(this.currentIndex + 1);
+                }
+            },
+
+            togglePlay() {
+                if (this.isPlaying) {
+                    this.stop();
+                } else {
+                    this.play();
+                }
+            },
+
+            play() {
+                this.isPlaying = true;
+                document.getElementById('playBtn').textContent = '⏸ Pause';
+                document.getElementById('playBtn').classList.add('playing');
+
+                this.playInterval = setInterval(() => {
+                    if (this.currentIndex < timelineData.length - 1) {
+                        this.showSnapshot(this.currentIndex + 1);
+                    } else {
+                        this.stop();
+                        this.showSnapshot(0); // Loop back
+                    }
+                }, this.playSpeed);
+            },
+
+            stop() {
+                this.isPlaying = false;
+                document.getElementById('playBtn').textContent = '▶ Play';
+                document.getElementById('playBtn').classList.remove('playing');
+                if (this.playInterval) {
+                    clearInterval(this.playInterval);
+                    this.playInterval = null;
+                }
+            }
+        };
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => viewer.init());
+    </script>
+</body>
+</html>`;
+
+            // Download the file
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (diagramName.replace(/[^a-z0-9]/gi, '_') || 'timeline') + '_viewer.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (CoopMaps.isExpressMode) {
+                alert('Timeline exported! Open the downloaded HTML file in any browser to view your map timeline.');
+            } else if (CoopMaps.showNotification) {
+                CoopMaps.showNotification('Timeline exported as standalone HTML viewer!', 'success');
+            }
         }
     });
 })();
