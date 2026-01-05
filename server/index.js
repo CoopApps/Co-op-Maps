@@ -90,12 +90,30 @@ app.use('/api/collaborators', rateLimiters.api, collaboratorRoutes);
 app.use('/api/public', rateLimiters.publicApi, publicRoutes);
 app.use('/api/maps', rateLimiters.publicApi, mapsRoutes);
 
-// Serve static files (for the frontend)
-app.use(express.static('public'));
+// Serve static files (for the frontend) with cache control
+// HTML files: no-cache (always check for updates)
+// JS/CSS: cache for 1 hour but must revalidate
+app.use(express.static('public', {
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filepath) => {
+        if (filepath.endsWith('.html')) {
+            // HTML files should always be revalidated
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+        } else if (filepath.endsWith('.js') || filepath.endsWith('.css')) {
+            // JS/CSS: cache for 1 hour but check for changes
+            res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+        } else if (filepath.match(/\.(png|jpg|jpeg|gif|svg|ico)$/)) {
+            // Images: cache longer
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+        }
+    }
+}));
 
 // Serve landing page for root URL
 const path = require('path');
 app.get('/', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     res.sendFile(path.join(__dirname, '../public/version-selector.html'));
 });
 
