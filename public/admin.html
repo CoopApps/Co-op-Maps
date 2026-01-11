@@ -605,6 +605,9 @@
                 this.loadSubmissions();
             },
 
+            // Valid status values for CSS class sanitization
+            validStatuses: ['pending', 'approved', 'rejected', 'changes_requested'],
+
             async loadSubmissions() {
                 const list = document.getElementById('submissionsList');
                 list.innerHTML = '<div class="loading">Loading submissions...</div>';
@@ -621,37 +624,80 @@
                         limit: 50
                     });
 
+                    list.innerHTML = '';
+
                     if (response.submissions.length === 0) {
-                        list.innerHTML = `
-                            <div class="empty-state">
-                                <h3>No Submissions</h3>
-                                <p>${search ? 'Try a different search term' : 'No maps in this category'}</p>
-                            </div>
-                        `;
+                        const emptyState = document.createElement('div');
+                        emptyState.className = 'empty-state';
+
+                        const h3 = document.createElement('h3');
+                        h3.textContent = 'No Submissions';
+
+                        const p = document.createElement('p');
+                        p.textContent = search ? 'Try a different search term' : 'No maps in this category';
+
+                        emptyState.appendChild(h3);
+                        emptyState.appendChild(p);
+                        list.appendChild(emptyState);
                         return;
                     }
 
-                    list.innerHTML = response.submissions.map(sub => `
-                        <div class="submission-item" onclick="AdminPanel.showReview('${sub.id}')">
-                            <div class="submission-header">
-                                <div class="submission-title">${this.escapeHtml(sub.title)}</div>
-                                <span class="submission-status status-${sub.status}">${sub.status}</span>
-                            </div>
-                            <div class="submission-meta">
-                                by ${this.escapeHtml(sub.author)}${sub.organization ? ' • ' + this.escapeHtml(sub.organization) : ''} •
-                                ${this.formatDate(sub.created_at)}
-                            </div>
-                            ${sub.description ? `<div class="submission-description">${this.escapeHtml(sub.description)}</div>` : ''}
-                        </div>
-                    `).join('');
+                    response.submissions.forEach(sub => {
+                        const item = document.createElement('div');
+                        item.className = 'submission-item';
+                        item.addEventListener('click', () => this.showReview(sub.id));
+
+                        const header = document.createElement('div');
+                        header.className = 'submission-header';
+
+                        const title = document.createElement('div');
+                        title.className = 'submission-title';
+                        title.textContent = sub.title;
+
+                        const statusSpan = document.createElement('span');
+                        // Sanitize status to prevent class injection
+                        const safeStatus = this.validStatuses.includes(sub.status) ? sub.status : 'pending';
+                        statusSpan.className = `submission-status status-${safeStatus}`;
+                        statusSpan.textContent = sub.status;
+
+                        header.appendChild(title);
+                        header.appendChild(statusSpan);
+
+                        const meta = document.createElement('div');
+                        meta.className = 'submission-meta';
+                        let metaText = `by ${sub.author}`;
+                        if (sub.organization) metaText += ` • ${sub.organization}`;
+                        metaText += ` • ${this.formatDate(sub.created_at)}`;
+                        meta.textContent = metaText;
+
+                        item.appendChild(header);
+                        item.appendChild(meta);
+
+                        if (sub.description) {
+                            const desc = document.createElement('div');
+                            desc.className = 'submission-description';
+                            desc.textContent = sub.description;
+                            item.appendChild(desc);
+                        }
+
+                        list.appendChild(item);
+                    });
                 } catch (error) {
                     console.error('Error loading submissions:', error);
-                    list.innerHTML = `
-                        <div class="empty-state">
-                            <h3>Error Loading Submissions</h3>
-                            <p>${error.message}</p>
-                        </div>
-                    `;
+                    list.innerHTML = '';
+
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+
+                    const h3 = document.createElement('h3');
+                    h3.textContent = 'Error Loading Submissions';
+
+                    const p = document.createElement('p');
+                    p.textContent = error.message || 'Unknown error';
+
+                    emptyState.appendChild(h3);
+                    emptyState.appendChild(p);
+                    list.appendChild(emptyState);
                 }
             },
 
@@ -675,12 +721,21 @@
                     document.getElementById('reviewDate').textContent = this.formatDate(sub.created_at);
                     document.getElementById('reviewStatus').textContent = sub.status.toUpperCase();
 
-                    // Tags
+                    // Tags - using DOM manipulation for security
                     const tagsContainer = document.getElementById('reviewTags');
+                    tagsContainer.innerHTML = '';
                     if (sub.tags && sub.tags.length > 0) {
-                        tagsContainer.innerHTML = sub.tags.map(tag => `<span class="tag">${this.escapeHtml(tag)}</span>`).join('');
+                        sub.tags.forEach(tag => {
+                            const tagSpan = document.createElement('span');
+                            tagSpan.className = 'tag';
+                            tagSpan.textContent = tag;
+                            tagsContainer.appendChild(tagSpan);
+                        });
                     } else {
-                        tagsContainer.innerHTML = '<span class="value">No tags</span>';
+                        const noTags = document.createElement('span');
+                        noTags.className = 'value';
+                        noTags.textContent = 'No tags';
+                        tagsContainer.appendChild(noTags);
                     }
 
                     // Thumbnail

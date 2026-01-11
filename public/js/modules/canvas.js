@@ -54,10 +54,84 @@
             // Initialize dark mode from stored preference
             this.initDarkMode();
 
+            // Initialize fullscreen listener
+            this.initFullscreenListener();
+
             this.bindCanvasEvents();
             this.setupDragAndDrop();
             this.setupKeyboardShortcuts();
+
+            // Add resize listener to keep canvas fitting the viewport
+            const self = this;
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                // Debounce resize events
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    self.handleResize();
+                }, 150);
+            });
+
             this.render();
+
+            // Recalculate fit after layout is complete (fixes initial overflow)
+            requestAnimationFrame(function() {
+                setTimeout(function() {
+                    self.fitToScreen();
+                }, 100);
+            });
+        },
+
+        // Fit canvas to screen without animation
+        fitToScreen() {
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            if (!canvasSize) return;
+
+            const container = document.querySelector('.canvas-area');
+            if (!container) return;
+
+            // Use clientWidth/Height to get inner dimensions (excludes scrollbars)
+            const availableWidth = container.clientWidth;
+            const availableHeight = container.clientHeight;
+
+            // Skip if container has no size yet
+            if (availableWidth <= 0 || availableHeight <= 0) return;
+
+            // Calculate zoom to fit with small margin (2% buffer)
+            const zoomX = (availableWidth * 0.98) / canvasSize.width;
+            const zoomY = (availableHeight * 0.98) / canvasSize.height;
+            const fitZoom = Math.min(zoomX, zoomY);
+
+            // Store the fit-to-screen zoom as our baseline (this = 100%)
+            this.baselineZoom = fitZoom;
+
+            CoopMaps.state.ui.zoom = fitZoom;
+            this.panOffset = { x: 0, y: 0 };
+
+            this.canvas.style.width = (canvasSize.width * fitZoom) + 'px';
+            this.canvas.style.height = (canvasSize.height * fitZoom) + 'px';
+
+            // Fit to screen = 100%
+            const zoomDisplay = document.getElementById('zoomLevel');
+            if (zoomDisplay) {
+                zoomDisplay.textContent = '100%';
+            }
+
+            this.render();
+        },
+
+        // Get display zoom percentage (relative to fit-to-screen baseline)
+        getDisplayZoom() {
+            if (!this.baselineZoom) return 100;
+            return Math.round((CoopMaps.state.ui.zoom / this.baselineZoom) * 100);
+        },
+
+        // Update zoom display
+        updateZoomDisplay() {
+            const zoomDisplay = document.getElementById('zoomLevel');
+            if (zoomDisplay) {
+                zoomDisplay.textContent = this.getDisplayZoom() + '%';
+            }
         },
 
         setCanvasSize(size) {
@@ -76,42 +150,77 @@
                 select.value = size;
             }
 
-            // Calculate minimum zoom (for fit functionality) and set default to 100%
+            // Auto-fit canvas to viewport
             const container = document.querySelector('.canvas-area');
             if (container) {
-                const containerRect = container.getBoundingClientRect();
+                // Use clientWidth/Height to get inner dimensions (excludes scrollbars)
+                const availableWidth = container.clientWidth;
+                const availableHeight = container.clientHeight;
 
-                // Add padding so canvas doesn't touch edges
-                const padding = 40;
-                const availableWidth = containerRect.width - (padding * 2);
-                const availableHeight = containerRect.height - (padding * 2);
+                // Calculate zoom needed to fit canvas in viewport (2% buffer for margin)
+                const zoomX = (availableWidth * 0.98) / canvasSize.width;
+                const zoomY = (availableHeight * 0.98) / canvasSize.height;
+                const fitZoom = Math.min(zoomX, zoomY);
 
-                // Calculate zoom needed to fit (used as minimum zoom)
-                const zoomX = availableWidth / canvasSize.width;
-                const zoomY = availableHeight / canvasSize.height;
-                const fitZoom = Math.min(zoomX, zoomY, 1); // Don't zoom in beyond 100%
+                // Store baseline zoom (fit-to-screen = 100%)
+                this.baselineZoom = fitZoom;
 
                 // Store minimum zoom for boundary checking
-                this.minZoom = Math.max(0.05, fitZoom); // Absolute minimum 5%
+                this.minZoom = Math.max(0.05, fitZoom * 0.5);
 
-                // Default to 100% zoom (user can click Fit to fit to screen)
-                const defaultZoom = 1.0;
-                CoopMaps.state.ui.zoom = defaultZoom;
+                // DEFAULT TO FIT ZOOM - canvas always visible on any screen
+                CoopMaps.state.ui.zoom = fitZoom;
 
                 // Reset pan offset when changing size
                 this.panOffset = { x: 0, y: 0 };
 
                 // Set CSS dimensions to scaled size for proper centering
-                this.canvas.style.width = (canvasSize.width * defaultZoom) + 'px';
-                this.canvas.style.height = (canvasSize.height * defaultZoom) + 'px';
+                this.canvas.style.width = (canvasSize.width * fitZoom) + 'px';
+                this.canvas.style.height = (canvasSize.height * fitZoom) + 'px';
 
-                // Update zoom display if it exists
+                // Update zoom display - fit to screen = 100%
                 const zoomDisplay = document.getElementById('zoomLevel');
                 if (zoomDisplay) {
                     zoomDisplay.textContent = '100%';
                 }
             }
 
+            this.render();
+        },
+
+        // Recalculate canvas fit when window resizes
+        handleResize() {
+            if (!this.canvas || !this.currentCanvasSize) return;
+
+            const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            if (!canvasSize) return;
+
+            const container = document.querySelector('.canvas-area');
+            if (!container) return;
+
+            // Use clientWidth/Height to get inner dimensions
+            const availableWidth = container.clientWidth;
+            const availableHeight = container.clientHeight;
+
+            // Calculate new fit zoom (2% buffer)
+            const zoomX = (availableWidth * 0.98) / canvasSize.width;
+            const zoomY = (availableHeight * 0.98) / canvasSize.height;
+            const newFitZoom = Math.min(zoomX, zoomY);
+
+            // Calculate current display zoom ratio (how much user has zoomed from baseline)
+            const displayRatio = this.baselineZoom ? (CoopMaps.state.ui.zoom / this.baselineZoom) : 1;
+
+            // Update baseline to new fit zoom
+            this.baselineZoom = newFitZoom;
+
+            // Apply the same display ratio to new baseline
+            const newZoom = newFitZoom * displayRatio;
+            CoopMaps.state.ui.zoom = newZoom;
+
+            this.canvas.style.width = (canvasSize.width * newZoom) + 'px';
+            this.canvas.style.height = (canvasSize.height * newZoom) + 'px';
+
+            this.updateZoomDisplay();
             this.render();
         },
 
@@ -638,6 +747,12 @@
                         self.render();
                     }
                 }
+
+                // Find/Search (Ctrl/Cmd+F)
+                if (modKey && e.key === 'f') {
+                    e.preventDefault();
+                    self.showSearchDialog();
+                }
             });
         },
 
@@ -744,6 +859,9 @@
 
             // Draw multi-select highlights
             this.drawMultiSelectHighlights();
+
+            // Draw search result highlights
+            this.drawSearchHighlights();
 
             this.ctx.restore();
 
@@ -1267,7 +1385,9 @@
                     title: 'Untitled Diagram',
                     author: '',
                     date: new Date().toISOString().split('T')[0],
-                    wdr: '',
+                    wdr: 'WDR-PROV-' + Date.now().toString(36).toUpperCase(),
+                    wdrStatus: 'provisional',
+                    approvedWdr: '',
                     scope: {
                         geographic: 'local',
                         economic: '',
@@ -1348,53 +1468,70 @@
             animate();
         },
 
+        // Display zoom levels (relative to fit-to-screen baseline)
+        displayZoomLevels: [50, 75, 100, 125, 150, 200, 300],
+
         zoomIn() {
-            // Find next zoom level up
-            const currentZoom = CoopMaps.state.ui.zoom;
-            let targetZoom = this.zoomLevels[this.zoomLevels.length - 1]; // Default to max
-            for (const level of this.zoomLevels) {
-                if (level > currentZoom + 0.01) { // Small tolerance for floating point
-                    targetZoom = level;
+            // Find next display zoom level up
+            const currentDisplayZoom = this.getDisplayZoom();
+            let targetDisplayZoom = this.displayZoomLevels[this.displayZoomLevels.length - 1];
+            for (const level of this.displayZoomLevels) {
+                if (level > currentDisplayZoom + 1) {
+                    targetDisplayZoom = level;
                     break;
                 }
             }
-            this.zoomTo(targetZoom);
+            this.zoomToDisplay(targetDisplayZoom);
         },
 
         zoomOut() {
-            // Find next zoom level down
-            const currentZoom = CoopMaps.state.ui.zoom;
-            let targetZoom = Math.max(this.minZoom, this.zoomLevels[0]); // Default to min
-            for (let i = this.zoomLevels.length - 1; i >= 0; i--) {
-                if (this.zoomLevels[i] < currentZoom - 0.01) { // Small tolerance for floating point
-                    targetZoom = Math.max(this.minZoom, this.zoomLevels[i]);
+            // Find next display zoom level down
+            const currentDisplayZoom = this.getDisplayZoom();
+            let targetDisplayZoom = this.displayZoomLevels[0];
+            for (let i = this.displayZoomLevels.length - 1; i >= 0; i--) {
+                if (this.displayZoomLevels[i] < currentDisplayZoom - 1) {
+                    targetDisplayZoom = this.displayZoomLevels[i];
                     break;
                 }
             }
-            this.zoomTo(targetZoom);
+            this.zoomToDisplay(targetDisplayZoom);
         },
 
         zoomReset() {
-            // Reset to 100%
-            this.zoomTo(1.0);
+            // Reset to 100% (fit-to-screen)
+            this.fitToScreen();
+        },
+
+        // Zoom to a display percentage (100 = fit to screen)
+        zoomToDisplay(displayPercent) {
+            if (!this.baselineZoom) {
+                this.fitToScreen();
+                return;
+            }
+            const targetZoom = this.baselineZoom * (displayPercent / 100);
+            this.zoomTo(targetZoom);
         },
 
         zoomTo(targetZoom) {
             const canvasSize = this.canvasSizes[this.currentCanvasSize];
+            if (!canvasSize) return;
 
             // Clamp to valid range
-            targetZoom = Math.max(this.minZoom, Math.min(5.0, targetZoom));
+            const minZoom = this.baselineZoom ? this.baselineZoom * 0.5 : 0.1;
+            const maxZoom = this.baselineZoom ? this.baselineZoom * 3 : 5.0;
+            targetZoom = Math.max(minZoom, Math.min(maxZoom, targetZoom));
 
             // Reset pan offset
             this.panOffset = { x: 0, y: 0 };
+
+            const self = this;
 
             // Skip animation in Express mode
             if (CoopMaps.isExpressMode) {
                 CoopMaps.state.ui.zoom = targetZoom;
                 this.canvas.style.width = (canvasSize.width * targetZoom) + 'px';
                 this.canvas.style.height = (canvasSize.height * targetZoom) + 'px';
-                const zoomDisplay = document.getElementById('zoomLevel');
-                if (zoomDisplay) zoomDisplay.textContent = Math.round(targetZoom * 100) + '%';
+                this.updateZoomDisplay();
                 this.render();
                 return;
             }
@@ -1402,7 +1539,6 @@
             const startZoom = CoopMaps.state.ui.zoom;
             const duration = 200;
             const startTime = Date.now();
-            const self = this;
 
             const animate = () => {
                 const elapsed = Date.now() - startTime;
@@ -1416,10 +1552,7 @@
                 self.canvas.style.height = (canvasSize.height * CoopMaps.state.ui.zoom) + 'px';
 
                 // Update zoom display
-                const zoomDisplay = document.getElementById('zoomLevel');
-                if (zoomDisplay) {
-                    zoomDisplay.textContent = Math.round(CoopMaps.state.ui.zoom * 100) + '%';
-                }
+                self.updateZoomDisplay();
 
                 self.render();
 
@@ -2376,6 +2509,40 @@
             this.ctx.restore();
         },
 
+        // Draw highlights for search results
+        drawSearchHighlights() {
+            if (this.searchResults.length === 0 || this.isExporting) return;
+
+            this.ctx.save();
+
+            this.searchResults.forEach((item, index) => {
+                const isCurrent = index === this.currentSearchIndex;
+
+                // Draw highlight box
+                this.ctx.strokeStyle = isCurrent ? '#e74c3c' : '#f39c12';
+                this.ctx.lineWidth = isCurrent ? 4 : 2;
+                this.ctx.setLineDash(isCurrent ? [] : [5, 3]);
+
+                this.ctx.beginPath();
+                this.ctx.rect(item.x - 8, item.y - 8, item.width + 16, item.height + 16);
+                this.ctx.stroke();
+
+                // Draw a subtle glow for current result
+                if (isCurrent) {
+                    this.ctx.shadowColor = '#e74c3c';
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.rect(item.x - 8, item.y - 8, item.width + 16, item.height + 16);
+                    this.ctx.stroke();
+                    this.ctx.shadowBlur = 0;
+                }
+            });
+
+            this.ctx.restore();
+        },
+
         // ===== COPY/PASTE FUNCTIONALITY =====
 
         copySelected() {
@@ -2799,6 +2966,187 @@
             document.getElementById('noteText').focus();
         },
 
+        // ===== SEARCH / FIND =====
+
+        searchResults: [],
+        currentSearchIndex: -1,
+
+        showSearchDialog() {
+            // Remove existing search dialog if any
+            const existing = document.getElementById('searchDialog');
+            if (existing) {
+                existing.remove();
+                return;
+            }
+
+            const self = this;
+            const dialog = document.createElement('div');
+            dialog.id = 'searchDialog';
+            dialog.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                padding: 12px;
+                z-index: 1500;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                min-width: 280px;
+            `;
+
+            dialog.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="text" id="searchInput" placeholder="Find enterprise..." style="
+                        flex: 1;
+                        padding: 8px 12px;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        font-size: 14px;
+                        outline: none;
+                    ">
+                    <button id="searchClose" style="
+                        background: none;
+                        border: none;
+                        cursor: pointer;
+                        padding: 4px;
+                        color: #666;
+                        font-size: 18px;
+                    ">&times;</button>
+                </div>
+                <div id="searchStatus" style="
+                    font-size: 12px;
+                    color: #666;
+                    display: none;
+                "></div>
+                <div id="searchNav" style="
+                    display: none;
+                    gap: 8px;
+                    align-items: center;
+                ">
+                    <button id="searchPrev" style="
+                        padding: 4px 12px;
+                        border: 1px solid #ddd;
+                        background: #f5f5f5;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    ">&uarr; Prev</button>
+                    <button id="searchNext" style="
+                        padding: 4px 12px;
+                        border: 1px solid #ddd;
+                        background: #f5f5f5;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    ">&darr; Next</button>
+                    <span id="searchCount" style="font-size: 12px; color: #666;"></span>
+                </div>
+            `;
+
+            document.body.appendChild(dialog);
+
+            const input = document.getElementById('searchInput');
+            const status = document.getElementById('searchStatus');
+            const nav = document.getElementById('searchNav');
+            const countSpan = document.getElementById('searchCount');
+
+            input.focus();
+
+            // Search function
+            const doSearch = () => {
+                const query = input.value.trim().toLowerCase();
+                if (!query) {
+                    self.searchResults = [];
+                    self.currentSearchIndex = -1;
+                    status.style.display = 'none';
+                    nav.style.display = 'none';
+                    self.render();
+                    return;
+                }
+
+                self.searchResults = CoopMaps.state.data.enterprises.filter(e =>
+                    e.name.toLowerCase().includes(query)
+                );
+
+                if (self.searchResults.length === 0) {
+                    status.textContent = 'No matches found';
+                    status.style.display = 'block';
+                    nav.style.display = 'none';
+                    self.currentSearchIndex = -1;
+                } else {
+                    status.style.display = 'none';
+                    nav.style.display = 'flex';
+                    self.currentSearchIndex = 0;
+                    countSpan.textContent = `1 of ${self.searchResults.length}`;
+                    self.panToEnterprise(self.searchResults[0]);
+                }
+                self.render();
+            };
+
+            // Navigate to next/prev result
+            const navigateSearch = (direction) => {
+                if (self.searchResults.length === 0) return;
+
+                self.currentSearchIndex += direction;
+                if (self.currentSearchIndex >= self.searchResults.length) {
+                    self.currentSearchIndex = 0;
+                } else if (self.currentSearchIndex < 0) {
+                    self.currentSearchIndex = self.searchResults.length - 1;
+                }
+
+                countSpan.textContent = `${self.currentSearchIndex + 1} of ${self.searchResults.length}`;
+                self.panToEnterprise(self.searchResults[self.currentSearchIndex]);
+                self.render();
+            };
+
+            input.addEventListener('input', doSearch);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    navigateSearch(e.shiftKey ? -1 : 1);
+                } else if (e.key === 'Escape') {
+                    self.closeSearchDialog();
+                }
+            });
+
+            document.getElementById('searchClose').addEventListener('click', () => self.closeSearchDialog());
+            document.getElementById('searchPrev').addEventListener('click', () => navigateSearch(-1));
+            document.getElementById('searchNext').addEventListener('click', () => navigateSearch(1));
+        },
+
+        closeSearchDialog() {
+            const dialog = document.getElementById('searchDialog');
+            if (dialog) dialog.remove();
+            this.searchResults = [];
+            this.currentSearchIndex = -1;
+            this.render();
+        },
+
+        panToEnterprise(enterprise) {
+            if (!enterprise) return;
+
+            // Calculate center of enterprise
+            const centerX = enterprise.x + enterprise.width / 2;
+            const centerY = enterprise.y + enterprise.height / 2;
+
+            // Get canvas container dimensions
+            const container = this.canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+
+            // Calculate pan offset to center the enterprise
+            const zoom = CoopMaps.state.ui.zoom;
+            this.panOffset.x = (containerWidth / 2) - (centerX * zoom);
+            this.panOffset.y = (containerHeight / 2) - (centerY * zoom);
+
+            // Select the enterprise
+            CoopMaps.state.data.selectedItem = enterprise;
+            this.selectedItems = [enterprise];
+
+            this.render();
+        },
+
         // ===== DARK MODE =====
 
         darkMode: false,
@@ -2822,6 +3170,58 @@
                 this.darkMode = true;
                 document.body.classList.add('dark-mode');
             }
+        },
+
+        // ===== FULLSCREEN =====
+
+        isFullscreen: false,
+
+        toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                // Enter fullscreen
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+                this.isFullscreen = true;
+                const textEl = document.getElementById('fullscreenText');
+                if (textEl) textEl.textContent = 'Exit';
+                const btn = document.getElementById('fullscreenBtn');
+                if (btn) btn.style.background = 'rgba(52, 152, 219, 0.8)';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                this.isFullscreen = false;
+                const textEl = document.getElementById('fullscreenText');
+                if (textEl) textEl.textContent = 'Fullscreen';
+                const btn = document.getElementById('fullscreenBtn');
+                if (btn) btn.style.background = 'rgba(255,255,255,0.15)';
+            }
+        },
+
+        initFullscreenListener() {
+            document.addEventListener('fullscreenchange', () => {
+                this.isFullscreen = !!document.fullscreenElement;
+                const textEl = document.getElementById('fullscreenText');
+                const btn = document.getElementById('fullscreenBtn');
+                if (this.isFullscreen) {
+                    if (textEl) textEl.textContent = 'Exit';
+                    if (btn) btn.style.background = 'rgba(52, 152, 219, 0.8)';
+                } else {
+                    if (textEl) textEl.textContent = 'Fullscreen';
+                    if (btn) btn.style.background = 'rgba(255,255,255,0.15)';
+                }
+            });
         },
 
         // ===== MINIMAP =====

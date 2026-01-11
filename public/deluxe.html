@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="description" content="Co-op Maps Deluxe - Full-featured cooperative ecosystem mapping">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon.svg">
     <title>Co-op Maps v1.0 - Co-operative Ecosystem Mapping Tool</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -60,6 +64,22 @@
             padding: 0 10px;
             box-shadow: var(--shadow-sm);
             z-index: 5;
+            overflow-x: auto;
+            overflow-y: hidden;
+            flex-shrink: 0;
+        }
+        .toolbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .toolbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .toolbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        .toolbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
         }
         .toolbar button {
             padding: 4px 8px;
@@ -103,7 +123,7 @@
             border-radius: 8px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
             padding: 6px 0;
-            z-index: 2000;
+            z-index: 10000;
             display: none;
             min-width: 160px;
         }
@@ -130,6 +150,7 @@
         /* Main area */
         .main {
             flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
         }
@@ -241,8 +262,8 @@
             background: #f8f9fa;
             overflow: hidden;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
 
         #canvas {
@@ -250,6 +271,7 @@
             background: white;
             border: 1px solid #2c3e50;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
         }
 
         /* Buttons */
@@ -398,6 +420,12 @@
             background: linear-gradient(to right, #1e1e2e 0%, #252538 100%);
             border-bottom-color: rgba(255, 255, 255, 0.05);
         }
+        body.dark-mode .toolbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        body.dark-mode .toolbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
         body.dark-mode .toolbar button {
             background: #2a2a3e;
             color: #e0e0e0;
@@ -491,7 +519,7 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 100;
+            z-index: 10000;
             min-width: 140px;
         }
         body.dark-mode .align-dropdown-content {
@@ -549,6 +577,85 @@
                 <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
                 <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
                 <button onclick="CoopMaps.modules.canvas?.fitToContent()" title="Fit to Content">Fit</button>
+            </div>
+            <!-- View Controls -->
+            <div style="display: flex; gap: 6px; margin-left: 8px;">
+                <button id="headerGridBtn" onclick="CoopMaps.toggleGrid(); document.getElementById('headerGridBtn').style.background = CoopMaps.state.ui.showGrid ? 'rgba(52, 152, 219, 0.8)' : 'rgba(255,255,255,0.15)';" title="Toggle Grid" style="
+                    padding: 6px 10px;
+                    background: rgba(255,255,255,0.15);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    border-radius: 6px;
+                    color: white;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 12px;
+                    transition: all 0.2s;
+                ">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                        <rect x="2" y="2" width="6" height="6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <rect x="12" y="2" width="6" height="6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <rect x="2" y="12" width="6" height="6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <rect x="12" y="12" width="6" height="6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    </svg>
+                    Grid
+                </button>
+                <button onclick="CoopMaps.modules.canvas?.printCanvas()" title="Print Diagram" style="
+                    padding: 6px 10px;
+                    background: rgba(255,255,255,0.15);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    border-radius: 6px;
+                    color: white;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 12px;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 8V2h10v6M5 14H3V9h14v5h-2" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="5" y="12" width="10" height="6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    </svg>
+                    Print
+                </button>
+                <button id="fullscreenBtn" onclick="CoopMaps.modules.canvas?.toggleFullscreen()" title="Toggle Fullscreen" style="
+                    padding: 6px 10px;
+                    background: rgba(255,255,255,0.15);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    border-radius: 6px;
+                    color: white;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 12px;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                    </svg>
+                    <span id="fullscreenText">Fullscreen</span>
+                </button>
+                <button id="headerDarkBtn" onclick="CoopMaps.modules.canvas?.toggleDarkMode(); const btn = document.getElementById('headerDarkBtn'); const isDark = CoopMaps.modules.canvas?.darkMode; btn.style.background = isDark ? 'rgba(52, 152, 219, 0.8)' : 'rgba(255,255,255,0.15)'; document.getElementById('headerDarkText').textContent = isDark ? 'Light' : 'Dark';" title="Toggle Dark Mode" style="
+                    padding: 6px 10px;
+                    background: rgba(255,255,255,0.15);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    border-radius: 6px;
+                    color: white;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 12px;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="if(!CoopMaps.modules.canvas?.darkMode) this.style.background='rgba(255,255,255,0.15)'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <span id="headerDarkText">Dark</span>
+                </button>
             </div>
             <div style="position: relative;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);">
@@ -612,15 +719,6 @@
                     <option value="A2">A2</option>
                     <option value="A1">A1</option>
                 </select>
-                <button id="gridToggleBtn" onclick="CoopMaps.toggleGrid()" title="Toggle Grid">
-                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                        <rect x="2" y="2" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <rect x="12" y="2" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <rect x="2" y="12" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <rect x="12" y="12" width="6" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
-                    <span>Grid</span>
-                </button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.autoLayout()">Auto</button>
                 <!-- Hidden: Align dropdown (kept for future use) -->
@@ -656,18 +754,8 @@
                 <div class="separator"></div>
                 <button class="primary" id="relationshipModeBtn" onclick="CoopMaps.modules.relationships?.toggleRelationshipMode()">Relationship</button>
                 <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas?.printCanvas()" title="Print Diagram">
-                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                        <path d="M5 8V2h10v6M5 14H3V9h14v5h-2" stroke="currentColor" stroke-width="2"/>
-                        <rect x="5" y="12" width="10" height="6" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
-                    <span>Print</span>
-                </button>
-                <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.showAddNoteDialog()" title="Add Note">Note</button>
-                <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()" title="Add Logo to Selected Enterprise">Logo</button>
                 <button onclick="CoopMaps.modules.canvas?.toggleMinimap()" title="Toggle Minimap">Map</button>
-                <button id="darkModeBtn" onclick="CoopMaps.modules.canvas?.toggleDarkMode(); document.getElementById('darkModeBtn').textContent = CoopMaps.modules.canvas?.darkMode ? 'Light' : 'Dark'" title="Toggle Dark Mode">Dark</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.timeline?.showAddSnapshotDialog()" title="Add Timeline Snapshot">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -689,7 +777,8 @@
                 </div>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.export?.showExportDialog()">Export</button>
-                <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
+                <button onclick="CoopMaps.modules.import?.showImportDialog()">Import CSV</button>
+                <button onclick="CoopMaps.modules.persistence?.showSubmitForConsiderationDialog()" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white;">Submit</button>
                 <button onclick="CoopMaps.modules.symbolKey?.generateKey()">Key</button>
                 <button onclick="CoopMaps.showKeyboardShortcuts()">Shortcuts</button>
                 <button onclick="CoopMaps.modules.manuals?.showManualDialog()">Manual</button>
@@ -772,7 +861,9 @@
                         title: 'New Diagram',
                         author: '',
                         date: new Date().toISOString().split('T')[0],
-                        wdr: '',
+                        wdr: 'WDR-PROV-' + Date.now().toString(36).toUpperCase(),
+                        wdrStatus: 'provisional',
+                        approvedWdr: '',
                         canvasSize: 'A4',
                         connectorStyle: 'orthogonal',
                         scope: { geographic: '', timePeriod: '', economicSectors: '' }
@@ -1531,6 +1622,7 @@
     <script src="./js/modules/reports.js"></script>
     <script src="./js/modules/dependency.js"></script>
     <script src="./js/modules/collaboration.js"></script>
+    <script src="./js/modules/import.js"></script>
 
     <!-- Initialize app AFTER all modules loaded -->
     <script>

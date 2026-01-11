@@ -12,6 +12,7 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { connectDB } = require('./db/connection');
 const { connectRedis } = require('./db/redis');
 const { initializeSocketHandlers } = require('./sockets/index');
+const { rateLimiters } = require('./middleware/rateLimiter');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -81,22 +82,40 @@ app.get('/health', (req, res) => {
     });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/diagrams', diagramRoutes);
-app.use('/api/diagrams', collaboratorRoutes);
-app.use('/api/collaborators', collaboratorRoutes);
-app.use('/api/public', publicRoutes);
-app.use('/api/maps', mapsRoutes);
-app.use('/api/admin', adminRoutes);
+// API Routes with rate limiting
+app.use('/api/auth', authRoutes); // Auth has its own stricter rate limiting
+app.use('/api/users', rateLimiters.api, userRoutes);
+app.use('/api/diagrams', rateLimiters.api, diagramRoutes);
+app.use('/api/diagrams', rateLimiters.api, collaboratorRoutes);
+app.use('/api/collaborators', rateLimiters.api, collaboratorRoutes);
+app.use('/api/public', rateLimiters.publicApi, publicRoutes);
+app.use('/api/maps', rateLimiters.publicApi, mapsRoutes);
+app.use('/api/admin', rateLimiters.api, adminRoutes);
 
-// Serve static files (for the frontend)
-app.use(express.static('public'));
+// Serve static files (for the frontend) with cache control
+// HTML files: no-cache (always check for updates)
+// JS/CSS: cache for 1 hour but must revalidate
+app.use(express.static('public', {
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filepath) => {
+        if (filepath.endsWith('.html')) {
+            // HTML files should always be revalidated
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+        } else if (filepath.endsWith('.js') || filepath.endsWith('.css')) {
+            // JS/CSS: cache for 1 hour but check for changes
+            res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+        } else if (filepath.match(/\.(png|jpg|jpeg|gif|svg|ico)$/)) {
+            // Images: cache longer
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+        }
+    }
+}));
 
 // Serve landing page for root URL
 const path = require('path');
 app.get('/', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     res.sendFile(path.join(__dirname, '../public/version-selector.html'));
 });
 

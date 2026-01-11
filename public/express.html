@@ -66,6 +66,7 @@
         /* Main area */
         .main {
             flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             background: #ecf0f1;
@@ -105,8 +106,8 @@
         .canvas-area {
             flex: 1;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             background: #d5d8dc;
             overflow: hidden;
         }
@@ -115,6 +116,7 @@
             border: 1px solid #2c3e50;
             cursor: grab;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
         }
 
         /* Buttons */
@@ -162,7 +164,7 @@
             background: #ecf0f1;
             border: 2px solid #7f8c8d;
             display: none;
-            z-index: 2000;
+            z-index: 10000;
         }
         .context-menu-item {
             padding: 8px 15px;
@@ -296,7 +298,6 @@
                     <option value="A2">A2</option>
                     <option value="A1">A1</option>
                 </select>
-                <button id="gridBtn" onclick="CoopMaps.toggleGrid()">Grid: On</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas.autoLayout()">Auto</button>
                 <select id="alignSelect" onchange="CoopMaps.handleAlign(this.value); this.selectedIndex=0;">
@@ -326,12 +327,13 @@
                 <button onclick="CoopMaps.modules.canvas.fitToContent()">Fit</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas.printCanvas()">Print</button>
+                <button id="gridBtn" onclick="CoopMaps.toggleGrid()">Grid</button>
+                <button onclick="CoopMaps.modules.canvas.toggleFullscreen()">Full</button>
+                <button id="darkModeBtn" onclick="CoopMaps.toggleDarkMode()">Dark</button>
                 <input type="text" id="searchInput" placeholder="Search..." style="width:80px;padding:4px;border:1px solid #7f8c8d;font-size:11px;" oninput="CoopMaps.modules.canvas.searchEnterprises(this.value)">
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas.showAddNoteDialog()">Note</button>
-                <button onclick="CoopMaps.modules.canvas.showLogoImportDialog()">Logo</button>
                 <button onclick="CoopMaps.modules.canvas.toggleMinimap()">Map</button>
-                <button id="darkModeBtn" onclick="CoopMaps.toggleDarkMode()">Dark</button>
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.timeline.showAddSnapshotDialog()">+Snapshot</button>
                 <button onclick="CoopMaps.modules.timeline.showTimelinePanel()">Timeline</button>
@@ -344,7 +346,9 @@
                     <option value="deps">Dependencies</option>
                 </select>
                 <div class="separator"></div>
+                <button onclick="CoopMaps.showDiagramsModal()">Diagrams</button>
                 <button onclick="CoopMaps.modules.export.showExportDialog()">Export</button>
+                <button onclick="CoopMaps.modules.import?.showImportDialog()">Import</button>
                 <button onclick="CoopMaps.showSubmitDialog()">Submit</button>
                 <button onclick="CoopMaps.modules.symbolKey.generateKey()">Key</button>
                 <button onclick="CoopMaps.showKeyboardShortcuts()">Shortcuts</button>
@@ -426,7 +430,9 @@
                         title: 'New Diagram',
                         author: '',
                         date: new Date().toISOString().split('T')[0],
-                        wdr: '',
+                        wdr: 'WDR-PROV-' + Date.now().toString(36).toUpperCase(),
+                        wdrStatus: 'provisional',
+                        approvedWdr: '',
                         canvasSize: 'A4',
                         connectorStyle: 'orthogonal',
                         scope: { geographic: '', timePeriod: '', economicSectors: '' }
@@ -595,6 +601,39 @@
             closeSubmitDialog() {
                 document.getElementById('submitModal').classList.remove('active');
                 document.getElementById('submitForm').reset();
+            },
+
+            showDiagramsModal() {
+                if (!this.modules.persistence) {
+                    alert('Diagrams module not loaded');
+                    return;
+                }
+
+                // Create modal
+                const modal = document.createElement('div');
+                modal.id = 'diagramsModal';
+                modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+
+                modal.innerHTML = `
+                    <div style="background: white; border: 3px outset #bdc3c7; padding: 15px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #7f8c8d; padding-bottom: 10px;">
+                            <h3 style="margin: 0; font-size: 14px;">Saved Diagrams</h3>
+                            <button onclick="document.getElementById('diagramsModal').remove()" style="padding: 4px 12px; font-size: 12px; cursor: pointer;">Close</button>
+                        </div>
+                        <div id="diagramsContent">${this.modules.persistence.render()}</div>
+                    </div>
+                `;
+
+                modal.onclick = (e) => {
+                    if (e.target === modal) modal.remove();
+                };
+
+                document.body.appendChild(modal);
+            },
+
+            closeDiagramsModal() {
+                const modal = document.getElementById('diagramsModal');
+                if (modal) modal.remove();
             },
 
             async handleSubmit(event) {
@@ -858,6 +897,7 @@
     <script src="./js/modules/reports.js"></script>
     <script src="./js/modules/dependency.js"></script>
     <script src="./js/modules/collaboration.js"></script>
+    <script src="./js/modules/import.js"></script>
 
     <!-- Initialize after modules load -->
     <script>

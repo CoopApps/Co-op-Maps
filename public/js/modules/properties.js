@@ -25,19 +25,19 @@
             const stats = CoopMaps.modules.enterprises ? CoopMaps.modules.enterprises.getStatistics() : null;
 
             return `
-                <div style="animation: fadeIn 0.3s ease;">
+                <div style="${CoopMaps.isExpressMode ? '' : 'animation: fadeIn 0.3s ease;'}">
                     <!-- Header -->
                     <div style="
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        padding: 25px;
-                        margin: -25px -25px 25px -25px;
-                        border-radius: 0 0 16px 16px;
+                        background: ${CoopMaps.isExpressMode ? '#667eea' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '25px'};
+                        margin: ${CoopMaps.isExpressMode ? '-15px -15px 15px -15px' : '-25px -25px 25px -25px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 0 0 16px 16px;'}
                         color: white;
-                        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+                        ${CoopMaps.isExpressMode ? 'border-bottom: 2px solid #5a6fd6;' : 'box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);'}
                     ">
                         <h3 style="
-                            font-size: 20px;
-                            margin: 0 0 8px 0;
+                            font-size: ${CoopMaps.isExpressMode ? '14px' : '20px'};
+                            margin: 0 0 ${CoopMaps.isExpressMode ? '4px' : '8px'} 0;
                             font-weight: 600;
                             display: flex;
                             align-items: center;
@@ -45,7 +45,7 @@
                         ">
                             Diagram Properties
                         </h3>
-                        <p style="margin: 0; opacity: 0.9; font-size: 14px;">
+                        <p style="margin: 0; opacity: 0.9; font-size: ${CoopMaps.isExpressMode ? '12px' : '14px'};">
                             Configure your co-operative ecosystem diagram
                         </p>
                     </div>
@@ -53,11 +53,11 @@
                     <!-- Basic Properties -->
                     <div class="property-group" style="
                         background: white;
-                        padding: 20px;
-                        border-radius: 12px;
-                        margin-bottom: 20px;
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                        border: 1px solid #e9ecef;
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 12px;'}
+                        margin-bottom: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);'}
+                        border: ${CoopMaps.isExpressMode ? '2px solid #7f8c8d' : '1px solid #e9ecef'};
                     ">
                         <h4 style="
                             font-size: 16px;
@@ -156,21 +156,40 @@
                                 margin-bottom: 8px;
                                 font-weight: 500;
                             ">WDR (Worldwide Diagram Reference)</label>
-                            <input type="text"
-                                   value="${metadata.wdr || ''}"
-                                   onchange="CoopMaps.modules.properties.updateDiagramProperty('wdr', this.value)"
-                                   placeholder="e.g., WDR-2024-001"
-                                   style="
-                                       width: 100%;
-                                       padding: 12px 16px;
-                                       border: 2px solid #e9ecef;
-                                       border-radius: 8px;
-                                       font-size: 14px;
-                                       transition: all 0.2s ease;
-                                       background: #f8f9fa;
-                                   "
-                                   onfocus="this.style.borderColor='#3498db'; this.style.background='white';"
-                                   onblur="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                            ">
+                                <div style="
+                                    flex: 1;
+                                    padding: 12px 16px;
+                                    border: 2px solid #e9ecef;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                    background: #f1f5f9;
+                                    color: #475569;
+                                    font-family: monospace;
+                                ">${metadata.wdrStatus === 'approved' ? metadata.approvedWdr : metadata.wdr || 'Not assigned'}</div>
+                                <span style="
+                                    padding: 4px 10px;
+                                    border-radius: 12px;
+                                    font-size: 11px;
+                                    font-weight: 600;
+                                    text-transform: uppercase;
+                                    ${metadata.wdrStatus === 'approved'
+                                        ? 'background: #dcfce7; color: #166534;'
+                                        : 'background: #fef3c7; color: #92400e;'}
+                                ">${metadata.wdrStatus === 'approved' ? 'Approved' : 'Provisional'}</span>
+                            </div>
+                            <p style="
+                                font-size: 11px;
+                                color: #94a3b8;
+                                margin-top: 8px;
+                                line-height: 1.4;
+                            ">${metadata.wdrStatus === 'approved'
+                                ? 'This diagram has been approved and assigned an official WDR.'
+                                : 'This provisional reference will be replaced with an official WDR once the diagram is approved after submission.'}</p>
                         </div>
                     </div>
 
@@ -381,20 +400,20 @@
             const showRolesAndTiers = (selected.type === 'cooperative' || selected.type === 'ncm') && selected.type !== 'excluded';
 
             return `
-                <div style="animation: fadeIn 0.3s ease;">
+                <div style="${CoopMaps.isExpressMode ? '' : 'animation: fadeIn 0.3s ease;'}">
                     <!-- Header with Enterprise Info -->
                     <div style="
-                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-                        padding: 20px;
-                        margin: -25px -25px 25px -25px;
-                        border-radius: 0 0 16px 16px;
+                        background: ${CoopMaps.isExpressMode ? '#3498db' : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)'};
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        margin: ${CoopMaps.isExpressMode ? '-15px -15px 15px -15px' : '-25px -25px 25px -25px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 0 0 16px 16px;'}
                         color: white;
-                        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+                        ${CoopMaps.isExpressMode ? 'border-bottom: 2px solid #2980b9;' : 'box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);'}
                     ">
-                        <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: ${CoopMaps.isExpressMode ? '10px' : '15px'};">
                             <div style="flex: 1;">
                                 <h3 style="
-                                    font-size: 18px;
+                                    font-size: ${CoopMaps.isExpressMode ? '14px' : '18px'};
                                     margin: 0 0 4px 0;
                                     font-weight: 600;
                                 ">
@@ -639,6 +658,169 @@
                     </div>
                     ` : ''}
 
+                    ${selected.type === 'cooperative' ? `
+                    <!-- ICA Cooperative Principles -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                        border: 1px solid #e9ecef;
+                    ">
+                        <h4 style="
+                            font-size: 16px;
+                            color: #2c3e50;
+                            margin: 0 0 12px 0;
+                            font-weight: 600;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        ">
+                            <span style="color: #3498db;">&#9733;</span>
+                            ICA Cooperative Principles
+                        </h4>
+                        <p style="
+                            font-size: 12px;
+                            color: #7f8c8d;
+                            margin-bottom: 16px;
+                            line-height: 1.5;
+                        ">
+                            Track which principles this cooperative actively demonstrates
+                        </p>
+
+                        ${this.renderPrincipleCheckbox(1, 'Voluntary & Open Membership', selected.principles)}
+                        ${this.renderPrincipleCheckbox(2, 'Democratic Member Control', selected.principles)}
+                        ${this.renderPrincipleCheckbox(3, 'Member Economic Participation', selected.principles)}
+                        ${this.renderPrincipleCheckbox(4, 'Autonomy & Independence', selected.principles)}
+                        ${this.renderPrincipleCheckbox(5, 'Education, Training & Information', selected.principles)}
+                        ${this.renderPrincipleCheckbox(6, 'Cooperation Among Cooperatives', selected.principles)}
+                        ${this.renderPrincipleCheckbox(7, 'Concern for Community', selected.principles)}
+                    </div>
+                    ` : ''}
+
+                    <!-- Extended Properties -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                        border: 1px solid #e9ecef;
+                    ">
+                        <h4 style="
+                            font-size: 16px;
+                            color: #2c3e50;
+                            margin: 0 0 20px 0;
+                            font-weight: 600;
+                        ">Extended Properties</h4>
+
+                        <div class="property-field" style="margin-bottom: 16px;">
+                            <label style="
+                                display: block;
+                                font-size: 13px;
+                                color: #546e7a;
+                                margin-bottom: 8px;
+                                font-weight: 500;
+                            ">Sector / Industry</label>
+                            <select onchange="CoopMaps.modules.properties.updateProperty('sector', this.value)"
+                                    style="
+                                        width: 100%;
+                                        padding: 12px 16px;
+                                        border: 2px solid #e9ecef;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        background: #f8f9fa;
+                                        cursor: pointer;
+                                    ">
+                                <option value="" ${!selected.sector ? 'selected' : ''}>-- Select Sector --</option>
+                                <option value="agriculture" ${selected.sector === 'agriculture' ? 'selected' : ''}>Agriculture & Food</option>
+                                <option value="retail" ${selected.sector === 'retail' ? 'selected' : ''}>Retail & Consumer</option>
+                                <option value="finance" ${selected.sector === 'finance' ? 'selected' : ''}>Finance & Banking</option>
+                                <option value="housing" ${selected.sector === 'housing' ? 'selected' : ''}>Housing</option>
+                                <option value="energy" ${selected.sector === 'energy' ? 'selected' : ''}>Energy & Utilities</option>
+                                <option value="healthcare" ${selected.sector === 'healthcare' ? 'selected' : ''}>Healthcare</option>
+                                <option value="education" ${selected.sector === 'education' ? 'selected' : ''}>Education</option>
+                                <option value="technology" ${selected.sector === 'technology' ? 'selected' : ''}>Technology</option>
+                                <option value="manufacturing" ${selected.sector === 'manufacturing' ? 'selected' : ''}>Manufacturing</option>
+                                <option value="services" ${selected.sector === 'services' ? 'selected' : ''}>Professional Services</option>
+                                <option value="transport" ${selected.sector === 'transport' ? 'selected' : ''}>Transport & Logistics</option>
+                                <option value="arts" ${selected.sector === 'arts' ? 'selected' : ''}>Arts & Culture</option>
+                                <option value="social" ${selected.sector === 'social' ? 'selected' : ''}>Social Care</option>
+                                <option value="other" ${selected.sector === 'other' ? 'selected' : ''}>Other</option>
+                            </select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div class="property-field">
+                                <label style="
+                                    display: block;
+                                    font-size: 13px;
+                                    color: #546e7a;
+                                    margin-bottom: 8px;
+                                    font-weight: 500;
+                                ">Members / Employees</label>
+                                <input type="number"
+                                       value="${selected.memberCount || ''}"
+                                       onchange="CoopMaps.modules.properties.updateProperty('memberCount', parseInt(this.value) || 0)"
+                                       placeholder="e.g., 500"
+                                       min="0"
+                                       style="
+                                           width: 100%;
+                                           padding: 12px 16px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           font-size: 14px;
+                                           background: #f8f9fa;
+                                       ">
+                            </div>
+
+                            <div class="property-field">
+                                <label style="
+                                    display: block;
+                                    font-size: 13px;
+                                    color: #546e7a;
+                                    margin-bottom: 8px;
+                                    font-weight: 500;
+                                ">Annual Revenue</label>
+                                <input type="text"
+                                       value="${selected.revenue || ''}"
+                                       onchange="CoopMaps.modules.properties.updateProperty('revenue', this.value)"
+                                       placeholder="e.g., £1.2M"
+                                       style="
+                                           width: 100%;
+                                           padding: 12px 16px;
+                                           border: 2px solid #e9ecef;
+                                           border-radius: 8px;
+                                           font-size: 14px;
+                                           background: #f8f9fa;
+                                       ">
+                            </div>
+                        </div>
+
+                        <div class="property-field">
+                            <label style="
+                                display: block;
+                                font-size: 13px;
+                                color: #546e7a;
+                                margin-bottom: 8px;
+                                font-weight: 500;
+                            ">Location / Region</label>
+                            <input type="text"
+                                   value="${selected.location || ''}"
+                                   onchange="CoopMaps.modules.properties.updateProperty('location', this.value)"
+                                   placeholder="e.g., Wales, UK"
+                                   style="
+                                       width: 100%;
+                                       padding: 12px 16px;
+                                       border: 2px solid #e9ecef;
+                                       border-radius: 8px;
+                                       font-size: 14px;
+                                       background: #f8f9fa;
+                                   ">
+                        </div>
+                    </div>
+
                     <!-- Position -->
                     <div class="property-group" style="
                         background: white;
@@ -709,31 +891,151 @@
                     <!-- Relationships Info -->
                     ${this.renderRelationshipsInfo(selected)}
 
+                    <!-- Logo -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 12px;'}
+                        margin-bottom: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);'}
+                        border: ${CoopMaps.isExpressMode ? '2px solid #7f8c8d' : '1px solid #e9ecef'};
+                    ">
+                        <h4 style="
+                            font-size: ${CoopMaps.isExpressMode ? '13px' : '16px'};
+                            color: #2c3e50;
+                            margin: 0 0 ${CoopMaps.isExpressMode ? '10px' : '16px'} 0;
+                            font-weight: 600;
+                        ">Logo / Image</h4>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button onclick="CoopMaps.modules.canvas?.showLogoImportDialog()"
+                                    style="
+                                        flex: 1;
+                                        min-width: 100px;
+                                        padding: ${CoopMaps.isExpressMode ? '8px 12px' : '12px 16px'};
+                                        background: ${CoopMaps.isExpressMode ? '#3498db' : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)'};
+                                        color: white;
+                                        border: ${CoopMaps.isExpressMode ? '1px solid #2980b9' : 'none'};
+                                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                                        font-size: ${CoopMaps.isExpressMode ? '12px' : '14px'};
+                                        font-weight: 500;
+                                        cursor: pointer;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        gap: 6px;
+                                    ">
+                                ${CoopMaps.isExpressMode ? '' : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>`}
+                                ${selected.logo ? 'Change Logo' : 'Add Logo'}
+                            </button>
+                            ${selected.logo ? `
+                            <button onclick="CoopMaps.modules.canvas?.removeLogoFromEnterprise()"
+                                    style="
+                                        padding: ${CoopMaps.isExpressMode ? '8px 12px' : '12px 16px'};
+                                        background: ${CoopMaps.isExpressMode ? '#ecf0f1' : '#f8f9fa'};
+                                        color: #e74c3c;
+                                        border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '2px solid #e9ecef'};
+                                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                                        font-size: ${CoopMaps.isExpressMode ? '12px' : '14px'};
+                                        font-weight: 500;
+                                        cursor: pointer;
+                                    ">
+                                Remove
+                            </button>
+                            ` : ''}
+                        </div>
+                        ${selected.logo ? `
+                        <div style="margin-top: 12px; text-align: center;">
+                            <img src="${selected.logo}" style="max-width: 80px; max-height: 80px; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} border: 1px solid ${CoopMaps.isExpressMode ? '#7f8c8d' : '#e9ecef'};" />
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Business Info -->
+                    <div class="property-group" style="
+                        background: white;
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 12px;'}
+                        margin-bottom: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);'}
+                        border: ${CoopMaps.isExpressMode ? '2px solid #7f8c8d' : '1px solid #e9ecef'};
+                    ">
+                        <h4 style="
+                            font-size: ${CoopMaps.isExpressMode ? '13px' : '16px'};
+                            color: #2c3e50;
+                            margin: 0 0 ${CoopMaps.isExpressMode ? '10px' : '16px'} 0;
+                            font-weight: 600;
+                        ">Business Information</h4>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Description</label>
+                            <textarea
+                                onchange="CoopMaps.modules.properties.updateBusinessInfo('description', this.value)"
+                                placeholder="Brief description..."
+                                style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; min-height: ${CoopMaps.isExpressMode ? '50px' : '60px'}; resize: vertical; font-family: inherit; box-sizing: border-box;"
+                            >${selected.businessInfo?.description || ''}</textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: ${CoopMaps.isExpressMode ? '8px' : '12px'}; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Website</label>
+                                <input type="url" value="${selected.businessInfo?.website || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('website', this.value)"
+                                    placeholder="https://..."
+                                    style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Location</label>
+                                <input type="text" value="${selected.businessInfo?.location || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('location', this.value)"
+                                    placeholder="City, Country"
+                                    style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: ${CoopMaps.isExpressMode ? '8px' : '12px'};">
+                            <div>
+                                <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Year Founded</label>
+                                <input type="number" value="${selected.businessInfo?.yearFounded || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('yearFounded', this.value)"
+                                    placeholder="e.g., 1995"
+                                    style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: ${CoopMaps.isExpressMode ? '11px' : '12px'}; color: #7f8c8d; margin-bottom: 4px;">Members/Staff</label>
+                                <input type="number" value="${selected.businessInfo?.members || ''}"
+                                    onchange="CoopMaps.modules.properties.updateBusinessInfo('members', this.value)"
+                                    placeholder="e.g., 50"
+                                    style="width: 100%; padding: ${CoopMaps.isExpressMode ? '6px' : '10px'}; border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : '1px solid #e9ecef'}; ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'} font-size: ${CoopMaps.isExpressMode ? '11px' : '13px'}; box-sizing: border-box;">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Actions -->
                     <div class="property-group" style="
-                        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-                        padding: 20px;
-                        border-radius: 12px;
-                        box-shadow: 0 2px 8px rgba(238, 90, 36, 0.2);
+                        background: ${CoopMaps.isExpressMode ? '#e74c3c' : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)'};
+                        padding: ${CoopMaps.isExpressMode ? '15px' : '20px'};
+                        ${CoopMaps.isExpressMode ? '' : 'border-radius: 12px;'}
+                        ${CoopMaps.isExpressMode ? 'border: 2px solid #c0392b;' : 'box-shadow: 0 2px 8px rgba(238, 90, 36, 0.2);'}
                         text-align: center;
                     ">
                         <button onclick="CoopMaps.modules.properties.deleteSelected()"
                                 style="
                                     background: white;
                                     color: #e74c3c;
-                                    border: none;
-                                    padding: 12px 24px;
-                                    font-size: 14px;
+                                    border: ${CoopMaps.isExpressMode ? '1px solid #7f8c8d' : 'none'};
+                                    padding: ${CoopMaps.isExpressMode ? '8px 16px' : '12px 24px'};
+                                    font-size: ${CoopMaps.isExpressMode ? '12px' : '14px'};
                                     font-weight: 600;
                                     cursor: pointer;
-                                    border-radius: 8px;
-                                    transition: all 0.2s ease;
+                                    ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
                                     display: inline-flex;
                                     align-items: center;
                                     gap: 8px;
-                                "
-                                onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
-                                onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                                ">
                             Delete Enterprise
                         </button>
                     </div>
@@ -743,19 +1045,19 @@
                         text-align: center;
                         font-size: 11px;
                         color: #95a5a6;
-                        margin-top: 20px;
+                        margin-top: ${CoopMaps.isExpressMode ? '15px' : '20px'};
                     ">
                         Added: ${new Date(selected.dateAdded).toLocaleString()}
                     </div>
                     ` : ''}
                 </div>
 
-                <style>
+                ${CoopMaps.isExpressMode ? '' : `<style>
                     @keyframes fadeIn {
                         from { opacity: 0; transform: translateY(10px); }
                         to { opacity: 1; transform: translateY(0); }
                     }
-                </style>
+                </style>`}
             `;
         },
 
@@ -895,6 +1197,78 @@
                     </div>
                 </label>
             `;
+        },
+
+        renderPrincipleCheckbox(number, label, principles) {
+            const isChecked = principles?.includes(number);
+            const colors = ['#e74c3c', '#3498db', '#27ae60', '#9b59b6', '#f39c12', '#1abc9c', '#e91e63'];
+            const color = colors[(number - 1) % colors.length];
+
+            return `
+                <label style="
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    padding: 10px 14px;
+                    background: ${isChecked ? color + '15' : '#f8f9fa'};
+                    border: 2px solid ${isChecked ? color : '#e9ecef'};
+                    border-radius: 8px;
+                    margin-bottom: 6px;
+                    transition: all 0.2s ease;
+                "
+                onmouseover="this.style.background='${isChecked ? color + '25' : '#e3f2fd'}'"
+                onmouseout="this.style.background='${isChecked ? color + '15' : '#f8f9fa'}'">
+                    <input type="checkbox"
+                           ${isChecked ? 'checked' : ''}
+                           onchange="CoopMaps.modules.properties.togglePrinciple(${number})"
+                           style="
+                               width: 16px;
+                               height: 16px;
+                               margin-right: 10px;
+                               cursor: pointer;
+                           ">
+                    <span style="
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 22px;
+                        height: 22px;
+                        background: ${color};
+                        color: white;
+                        border-radius: 50%;
+                        font-size: 11px;
+                        font-weight: 600;
+                        margin-right: 10px;
+                    ">${number}</span>
+                    <span style="font-size: 13px; color: #2c3e50; font-weight: ${isChecked ? '500' : '400'};">
+                        ${label}
+                    </span>
+                </label>
+            `;
+        },
+
+        togglePrinciple(principleNumber) {
+            const selected = CoopMaps.state.data.selectedItem;
+            if (!selected) return;
+
+            CoopMaps.saveState();
+
+            if (!selected.principles) {
+                selected.principles = [];
+            }
+
+            const index = selected.principles.indexOf(principleNumber);
+            if (index === -1) {
+                selected.principles.push(principleNumber);
+                selected.principles.sort((a, b) => a - b);
+            } else {
+                selected.principles.splice(index, 1);
+            }
+
+            CoopMaps.updateSidebar();
+            if (CoopMaps.modules.canvas) {
+                CoopMaps.modules.canvas.render();
+            }
         },
 
         getTypeName(typeId) {
