@@ -19,6 +19,8 @@ const userRoutes = require('./routes/users');
 const diagramRoutes = require('./routes/diagrams');
 const collaboratorRoutes = require('./routes/collaborators');
 const publicRoutes = require('./routes/public');
+const mapsRoutes = require('./routes/maps');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const server = http.createServer(app);
@@ -86,6 +88,8 @@ app.use('/api/diagrams', diagramRoutes);
 app.use('/api/diagrams', collaboratorRoutes);
 app.use('/api/collaborators', collaboratorRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/maps', mapsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Serve static files (for the frontend)
 app.use(express.static('public'));

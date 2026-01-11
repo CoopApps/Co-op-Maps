@@ -530,6 +530,20 @@
                 }
             });
 
+            // FIXED: Double-click to edit annotations
+            this.canvas.addEventListener('dblclick', (e) => {
+                const rect = self.canvas.getBoundingClientRect();
+                const scale = CoopMaps.state.ui.zoom;
+                const x = (e.clientX - rect.left) / scale;
+                const y = (e.clientY - rect.top) / scale;
+
+                const clickedItem = self.getItemAtPosition(x, y);
+                if (clickedItem && clickedItem.type === 'annotation') {
+                    e.preventDefault();
+                    self.showEditNoteDialog(clickedItem);
+                }
+            });
+
             // Enhanced zoom with smooth animation
             this.canvas.addEventListener('wheel', (e) => {
                 e.preventDefault();
@@ -628,7 +642,17 @@
         },
 
         getItemAtPosition(x, y) {
-            // Check in reverse order (top to bottom)
+            // FIXED: Check annotations/notes first (they should be on top)
+            const annotations = CoopMaps.state.data.annotations || [];
+            for (let i = annotations.length - 1; i >= 0; i--) {
+                const note = annotations[i];
+                if (x >= note.x && x <= note.x + note.width &&
+                    y >= note.y && y <= note.y + note.height) {
+                    return { ...note, type: 'annotation' };
+                }
+            }
+
+            // Check enterprises in reverse order (top to bottom)
             for (let i = CoopMaps.state.data.enterprises.length - 1; i >= 0; i--) {
                 const enterprise = CoopMaps.state.data.enterprises[i];
                 let effectiveHeight = enterprise.height;
@@ -2039,6 +2063,12 @@
             if (selected) {
                 CoopMaps.saveState();
 
+                // FIXED: Handle annotation deletion
+                if (selected.type === 'annotation') {
+                    this.deleteAnnotation(selected.id);
+                    return;
+                }
+
                 // Fade out animation
                 const fadeAndDelete = () => {
                     const index = CoopMaps.state.data.enterprises.indexOf(selected);
@@ -2267,6 +2297,13 @@
 
             const selectedIds = new Set(this.selectedItems.map(e => e.id));
 
+            // FIXED: Remove annotations
+            if (CoopMaps.state.data.annotations) {
+                CoopMaps.state.data.annotations = CoopMaps.state.data.annotations.filter(
+                    a => !selectedIds.has(a.id)
+                );
+            }
+
             // Remove enterprises
             CoopMaps.state.data.enterprises = CoopMaps.state.data.enterprises.filter(
                 e => !selectedIds.has(e.id)
@@ -2283,6 +2320,7 @@
             this.render();
 
             CoopMaps.showNotification(`Deleted ${count} items`, 'success');
+            document.dispatchEvent(new CustomEvent('diagram-changed'));
         },
 
         // Move all selected items
@@ -2588,7 +2626,76 @@
             CoopMaps.state.data.annotations.push(annotation);
             this.render();
             CoopMaps.showNotification('Note added', 'success');
+            document.dispatchEvent(new CustomEvent('diagram-changed'));
             return annotation;
+        },
+
+        deleteAnnotation(annotationId) {
+            if (!CoopMaps.state.data.annotations) return;
+
+            const index = CoopMaps.state.data.annotations.findIndex(a => a.id === annotationId);
+            if (index > -1) {
+                CoopMaps.state.data.annotations.splice(index, 1);
+                CoopMaps.state.data.selectedItem = null;
+                this.render();
+                CoopMaps.showNotification('Note deleted', 'success');
+                document.dispatchEvent(new CustomEvent('diagram-changed'));
+            }
+        },
+
+        editAnnotation(annotationId, newText, newColor) {
+            if (!CoopMaps.state.data.annotations) return;
+
+            const annotation = CoopMaps.state.data.annotations.find(a => a.id === annotationId);
+            if (annotation) {
+                annotation.text = newText;
+                if (newColor) annotation.color = newColor;
+                this.render();
+                CoopMaps.showNotification('Note updated', 'success');
+                document.dispatchEvent(new CustomEvent('diagram-changed'));
+            }
+        },
+
+        showEditNoteDialog(annotation) {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'editNoteModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <h2>Edit Note</h2>
+                    <div class="form-group">
+                        <label>Note Text</label>
+                        <textarea id="editNoteText" rows="4" placeholder="Enter your note...">${annotation.text || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <select id="editNoteColor">
+                            <option value="#fff9c4" ${annotation.color === '#fff9c4' ? 'selected' : ''}>Yellow</option>
+                            <option value="#c8e6c9" ${annotation.color === '#c8e6c9' ? 'selected' : ''}>Green</option>
+                            <option value="#bbdefb" ${annotation.color === '#bbdefb' ? 'selected' : ''}>Blue</option>
+                            <option value="#ffccbc" ${annotation.color === '#ffccbc' ? 'selected' : ''}>Orange</option>
+                            <option value="#f8bbd0" ${annotation.color === '#f8bbd0' ? 'selected' : ''}>Pink</option>
+                        </select>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn-primary" onclick="
+                            const text = document.getElementById('editNoteText').value;
+                            const color = document.getElementById('editNoteColor').value;
+                            CoopMaps.modules.canvas.editAnnotation('${annotation.id}', text, color);
+                            document.getElementById('editNoteModal').remove();
+                        ">Save Changes</button>
+                        <button type="button" class="btn-danger" onclick="
+                            if (confirm('Delete this note?')) {
+                                CoopMaps.modules.canvas.deleteAnnotation('${annotation.id}');
+                                document.getElementById('editNoteModal').remove();
+                            }
+                        ">Delete Note</button>
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('editNoteModal').remove()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('editNoteText').focus();
         },
 
         drawAnnotations() {

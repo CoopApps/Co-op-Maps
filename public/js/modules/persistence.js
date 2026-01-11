@@ -69,13 +69,62 @@
             }
         },
 
+        getStorageInfo() {
+            try {
+                const currentData = localStorage.getItem('coopmaps_diagrams') || '{}';
+                const currentSize = new Blob([currentData]).size;
+                const estimatedLimit = 5 * 1024 * 1024; // 5MB
+                const usagePercent = ((currentSize / estimatedLimit) * 100).toFixed(1);
+
+                return {
+                    currentSize: currentSize,
+                    currentSizeMB: (currentSize / 1024 / 1024).toFixed(2),
+                    estimatedLimit: estimatedLimit,
+                    usagePercent: usagePercent,
+                    remaining: estimatedLimit - currentSize,
+                    remainingMB: ((estimatedLimit - currentSize) / 1024 / 1024).toFixed(2)
+                };
+            } catch (e) {
+                console.error('Error getting storage info:', e);
+                return null;
+            }
+        },
+
         saveDiagrams(diagrams) {
             try {
-                localStorage.setItem('coopmaps_diagrams', JSON.stringify(diagrams));
+                const dataString = JSON.stringify(diagrams);
+                const size = new Blob([dataString]).size;
+                const estimatedLimit = 5 * 1024 * 1024; // 5MB
+
+                // Warn if approaching limit (80%)
+                if (size > estimatedLimit * 0.8) {
+                    const sizeMB = (size / 1024 / 1024).toFixed(2);
+                    const usagePercent = ((size / estimatedLimit) * 100).toFixed(1);
+
+                    if (!confirm(`WARNING: You are using ${usagePercent}% (${sizeMB} MB) of your browser storage.\n\nConsider:\n• Deleting old diagrams\n• Exporting diagrams to JSON files\n• Reducing timeline snapshots\n\nContinue saving?`)) {
+                        return false;
+                    }
+                }
+
+                localStorage.setItem('coopmaps_diagrams', dataString);
                 return true;
             } catch (e) {
                 if (e.name === 'QuotaExceededError') {
-                    alert('Storage quota exceeded. Please delete some diagrams to make space.');
+                    const storageInfo = this.getStorageInfo();
+                    let message = 'Storage quota exceeded! Your diagrams cannot be saved.\n\n';
+
+                    if (storageInfo) {
+                        message += `Current usage: ${storageInfo.currentSizeMB} MB\n`;
+                        message += `Estimated limit: ${(storageInfo.estimatedLimit / 1024 / 1024).toFixed(0)} MB\n\n`;
+                    }
+
+                    message += 'To free up space:\n';
+                    message += '• Delete old diagrams you no longer need\n';
+                    message += '• Export diagrams to JSON files and delete local copies\n';
+                    message += '• Delete timeline snapshots you don\'t need\n';
+                    message += '• Clear browser cache and try again';
+
+                    alert(message);
                 } else {
                     alert('Failed to save diagram. Please try again.');
                 }
@@ -102,6 +151,14 @@
                     enterprises: CoopMaps.state.data.enterprises,
                     relationships: CoopMaps.state.data.relationships,
                     metadata: CoopMaps.state.data.diagramProperties,
+                    // FIXED: Save timeline data (was missing before)
+                    timeline: CoopMaps.state.data.timeline || [],
+                    // FIXED: Save annotations/notes data (was missing before)
+                    annotations: CoopMaps.state.data.annotations || [],
+                    // Save groups if they exist
+                    groups: CoopMaps.state.data.groups || [],
+                    // Include security/password data
+                    security: CoopMaps.state.data.security || null,
                     // Save UI preferences including connector style
                     uiPreferences: {
                         connectorStyle: CoopMaps.state.ui.connectorStyle || 'orthogonal',
@@ -150,6 +207,12 @@
                             ...CoopMaps.state.data.diagramProperties,
                             title: name
                         },
+                        // FIXED: Save timeline data (was missing before)
+                        timeline: CoopMaps.state.data.timeline || [],
+                        // FIXED: Save annotations/notes data (was missing before)
+                        annotations: CoopMaps.state.data.annotations || [],
+                        // Save groups if they exist
+                        groups: CoopMaps.state.data.groups || [],
                         // Include security/password data
                         security: CoopMaps.state.data.security || null,
                         // Save UI preferences
@@ -210,6 +273,15 @@
                 period: 'present'
             };
 
+            // FIXED: Load timeline data (was missing before)
+            CoopMaps.state.data.timeline = diagram.data.timeline || [];
+
+            // FIXED: Load annotations/notes data (was missing before)
+            CoopMaps.state.data.annotations = diagram.data.annotations || [];
+
+            // Load groups if they exist
+            CoopMaps.state.data.groups = diagram.data.groups || [];
+
             // Load security/password data
             CoopMaps.state.data.security = diagram.data.security || null;
 
@@ -259,6 +331,11 @@
             CoopMaps.updateSidebar();
             this.updateSaveIndicator();
             this.showLoadAnimation(diagram.name);
+
+            // FIXED: Refresh timeline UI after loading
+            if (CoopMaps.modules.timeline && CoopMaps.modules.timeline.refreshTimelinePanel) {
+                CoopMaps.modules.timeline.refreshTimelinePanel();
+            }
 
             // Check if map is password protected
             if (CoopMaps.modules.collaboration) {
