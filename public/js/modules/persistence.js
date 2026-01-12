@@ -187,6 +187,11 @@
                 const result = await response.json();
 
                 if (!response.ok) {
+                    console.error('Save failed:', result);
+                    if (result.errors) {
+                        const errorMessages = result.errors.map(e => e.msg || e.message).join(', ');
+                        throw new Error(errorMessages || 'Validation failed');
+                    }
                     throw new Error(result.message || 'Failed to save');
                 }
 
