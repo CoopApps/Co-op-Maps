@@ -11,6 +11,7 @@ const logger = require('./utils/logger');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { connectDB } = require('./db/connection');
 const { connectRedis } = require('./db/redis');
+const { runMigrations } = require('./db/migrate');
 const { initializeSocketHandlers } = require('./sockets/index');
 const { rateLimiters } = require('./middleware/rateLimiter');
 
@@ -153,6 +154,14 @@ async function startServer() {
         await connectDB();
         dbConnected = true;
         logger.info('Database connected successfully');
+
+        // Run migrations after successful database connection
+        try {
+            await runMigrations();
+        } catch (migrationError) {
+            logger.error('Migration failed:', migrationError.message);
+            // Continue anyway - migrations may have already been applied
+        }
     } catch (error) {
         logger.warn('Database connection failed - running in static-only mode:', error.message);
     }
