@@ -492,8 +492,182 @@ router.get('/:id/verify-password', [
     }
 });
 
-module.exports = router;/**
+/**
+ * POST /api/maps/save
+ * Save a map as draft (not submitted for review yet)
+ */
+router.post('/save', [
+    body('title').trim().notEmpty().withMessage('Title is required'),
+    body('password').isLength({ min: 4 }).withMessage('Password must be at least 4 characters'),
+    body('diagramData').notEmpty().withMessage('Diagram data is required')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const {
+            title,
+            password,
+            diagramData,
+            thumbnail
+        } = req.body;
+
+        // Hash the password
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        // Insert map as draft
+        const result = await pool.query(
+            `INSERT INTO community_maps (
+                title, password_hash, diagram_data, thumbnail, status
+            ) VALUES ($1, $2, $3, $4, 'draft')
+            RETURNING id, created_at`,
+            [title, passwordHash, JSON.stringify(diagramData), thumbnail]
+        );
+
+        const mapId = result.rows[0].id;
+
+        logger.info(`New draft map saved: ${mapId}`);
+
+        res.status(201).json({
+            success: true,
+            message: 'Map saved as draft',
+            mapId: mapId,
+            createdAt: result.rows[0].created_at
+        });
+    } catch (error) {
+        logger.error('Error saving draft map:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to save map'
+        });
+    }
+});
+
+/**
+ * PUT /api/maps/:id/save
+ * Update an existing draft map (requires password)
+ */
+router.put('/:id/save', [
+    param('id').isUUID().withMessage('Invalid map ID'),
+    validateMapPassword,
+    body('diagramData').notEmpty().withMessage('Diagram data is required')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { id } = req.params;
+        const { title, diagramData, thumbnail } = req.body;
+        const password = req.mapPassword;
+
+        // Get map and verify password
+        const mapResult = await pool.query(
+            `SELECT password_hash, status FROM community_maps WHERE id = $1 AND deleted_at IS NULL`,
+            [id]
+        );
+
+        if (mapResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Map not found'
+            });
+        }
+
+        const map = mapResult.rows[0];
+
+        // Verify password
+        const passwordMatch = await bcrypt.compare(password, map.password_hash);
+        if (!passwordMatch) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid password'
+            });
+        }
+
+        // Update map
+        const updateResult = await pool.query(
+            `UPDATE community_maps
+            SET title = COALESCE($1, title), diagram_data = $2, thumbnail = $3, last_edited_at = CURRENT_TIMESTAMP
+            WHERE id = $4
+            RETURNING last_edited_at`,
+            [title, JSON.stringify(diagramData), thumbnail, id]
+        );
+
+        logger.info(`Draft map updated: ${id}`);
+
+        res.json({
+            success: true,
+            message: 'Map saved',
+            lastEditedAt: updateResult.rows[0].last_edited_at
+        });
+    } catch (error) {
+        logger.error('Error updating draft map:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to save map'
+        });
+    }
+});
+
+/**
+ * POST /api/maps/my-maps
+ * Get all maps for a given password
+ */
+router.post('/my-maps', [
+    body('password').notEmpty().withMessage('Password is required')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { password } = req.body;
+
+        // Get all maps
+        const result = await pool.query(
+            `SELECT id, title, password_hash, status, thumbnail, created_at, last_edited_at
+            FROM community_maps
+            WHERE deleted_at IS NULL
+            ORDER BY last_edited_at DESC NULLS LAST, created_at DESC`
+        );
+
+        // Filter maps where password matches
+        const myMaps = [];
+        for (const map of result.rows) {
+            const passwordMatch = await bcrypt.compare(password, map.password_hash);
+            if (passwordMatch) {
+                myMaps.push({
+                    id: map.id,
+                    title: map.title,
+                    status: map.status,
+                    thumbnail: map.thumbnail,
+                    createdAt: map.created_at,
+                    lastEditedAt: map.last_edited_at
+                });
+            }
+        }
+
+        res.json({
+            success: true,
+            maps: myMaps
+        });
+    } catch (error) {
+        logger.error('Error fetching my maps:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch maps'
+        });
+    }
+});
+
+/**
  * GET /api/maps/by-wdr/:wdr
+ * Get a map by its official WDR code (for loading approved maps to edit)
  * Get a map by its official WDR code (for loading approved maps to edit)
  */
 router.get('/by-wdr/:wdr', [

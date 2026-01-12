@@ -111,7 +111,7 @@ router.get('/stats', validateAdminPassword, async (req, res) => {
  */
 router.get('/submissions', [
     validateAdminPassword,
-    query('status').optional().isIn(['pending', 'approved', 'rejected', 'changes_requested', 'published']),
+    query('status').optional().isIn(['draft', 'pending', 'approved', 'rejected', 'changes_requested', 'published']),
     query('author').optional().trim(),
     query('search').optional().trim(),
     query('sort').optional().isIn(['submitted_at', 'title', 'author', 'status']),

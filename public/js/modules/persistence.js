@@ -7,16 +7,23 @@
     'use strict';
 
     CoopMaps.registerModule('persistence', {
-        currentDiagramId: null,
+        currentDiagramId: null,  // Local ID for localStorage
+        currentCloudId: null,    // Database UUID for cloud saves
         isDirty: false,
         autoSaveInterval: null,
         lastSaveTime: null,
+        userPassword: null,      // Cached password for cloud operations
 
         init() {
             console.log('Persistence module initialized');
             this.bindEvents();
             this.setupAutoSave();
             this.checkForSavedDiagrams();
+        },
+
+        // Get API URL
+        getApiUrl() {
+            return window.CONFIG?.API_URL || '';
         },
 
         bindEvents() {
@@ -132,7 +139,231 @@
             }
         },
 
+        // ============================================================
+        // DATABASE (CLOUD) SAVE/LOAD METHODS
+        // ============================================================
+
+        async saveToCloud(title, password) {
+            const thumbnail = this.generateThumbnail();
+            const diagramData = {
+                enterprises: CoopMaps.state.data.enterprises,
+                relationships: CoopMaps.state.data.relationships,
+                metadata: CoopMaps.state.data.diagramProperties,
+                timeline: CoopMaps.state.data.timeline || [],
+                annotations: CoopMaps.state.data.annotations || [],
+                groups: CoopMaps.state.data.groups || [],
+                uiPreferences: {
+                    connectorStyle: CoopMaps.state.ui.connectorStyle || 'orthogonal',
+                    zoom: CoopMaps.state.ui.zoom,
+                    canvasSize: CoopMaps.state.ui.canvasSize
+                }
+            };
+
+            try {
+                const response = await fetch(`${this.getApiUrl()}/api/maps/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        password: password,
+                        diagramData: diagramData,
+                        thumbnail: thumbnail
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to save');
+                }
+
+                this.currentCloudId = result.mapId;
+                this.userPassword = password;
+                this.isDirty = false;
+                this.lastSaveTime = new Date().toISOString();
+                this.updateSaveIndicator();
+
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Map saved to cloud successfully!', 'success');
+                }
+
+                return result;
+            } catch (error) {
+                console.error('Error saving to cloud:', error);
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Failed to save to cloud: ' + error.message, 'error');
+                }
+                throw error;
+            }
+        },
+
+        async updateCloudSave(password) {
+            if (!this.currentCloudId) {
+                throw new Error('No cloud map loaded');
+            }
+
+            const thumbnail = this.generateThumbnail();
+            const diagramData = {
+                enterprises: CoopMaps.state.data.enterprises,
+                relationships: CoopMaps.state.data.relationships,
+                metadata: CoopMaps.state.data.diagramProperties,
+                timeline: CoopMaps.state.data.timeline || [],
+                annotations: CoopMaps.state.data.annotations || [],
+                groups: CoopMaps.state.data.groups || [],
+                uiPreferences: {
+                    connectorStyle: CoopMaps.state.ui.connectorStyle || 'orthogonal',
+                    zoom: CoopMaps.state.ui.zoom,
+                    canvasSize: CoopMaps.state.ui.canvasSize
+                }
+            };
+
+            try {
+                const response = await fetch(`${this.getApiUrl()}/api/maps/${this.currentCloudId}/save`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Map-Password': password || this.userPassword
+                    },
+                    body: JSON.stringify({
+                        title: CoopMaps.state.data.diagramProperties.title,
+                        diagramData: diagramData,
+                        thumbnail: thumbnail
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to save');
+                }
+
+                this.isDirty = false;
+                this.lastSaveTime = new Date().toISOString();
+                this.updateSaveIndicator();
+
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Map saved!', 'success');
+                }
+
+                return result;
+            } catch (error) {
+                console.error('Error updating cloud save:', error);
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Failed to save: ' + error.message, 'error');
+                }
+                throw error;
+            }
+        },
+
+        async loadFromCloud(mapId, password) {
+            try {
+                const response = await fetch(`${this.getApiUrl()}/api/maps/${mapId}`, {
+                    headers: {
+                        'X-Map-Password': password
+                    }
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to load');
+                }
+
+                const map = result.map;
+                const diagramData = map.diagramData;
+
+                // Load diagram data into state
+                CoopMaps.state.data.enterprises = diagramData.enterprises || [];
+                CoopMaps.state.data.relationships = diagramData.relationships || [];
+                CoopMaps.state.data.diagramProperties = diagramData.metadata || { title: map.title };
+                CoopMaps.state.data.timeline = diagramData.timeline || [];
+                CoopMaps.state.data.annotations = diagramData.annotations || [];
+                CoopMaps.state.data.groups = diagramData.groups || [];
+
+                // Load UI preferences
+                if (diagramData.uiPreferences) {
+                    if (diagramData.uiPreferences.connectorStyle) {
+                        CoopMaps.state.ui.connectorStyle = diagramData.uiPreferences.connectorStyle;
+                    }
+                    if (diagramData.uiPreferences.canvasSize) {
+                        CoopMaps.state.ui.canvasSize = diagramData.uiPreferences.canvasSize;
+                    }
+                }
+
+                this.currentCloudId = mapId;
+                this.userPassword = password;
+                this.currentDiagramId = null; // Clear local ID
+                this.isDirty = false;
+                this.lastSaveTime = map.lastEditedAt || map.submittedAt;
+
+                // Re-render
+                if (CoopMaps.modules.canvas) {
+                    CoopMaps.modules.canvas.render();
+                }
+
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification(`Loaded: ${map.title}`, 'success');
+                }
+
+                return map;
+            } catch (error) {
+                console.error('Error loading from cloud:', error);
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Failed to load: ' + error.message, 'error');
+                }
+                throw error;
+            }
+        },
+
+        async getMyCloudMaps(password) {
+            try {
+                const response = await fetch(`${this.getApiUrl()}/api/maps/my-maps`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: password })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to fetch maps');
+                }
+
+                return result.maps;
+            } catch (error) {
+                console.error('Error fetching cloud maps:', error);
+                throw error;
+            }
+        },
+
+        // ============================================================
+        // LOCAL SAVE/LOAD METHODS (Original localStorage functionality)
+        // ============================================================
+
         saveCurrentDiagram() {
+            // If we have a cloud ID, save to cloud
+            if (this.currentCloudId && this.userPassword) {
+                this.updateCloudSave(this.userPassword).catch(err => {
+                    console.error('Cloud save failed, falling back to local:', err);
+                    this.saveCurrentDiagramLocal();
+                });
+                return;
+            }
+
+            // Otherwise save locally
+            if (!this.currentDiagramId) {
+                this.saveAsNewDiagram();
+                return;
+            }
+
+            this.saveCurrentDiagramLocal();
+        },
+
+        saveCurrentDiagramLocal() {
             if (!this.currentDiagramId) {
                 this.saveAsNewDiagram();
                 return;
@@ -186,63 +417,81 @@
 
             if (!name) return;
 
-            // Check if this map has no password yet - offer to set one
-            const hasNoPassword = !CoopMaps.state.data.security || !CoopMaps.state.data.security.passwordHash;
-
-            const doSave = () => {
-                const diagrams = this.getAllDiagrams();
-                const id = 'diagram_' + Date.now();
-                const thumbnail = this.generateThumbnail();
-
-                diagrams[id] = {
-                    name: name,
-                    lastModified: new Date().toISOString(),
-                    enterpriseCount: CoopMaps.state.data.enterprises.length,
-                    relationshipCount: CoopMaps.state.data.relationships.length,
-                    thumbnail: thumbnail,
-                    data: {
-                        enterprises: CoopMaps.state.data.enterprises,
-                        relationships: CoopMaps.state.data.relationships,
-                        metadata: {
-                            ...CoopMaps.state.data.diagramProperties,
-                            title: name
-                        },
-                        // FIXED: Save timeline data (was missing before)
-                        timeline: CoopMaps.state.data.timeline || [],
-                        // FIXED: Save annotations/notes data (was missing before)
-                        annotations: CoopMaps.state.data.annotations || [],
-                        // Save groups if they exist
-                        groups: CoopMaps.state.data.groups || [],
-                        // Include security/password data
-                        security: CoopMaps.state.data.security || null,
-                        // Save UI preferences
-                        uiPreferences: {
-                            connectorStyle: CoopMaps.state.ui.connectorStyle || 'orthogonal',
-                            zoom: CoopMaps.state.ui.zoom,
-                            canvasSize: CoopMaps.state.ui.canvasSize
+            // Always require password for cloud save
+            const doCloudSave = (password) => {
+                this.saveToCloud(name, password)
+                    .then(() => {
+                        CoopMaps.state.data.diagramProperties.title = name;
+                        this.showSaveAnimation();
+                        if (CoopMaps.state.ui.activeTab === 'diagrams') {
+                            CoopMaps.updateSidebar();
                         }
-                    }
-                };
+                    })
+                    .catch(err => {
+                        console.error('Cloud save failed:', err);
+                        // Fallback to local save
+                        this.saveAsNewDiagramLocal(name);
+                    });
+            };
 
-                if (this.saveDiagrams(diagrams)) {
-                    this.currentDiagramId = id;
-                    CoopMaps.state.data.diagramProperties.title = name;
-                    this.lastSaveTime = new Date().toISOString();
-                    this.isDirty = false;
-                    this.updateSaveIndicator();
-                    this.showSaveAnimation();
+            // Show password dialog for cloud save
+            if (CoopMaps.modules.collaboration) {
+                CoopMaps.modules.collaboration.showSetPasswordDialog((password) => {
+                    doCloudSave(password);
+                });
+            } else {
+                // Fallback to local save if no collaboration module
+                this.saveAsNewDiagramLocal(name);
+            }
+        },
 
-                    if (CoopMaps.state.ui.activeTab === 'diagrams') {
-                        CoopMaps.updateSidebar();
+        // Local-only save (fallback when cloud is unavailable)
+        saveAsNewDiagramLocal(name) {
+            const diagrams = this.getAllDiagrams();
+            const id = 'diagram_' + Date.now();
+            const thumbnail = this.generateThumbnail();
+
+            diagrams[id] = {
+                name: name,
+                lastModified: new Date().toISOString(),
+                enterpriseCount: CoopMaps.state.data.enterprises.length,
+                relationshipCount: CoopMaps.state.data.relationships.length,
+                thumbnail: thumbnail,
+                data: {
+                    enterprises: CoopMaps.state.data.enterprises,
+                    relationships: CoopMaps.state.data.relationships,
+                    metadata: {
+                        ...CoopMaps.state.data.diagramProperties,
+                        title: name
+                    },
+                    timeline: CoopMaps.state.data.timeline || [],
+                    annotations: CoopMaps.state.data.annotations || [],
+                    groups: CoopMaps.state.data.groups || [],
+                    security: CoopMaps.state.data.security || null,
+                    uiPreferences: {
+                        connectorStyle: CoopMaps.state.ui.connectorStyle || 'orthogonal',
+                        zoom: CoopMaps.state.ui.zoom,
+                        canvasSize: CoopMaps.state.ui.canvasSize
                     }
                 }
             };
 
-            // If no password, offer to set one first
-            if (hasNoPassword && CoopMaps.modules.collaboration) {
-                CoopMaps.modules.collaboration.showSetPasswordDialog(doSave);
-            } else {
-                doSave();
+            if (this.saveDiagrams(diagrams)) {
+                this.currentDiagramId = id;
+                this.currentCloudId = null; // Clear cloud ID
+                CoopMaps.state.data.diagramProperties.title = name;
+                this.lastSaveTime = new Date().toISOString();
+                this.isDirty = false;
+                this.updateSaveIndicator();
+                this.showSaveAnimation();
+
+                if (CoopMaps.state.ui.activeTab === 'diagrams') {
+                    CoopMaps.updateSidebar();
+                }
+
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Saved locally (offline mode)', 'info');
+                }
             }
         },
 
