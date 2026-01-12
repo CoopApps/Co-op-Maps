@@ -520,10 +520,18 @@ router.post('/save', [
         // Insert map as draft
         const result = await pool.query(
             `INSERT INTO community_maps (
-                title, password_hash, diagram_data, thumbnail, status
-            ) VALUES ($1, $2, $3, $4, 'draft')
+                title, password_hash, diagram_data, thumbnail, status, author, author_email, author_organization
+            ) VALUES ($1, $2, $3, $4, 'draft', $5, $6, $7)
             RETURNING id, created_at`,
-            [title, passwordHash, JSON.stringify(diagramData), thumbnail]
+            [
+                title,
+                passwordHash,
+                JSON.stringify(diagramData),
+                thumbnail,
+                diagramData?.metadata?.author || 'Anonymous',
+                diagramData?.metadata?.authorEmail || null,
+                diagramData?.metadata?.organization || null
+            ]
         );
 
         const mapId = result.rows[0].id;

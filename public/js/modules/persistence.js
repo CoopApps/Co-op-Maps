@@ -437,7 +437,6 @@
             // Always require password for cloud save
             const doCloudSave = (password) => {
                 console.log('doCloudSave callback triggered, password length:', password?.length);
-                alert('DEBUG: About to call saveToCloud with name=' + name + ' password length=' + (password?.length || 0));
                 this.saveToCloud(name, password)
                     .then(() => {
                         CoopMaps.state.data.diagramProperties.title = name;
