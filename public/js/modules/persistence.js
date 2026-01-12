@@ -351,6 +351,195 @@
             }
         },
 
+        // Show dialog to load a saved map using password
+        showLoadFromCloudDialog() {
+            const isExpress = CoopMaps.isExpressMode;
+
+            const backdrop = document.createElement('div');
+            backdrop.id = 'loadCloudBackdrop';
+            backdrop.style.cssText = `
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 10000;
+            `;
+
+            const dialog = document.createElement('div');
+            dialog.id = 'loadCloudDialog';
+            dialog.style.cssText = `
+                position: fixed;
+                top: 50%; left: 50%;
+                transform: translate(-50%, -50%);
+                background: ${isExpress ? '#ecf0f1' : 'white'};
+                border: ${isExpress ? '2px solid #7f8c8d' : 'none'};
+                border-radius: ${isExpress ? '0' : '16px'};
+                padding: ${isExpress ? '20px' : '30px'};
+                max-width: 450px;
+                width: 90%;
+                box-shadow: ${isExpress ? 'none' : '0 20px 60px rgba(0, 0, 0, 0.3)'};
+                z-index: 10001;
+            `;
+
+            dialog.innerHTML = `
+                <h2 style="margin: 0 0 10px 0; color: #2c3e50; font-size: ${isExpress ? '18px' : '22px'};">
+                    Load Saved Map
+                </h2>
+                <p style="color: #7f8c8d; margin: 0 0 20px 0; font-size: 14px;">
+                    Enter your password to load your saved map.
+                </p>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
+                        Password
+                    </label>
+                    <input type="text" id="loadPassword" placeholder="Enter your map password" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #ecf0f1;
+                        border-radius: ${isExpress ? '0' : '8px'};
+                        font-size: 14px;
+                        box-sizing: border-box;
+                    ">
+                </div>
+
+                <div id="loadError" style="
+                    color: #e74c3c;
+                    font-size: 13px;
+                    margin-bottom: 15px;
+                    display: none;
+                "></div>
+
+                <div id="mapsList" style="
+                    max-height: 300px;
+                    overflow-y: auto;
+                    margin-bottom: 20px;
+                    display: none;
+                "></div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button id="cancelLoadBtn" style="
+                        padding: 12px 24px;
+                        background: ${isExpress ? '#ecf0f1' : 'white'};
+                        color: #7f8c8d;
+                        border: 2px solid #ecf0f1;
+                        border-radius: ${isExpress ? '0' : '8px'};
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">Cancel</button>
+                    <button id="searchMapsBtn" style="
+                        padding: 12px 24px;
+                        background: ${isExpress ? '#9b59b6' : 'linear-gradient(135deg, #9b59b6, #8e44ad)'};
+                        color: white;
+                        border: none;
+                        border-radius: ${isExpress ? '0' : '8px'};
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">Find My Maps</button>
+                </div>
+            `;
+
+            document.body.appendChild(backdrop);
+            document.body.appendChild(dialog);
+
+            document.getElementById('loadPassword').focus();
+
+            const closeDialog = () => {
+                backdrop.remove();
+                dialog.remove();
+            };
+
+            document.getElementById('cancelLoadBtn').onclick = closeDialog;
+            backdrop.onclick = closeDialog;
+
+            document.getElementById('searchMapsBtn').onclick = async () => {
+                const password = document.getElementById('loadPassword').value.trim();
+                const errorEl = document.getElementById('loadError');
+                const mapsListEl = document.getElementById('mapsList');
+
+                if (!password) {
+                    errorEl.textContent = 'Please enter a password';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                // Show loading
+                const btn = document.getElementById('searchMapsBtn');
+                btn.disabled = true;
+                btn.textContent = 'Searching...';
+                errorEl.style.display = 'none';
+
+                try {
+                    const maps = await this.getMyCloudMaps(password);
+
+                    if (maps.length === 0) {
+                        errorEl.textContent = 'No maps found with this password';
+                        errorEl.style.display = 'block';
+                        btn.disabled = false;
+                        btn.textContent = 'Find My Maps';
+                        return;
+                    }
+
+                    // Show maps list
+                    mapsListEl.style.display = 'block';
+                    mapsListEl.innerHTML = maps.map(map => `
+                        <div style="
+                            background: #f8f9fa;
+                            padding: 15px;
+                            border-radius: 8px;
+                            margin-bottom: 10px;
+                            cursor: pointer;
+                            border: 2px solid transparent;
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.borderColor='#9b59b6'" onmouseout="this.style.borderColor='transparent'"
+                           onclick="CoopMaps.modules.persistence.loadMapFromList('${map.id}', '${password}')">
+                            <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">
+                                ${this.escapeHtml(map.title)}
+                            </div>
+                            <div style="font-size: 12px; color: #7f8c8d;">
+                                Status: ${map.status} | Last edited: ${map.lastEditedAt ? new Date(map.lastEditedAt).toLocaleDateString() : 'Never'}
+                            </div>
+                        </div>
+                    `).join('');
+
+                    btn.textContent = 'Find My Maps';
+                    btn.disabled = false;
+
+                } catch (error) {
+                    errorEl.textContent = error.message || 'Failed to load maps';
+                    errorEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Find My Maps';
+                }
+            };
+
+            // Handle enter key
+            dialog.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('searchMapsBtn').click();
+                }
+            });
+        },
+
+        // Load a specific map from the list
+        async loadMapFromList(mapId, password) {
+            try {
+                await this.loadFromCloud(mapId, password);
+
+                // Close the dialog
+                document.getElementById('loadCloudBackdrop')?.remove();
+                document.getElementById('loadCloudDialog')?.remove();
+
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Map loaded successfully!', 'success');
+                }
+            } catch (error) {
+                console.error('Error loading map:', error);
+                if (CoopMaps.showNotification) {
+                    CoopMaps.showNotification('Failed to load map: ' + error.message, 'error');
+                }
+            }
+        },
+
         // ============================================================
         // LOCAL SAVE/LOAD METHODS (Original localStorage functionality)
         // ============================================================
@@ -1278,6 +1467,17 @@
                             transition: all 0.3s ease;
                         ">Save As New</button>
 
+                        <button onclick="CoopMaps.modules.persistence.showLoadFromCloudDialog()" style="
+                            padding: 10px 20px;
+                            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            transition: all 0.3s ease;
+                        ">Load Saved Map</button>
+
                         <button onclick="CoopMaps.modules.persistence.importFromFile()" style="
                             padding: 10px 20px;
                             background: white;
@@ -1308,8 +1508,8 @@
                                 padding: 40px;
                                 color: #95a5a6;
                             ">
-                                <p style="font-size: 16px;">No saved diagrams yet</p>
-                                <p style="font-size: 14px;">Your diagrams will appear here</p>
+                                <p style="font-size: 16px;">No local diagrams</p>
+                                <p style="font-size: 14px;">Use "Load Saved Map" to retrieve a map using your password</p>
                             </div>
                         ` : Object.entries(diagrams).map(([id, diagram]) => `
                             <div class="diagram-item" style="
