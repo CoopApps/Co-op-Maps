@@ -344,8 +344,8 @@ router.post('/submit', validateMapSubmission, async (req, res) => {
             );
         }
 
-        // Add notification preferences
-        if (notifyOnApproval) {
+        // Add notification preferences (only if email provided)
+        if (notifyOnApproval && authorEmail) {
             await pool.query(
                 `INSERT INTO map_author_notifications (map_id, email, notify_on_approval, notify_on_changes_requested, notify_on_rejection)
                 VALUES ($1, $2, $3, $3, $3)`,
@@ -353,19 +353,21 @@ router.post('/submit', validateMapSubmission, async (req, res) => {
             );
         }
 
-        logger.info(`New map submitted: ${mapId} by ${author} (${authorEmail})`);
+        logger.info(`New map submitted: ${mapId} by ${author}${authorEmail ? ` (${authorEmail})` : ''}`);
 
-        // Send confirmation email to author
-        try {
-            await sendMapSubmissionReceivedEmail({
-                id: mapId,
-                title,
-                author,
-                author_email: authorEmail
-            });
-            logger.info(`Submission confirmation email queued for map: ${mapId}`);
-        } catch (emailError) {
-            logger.error('Failed to queue submission confirmation email:', emailError);
+        // Send confirmation email to author (only if email provided)
+        if (authorEmail) {
+            try {
+                await sendMapSubmissionReceivedEmail({
+                    id: mapId,
+                    title,
+                    author,
+                    author_email: authorEmail
+                });
+                logger.info(`Submission confirmation email queued for map: ${mapId}`);
+            } catch (emailError) {
+                logger.error('Failed to queue submission confirmation email:', emailError);
+            }
         }
 
         res.status(201).json({
