@@ -29,7 +29,7 @@ async function comparePassword(inputPassword, storedPassword) {
 const validateMapSubmission = [
     body('title').trim().notEmpty().withMessage('Title is required'),
     body('author').trim().notEmpty().withMessage('Author name is required'),
-    body('authorEmail').isEmail().normalizeEmail().withMessage('Valid email is required'),
+    body('authorEmail').optional({ checkFalsy: true }).isEmail().normalizeEmail().withMessage('Valid email is required if provided'),
     body('password').isLength({ min: 4 }).withMessage('Password must be at least 4 characters'),
     body('diagramData').notEmpty().withMessage('Diagram data is required'),
     body('diagramData.enterprises').isArray().withMessage('Enterprises must be an array'),

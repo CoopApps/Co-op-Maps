@@ -1015,8 +1015,9 @@
                         return;
                     }
 
-                    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                        errorEl.textContent = 'A valid email address is required';
+                    // Email is optional, but if provided must be valid
+                    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                        errorEl.textContent = 'Please enter a valid email address or leave it blank';
                         errorEl.style.display = 'block';
                         return;
                     }
