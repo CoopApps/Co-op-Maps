@@ -517,11 +517,11 @@ router.post('/save', [
         // Hash the password
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // Insert map as draft (using 'pending' status since 'draft' may not be in constraint)
+        // Insert map as draft
         const result = await pool.query(
             `INSERT INTO community_maps (
                 title, password_hash, diagram_data, thumbnail, status, author, author_email, author_organization
-            ) VALUES ($1, $2, $3, $4, 'pending', $5, $6, $7)
+            ) VALUES ($1, $2, $3, $4, 'draft', $5, $6, $7)
             RETURNING id, created_at`,
             [
                 title,
