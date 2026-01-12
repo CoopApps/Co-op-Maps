@@ -74,115 +74,114 @@
             panel.className = 'symbol-key-panel';
             panel.style.cssText = `
                 position: fixed;
-                top: 60px;
-                right: -500px;
-                width: 500px;
-                height: calc(100vh - 60px);
+                top: 100px;
+                right: -340px;
+                width: 340px;
+                height: calc(100vh - 110px);
                 background: ${isDarkMode ? '#1e1e2e' : 'white'};
-                box-shadow: -4px 0 24px rgba(0, 0, 0, ${isDarkMode ? '0.4' : '0.15'});
-                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: -2px 0 20px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.1'});
+                transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 z-index: 999;
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
+                border-radius: 8px 0 0 8px;
+                border: 1px solid ${isDarkMode ? '#3a3a4e' : 'rgba(0,0,0,0.05)'};
+                border-right: none;
             `;
 
             panel.innerHTML = `
                 <div class="right-panel-header" style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 25px;
+                    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                    padding: 12px 16px;
                     color: white;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     flex-shrink: 0;
-                    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.2);
                 ">
-                    <div>
-                        <h2 style="
-                            font-size: 24px;
-                            margin: 0 0 8px 0;
-                            font-weight: 600;
-                            display: flex;
-                            align-items: center;
-                            gap: 12px;
-                        ">
-                            Symbol Key
-                        </h2>
-                        <p style="
-                            margin: 0;
-                            opacity: 0.9;
-                            font-size: 14px;
-                        ">Complete reference guide for all diagram symbols</p>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        <span style="font-size: 14px; font-weight: 600;">Symbol Key</span>
                     </div>
                     <button class="close-button no-print" onclick="CoopMaps.modules.symbolKey.hidePanel()" style="
-                        background: rgba(255, 255, 255, 0.2);
+                        background: rgba(255, 255, 255, 0.1);
                         border: none;
-                        width: 40px;
-                        height: 40px;
-                        border-radius: 50%;
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 6px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         cursor: pointer;
                         transition: all 0.2s ease;
                         color: white;
-                        font-size: 24px;
+                        font-size: 18px;
                     "
-                    onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='scale(1.1)';"
-                    onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'; this.style.transform='scale(1)';">
+                    onmouseover="this.style.background='rgba(255, 255, 255, 0.2)';"
+                    onmouseout="this.style.background='rgba(255, 255, 255, 0.1)';">
                         ×
                     </button>
                 </div>
 
                 <div class="symbol-key-actions no-print" style="
-                    padding: 20px;
+                    padding: 10px 12px;
                     background: ${isDarkMode ? '#252538' : '#f8f9fa'};
-                    border-bottom: 1px solid ${isDarkMode ? '#3a3a4e' : '#e9ecef'};
+                    border-bottom: 1px solid ${isDarkMode ? '#3a3a4e' : '#ecf0f1'};
                     display: flex;
-                    gap: 12px;
+                    gap: 8px;
                     flex-shrink: 0;
                 ">
                     <button onclick="CoopMaps.modules.symbolKey.exportKeyAsPDF()" style="
                         flex: 1;
-                        padding: 12px 20px;
-                        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        font-size: 14px;
-                        font-weight: 600;
+                        padding: 8px 12px;
+                        background: white;
+                        color: #2c3e50;
+                        border: 1px solid #ecf0f1;
+                        border-radius: 6px;
+                        font-size: 11px;
+                        font-weight: 500;
                         cursor: pointer;
                         transition: all 0.2s ease;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        gap: 8px;
-                        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+                        gap: 6px;
                     "
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(231, 76, 60, 0.3)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(231, 76, 60, 0.2)';">
-                        Export as PDF
+                    onmouseover="this.style.borderColor='#3498db'; this.style.color='#3498db';"
+                    onmouseout="this.style.borderColor='#ecf0f1'; this.style.color='#2c3e50';">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        PDF
                     </button>
                     <button onclick="window.print()" style="
                         flex: 1;
-                        padding: 12px 20px;
-                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        font-size: 14px;
-                        font-weight: 600;
+                        padding: 8px 12px;
+                        background: white;
+                        color: #2c3e50;
+                        border: 1px solid #ecf0f1;
+                        border-radius: 6px;
+                        font-size: 11px;
+                        font-weight: 500;
                         cursor: pointer;
                         transition: all 0.2s ease;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        gap: 8px;
-                        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+                        gap: 6px;
                     "
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(52, 152, 219, 0.3)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(52, 152, 219, 0.2)';">
+                    onmouseover="this.style.borderColor='#3498db'; this.style.color='#3498db';"
+                    onmouseout="this.style.borderColor='#ecf0f1'; this.style.color='#2c3e50';">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                            <rect x="6" y="14" width="12" height="8"/>
+                        </svg>
                         Print
                     </button>
                 </div>
@@ -190,24 +189,25 @@
                 <div class="right-panel-content" id="symbolKeyContent" style="
                     flex: 1;
                     overflow-y: auto;
-                    padding: 30px;
+                    padding: 12px;
                     background: ${isDarkMode ? '#1a1a2e' : '#fafafa'};
                 ">
                     <div class="loading" style="
                         text-align: center;
-                        padding: 40px;
+                        padding: 30px;
                         color: ${isDarkMode ? '#888' : '#7f8c8d'};
+                        font-size: 12px;
                     ">
                         <div style="
-                            width: 50px;
-                            height: 50px;
-                            border: 3px solid ${isDarkMode ? '#3a3a4e' : '#e9ecef'};
-                            border-top: 3px solid #667eea;
+                            width: 30px;
+                            height: 30px;
+                            border: 2px solid ${isDarkMode ? '#3a3a4e' : '#e9ecef'};
+                            border-top: 2px solid #3498db;
                             border-radius: 50%;
                             animation: spin 1s linear infinite;
-                            margin: 0 auto 20px;
+                            margin: 0 auto 12px;
                         "></div>
-                        Loading symbol key...
+                        Loading...
                         <style>
                             @keyframes spin {
                                 0% { transform: rotate(0deg); }
@@ -224,6 +224,16 @@
                 .symbol-key-panel.visible {
                     right: 0 !important;
                 }
+                .symbol-key-panel::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .symbol-key-panel::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .symbol-key-panel::-webkit-scrollbar-thumb {
+                    background: rgba(0,0,0,0.15);
+                    border-radius: 3px;
+                }
             `;
             document.head.appendChild(style);
 
@@ -238,499 +248,319 @@
             const diagramTitle = CoopMaps.state.data.diagramProperties.title || 'Co-operative Diagram';
             const stats = this.getUsageStatistics();
 
-            // Dark mode color variables
+            // Compact color scheme matching app aesthetic
             const colors = {
                 bg: isDarkMode ? '#2a2a3e' : 'white',
                 bgAlt: isDarkMode ? '#252538' : '#f8f9fa',
-                bgGradient: isDarkMode ? 'linear-gradient(135deg, #2a2a3e 0%, #353548 100%)' : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-                border: isDarkMode ? '#3a3a4e' : '#e9ecef',
+                border: isDarkMode ? '#3a3a4e' : '#ecf0f1',
                 text: isDarkMode ? '#e0e0e0' : '#2c3e50',
                 textMuted: isDarkMode ? '#888' : '#7f8c8d',
-                textSubtle: isDarkMode ? '#aaa' : '#546e7a',
-                canvasBg: isDarkMode ? '#1e1e2e' : 'white',
-                canvasBorder: isDarkMode ? '#3a3a4e' : '#e9ecef'
+                primary: '#3498db',
+                canvasBg: isDarkMode ? '#1e1e2e' : 'white'
             };
 
             let html = `
-                <!-- Diagram Context -->
-                <div class="key-section" style="
-                    background: ${colors.bg};
-                    padding: 20px;
-                    border-radius: 12px;
-                    margin-bottom: 25px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.05'});
-                    border: 1px solid ${colors.border};
+                <!-- Diagram Stats Bar -->
+                <div style="
+                    display: flex;
+                    gap: 8px;
+                    margin-bottom: 12px;
+                    font-size: 11px;
                 ">
-                    <h3 style="
-                        font-size: 16px;
-                        font-weight: 600;
-                        margin: 0 0 12px 0;
+                    <span style="
+                        background: ${colors.bg};
+                        border: 1px solid ${colors.border};
+                        padding: 4px 10px;
+                        border-radius: 4px;
                         color: ${colors.text};
-                    ">Current Diagram</h3>
-                    <p style="
-                        margin: 0 0 8px 0;
-                        font-size: 14px;
-                        color: ${colors.textSubtle};
-                    "><strong>${diagramTitle}</strong></p>
-                    <div style="
-                        display: flex;
-                        gap: 20px;
-                        font-size: 13px;
-                        color: ${colors.textMuted};
-                    ">
-                        <span>${stats.enterprises} enterprises</span>
-                        <span>${stats.relationships} relationships</span>
-                    </div>
+                    ">${stats.enterprises} enterprises</span>
+                    <span style="
+                        background: ${colors.bg};
+                        border: 1px solid ${colors.border};
+                        padding: 4px 10px;
+                        border-radius: 4px;
+                        color: ${colors.text};
+                    ">${stats.relationships} relationships</span>
                 </div>
             `;
 
-            // Enterprise types section
+            // Enterprise Types - Compact Grid
             html += `
-                <div class="key-section" style="margin-bottom: 30px;">
-                    <h3 style="
-                        font-size: 18px;
+                <div class="key-section" style="
+                    background: ${colors.bg};
+                    border: 1px solid ${colors.border};
+                    border-radius: 6px;
+                    margin-bottom: 10px;
+                    overflow: hidden;
+                ">
+                    <div style="
+                        padding: 8px 12px;
+                        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                        color: white;
+                        font-size: 11px;
                         font-weight: 600;
-                        margin: 0 0 20px 0;
-                        color: ${colors.text};
-                        padding-bottom: 12px;
-                        border-bottom: 2px solid #667eea;
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                    ">
-                        Enterprise Types
-                    </h3>
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    ">Enterprise Types</div>
+                    <div style="padding: 8px;">
             `;
 
             const types = [
-                { id: 'cooperative', name: 'Co-operative', desc: 'Member-owned, democratically controlled enterprise' },
-                { id: 'ncm', name: 'Non-co-operative Mutual', desc: 'Mutual benefit organization without democratic member control' },
-                { id: 'social', name: 'Social Enterprise', desc: 'Business with social or environmental objectives' },
-                { id: 'private', name: 'Private Enterprise', desc: 'Privately owned for-profit business' },
-                { id: 'state', name: 'State Enterprise', desc: 'Government-owned and operated enterprise' },
-                { id: 'excluded', name: 'Business Excluded from Analysis', desc: 'Not part of the co-operative ecosystem analysis' }
+                { id: 'cooperative', name: 'Co-operative', abbr: 'COOP' },
+                { id: 'ncm', name: 'Non-co-op Mutual', abbr: 'NCM' },
+                { id: 'social', name: 'Social Enterprise', abbr: 'SOC' },
+                { id: 'private', name: 'Private Enterprise', abbr: 'PVT' },
+                { id: 'state', name: 'State Enterprise', abbr: 'GOV' },
+                { id: 'excluded', name: 'Excluded', abbr: 'EXC' }
             ];
 
             types.forEach(type => {
-                const isUsed = stats.byType[type.id] > 0;
+                const count = stats.byType[type.id] || 0;
                 html += `
-                    <div class="key-item" style="
-                        display: flex;
-                        align-items: center;
-                        margin-bottom: 16px;
-                        padding: 16px;
-                        background: ${isUsed ? colors.bg : colors.bgAlt};
-                        border: 2px solid ${isUsed ? colors.border : colors.bgAlt};
-                        border-radius: 12px;
-                        transition: all 0.2s ease;
-                        opacity: ${isUsed ? '1' : '0.7'};
-                    "
-                    onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateX(4px)';"
-                    onmouseout="this.style.borderColor='${isUsed ? colors.border : colors.bgAlt}'; this.style.transform='translateX(0)';">
-                        <canvas id="key-${type.id}" width="100" height="60" style="
-                            background: ${colors.canvasBg};
-                            border-radius: 8px;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.1'});
-                            margin-right: 20px;
-                        "></canvas>
-                        <div class="key-item-label" style="flex: 1;">
-                            <div style="
-                                display: flex;
-                                align-items: center;
-                                gap: 10px;
-                                margin-bottom: 6px;
-                            ">
-                                <strong style="
-                                    font-size: 15px;
-                                    color: ${colors.text};
-                                ">${type.name}</strong>
-                                ${isUsed ? `<span style="
-                                    background: #667eea;
-                                    color: white;
-                                    padding: 2px 8px;
-                                    border-radius: 12px;
-                                    font-size: 11px;
-                                    font-weight: 600;
-                                ">${stats.byType[type.id]} used</span>` : ''}
-                            </div>
-                            <small style="
-                                font-size: 13px;
-                                color: ${colors.textMuted};
-                                line-height: 1.4;
-                            ">${type.desc}</small>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-
-            // Participation Roles section
-            html += `
-                <div class="key-section" style="
-                    background: ${colors.bg};
-                    padding: 25px;
-                    border-radius: 12px;
-                    margin-bottom: 25px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.05'});
-                    border: 1px solid ${colors.border};
-                ">
-                    <h3 style="
-                        font-size: 18px;
-                        font-weight: 600;
-                        margin: 0 0 20px 0;
-                        color: ${colors.text};
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                    ">
-                        Participation Roles
-                    </h3>
-                    <p style="
-                        font-size: 13px;
-                        color: ${colors.textMuted};
-                        margin-bottom: 16px;
-                        line-height: 1.5;
-                    ">Colored indicators appear across the top edge of co-operative and NCM enterprises</p>
-
                     <div style="
                         display: flex;
-                        gap: 12px;
-                        margin-bottom: 20px;
-                        padding: 16px;
+                        align-items: center;
+                        padding: 6px 8px;
+                        margin-bottom: 4px;
                         background: ${colors.bgAlt};
-                        border-radius: 8px;
-                    ">
-                        <div style="
-                            flex: 1;
-                            text-align: center;
-                            padding: 12px;
-                            background: #e74c3c;
-                            color: white;
-                            border-radius: 6px;
-                            font-weight: 600;
-                        ">
-                            <div style="font-size: 18px;">P</div>
-                            <div style="font-size: 11px; margin-top: 4px;">Producers</div>
-                        </div>
-                        <div style="
-                            flex: 1;
-                            text-align: center;
-                            padding: 12px;
-                            background: #3498db;
-                            color: white;
-                            border-radius: 6px;
-                            font-weight: 600;
-                        ">
-                            <div style="font-size: 18px;">U</div>
-                            <div style="font-size: 11px; margin-top: 4px;">Users</div>
-                        </div>
-                        <div style="
-                            flex: 1;
-                            text-align: center;
-                            padding: 12px;
-                            background: #27ae60;
-                            color: white;
-                            border-radius: 6px;
-                            font-weight: 600;
-                        ">
-                            <div style="font-size: 18px;">I</div>
-                            <div style="font-size: 11px; margin-top: 4px;">Investors</div>
-                        </div>
-                    </div>
-
-                    <canvas id="key-participation-demo" width="400" height="80" style="
-                        width: 100%;
-                        background: ${colors.canvasBg};
-                        border: 1px solid ${colors.canvasBorder};
-                        border-radius: 8px;
-                    "></canvas>
-                </div>
-            `;
-
-            // Structural Tiers section
-            html += `
-                <div class="key-section" style="
-                    background: ${colors.bg};
-                    padding: 25px;
-                    border-radius: 12px;
-                    margin-bottom: 25px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.05'});
-                    border: 1px solid ${colors.border};
-                ">
-                    <h3 style="
-                        font-size: 18px;
-                        font-weight: 600;
-                        margin: 0 0 20px 0;
-                        color: ${colors.text};
-                        display: flex;
-                        align-items: center;
+                        border-radius: 4px;
                         gap: 10px;
                     ">
-                        Structural Tiers
-                    </h3>
-                    <p style="
-                        font-size: 13px;
-                        color: ${colors.textMuted};
-                        margin-bottom: 16px;
-                        line-height: 1.5;
-                    ">Indicators on the left edge show the enterprise's position in the value chain</p>
-
-                    <div style="display: flex; align-items: center; gap: 30px;">
-                        <div style="
-                            display: flex;
-                            flex-direction: column;
-                            gap: 2px;
-                        ">
-                            <div style="
-                                width: 40px;
-                                height: 40px;
-                                background: ${colors.bgAlt};
-                                border: 2px solid #546e7a;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-weight: bold;
-                                font-size: 14px;
-                                color: #546e7a;
-                            ">T</div>
-                            <div style="
-                                width: 40px;
-                                height: 40px;
-                                background: ${colors.bgAlt};
-                                border: 2px solid #546e7a;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-weight: bold;
-                                font-size: 14px;
-                                color: #546e7a;
-                            ">S</div>
-                            <div style="
-                                width: 40px;
-                                height: 40px;
-                                background: #546e7a;
-                                border: 2px solid #546e7a;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-weight: bold;
-                                font-size: 14px;
-                                color: white;
-                            ">P</div>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="margin-bottom: 12px;">
-                                <strong style="color: ${colors.text};">T - Tertiary</strong>
-                                <span style="color: ${colors.textMuted}; font-size: 13px;"> (Top): Retail, distribution, services</span>
-                            </div>
-                            <div style="margin-bottom: 12px;">
-                                <strong style="color: ${colors.text};">S - Secondary</strong>
-                                <span style="color: ${colors.textMuted}; font-size: 13px;"> (Middle): Processing, manufacturing</span>
-                            </div>
-                            <div>
-                                <strong style="color: ${colors.text};">P - Primary</strong>
-                                <span style="color: ${colors.textMuted}; font-size: 13px;"> (Bottom): Raw materials, production</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <canvas id="key-tier-demo" width="400" height="100" style="
-                        width: 100%;
-                        margin-top: 20px;
-                        background: ${colors.canvasBg};
-                        border: 1px solid ${colors.canvasBorder};
-                        border-radius: 8px;
-                    "></canvas>
-                </div>
-            `;
-
-            // Relationship types section
-            html += `
-                <div class="key-section" style="margin-bottom: 30px;">
-                    <h3 style="
-                        font-size: 18px;
-                        font-weight: 600;
-                        margin: 0 0 20px 0;
-                        color: ${colors.text};
-                        padding-bottom: 12px;
-                        border-bottom: 2px solid #667eea;
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                    ">
-                        Relationship Types
-                    </h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            `;
-
-            const relationships = [
-                { id: 'G', name: 'has a reserved governance role in', color: '#e74c3c' },
-                { id: 'I', name: 'holds an investment in', color: '#f39c12' },
-                { id: 'L', name: 'has an asset lock to', color: '#f1c40f' },
-                { id: 'M', name: 'is a member of', color: '#2ecc71' },
-                { id: 'O', name: 'owns', color: '#3498db' },
-                { id: 'P', name: 'is a partner member of', color: '#9b59b6' },
-                { id: 'S', name: 'supplies', color: '#e67e22' }
-            ];
-
-            relationships.forEach(rel => {
-                const usageCount = stats.byRelationship[rel.id] || 0;
-                const isUsed = usageCount > 0;
-
-                html += `
-                    <div class="key-item" style="
-                        padding: 12px;
-                        background: ${isUsed ? colors.bg : colors.bgAlt};
-                        border: 2px solid ${isUsed ? colors.border : colors.bgAlt};
-                        border-radius: 8px;
-                        transition: all 0.2s ease;
-                        opacity: ${isUsed ? '1' : '0.7'};
-                    "
-                    onmouseover="this.style.borderColor='${rel.color}'; this.style.background='${rel.color}${isDarkMode ? '30' : '10'}';"
-                    onmouseout="this.style.borderColor='${isUsed ? colors.border : colors.bgAlt}'; this.style.background='${isUsed ? colors.bg : colors.bgAlt}';">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <canvas id="key-rel-${rel.id}" width="80" height="40"></canvas>
-                            <div style="flex: 1;">
-                                <div style="
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 8px;
-                                    margin-bottom: 4px;
-                                ">
-                                    <div style="
-                                        width: 28px;
-                                        height: 28px;
-                                        background: ${rel.color};
-                                        border-radius: 50%;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        color: ${rel.color === '#f1c40f' ? '#2c3e50' : 'white'};
-                                        font-weight: bold;
-                                        font-size: 12px;
-                                        box-shadow: 0 2px 4px ${rel.color}40;
-                                    ">${rel.id}</div>
-                                    ${isUsed ? `<span style="
-                                        background: ${rel.color};
-                                        color: ${rel.color === '#f1c40f' ? '#2c3e50' : 'white'};
-                                        padding: 2px 6px;
-                                        border-radius: 10px;
-                                        font-size: 10px;
-                                        font-weight: 600;
-                                    ">${usageCount}</span>` : ''}
-                                </div>
-                                <div style="
-                                    font-size: 11px;
-                                    color: ${colors.textMuted};
-                                    line-height: 1.3;
-                                ">${rel.name}</div>
-                            </div>
-                        </div>
+                        <canvas id="key-${type.id}" width="50" height="30" style="
+                            background: ${colors.canvasBg};
+                            border-radius: 3px;
+                            flex-shrink: 0;
+                        "></canvas>
+                        <span style="flex: 1; font-size: 11px; color: ${colors.text};">${type.name}</span>
+                        ${count > 0 ? `<span style="
+                            background: ${colors.primary};
+                            color: white;
+                            padding: 1px 6px;
+                            border-radius: 10px;
+                            font-size: 10px;
+                            font-weight: 600;
+                        ">${count}</span>` : ''}
                     </div>
                 `;
             });
             html += '</div></div>';
 
-            // Segmentation markers section
+            // Relationship Types - Compact List
             html += `
                 <div class="key-section" style="
                     background: ${colors.bg};
-                    padding: 25px;
-                    border-radius: 12px;
-                    margin-bottom: 25px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.05'});
                     border: 1px solid ${colors.border};
+                    border-radius: 6px;
+                    margin-bottom: 10px;
+                    overflow: hidden;
                 ">
-                    <h3 style="
-                        font-size: 18px;
+                    <div style="
+                        padding: 8px 12px;
+                        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                        color: white;
+                        font-size: 11px;
                         font-weight: 600;
-                        margin: 0 0 20px 0;
-                        color: ${colors.text};
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    ">Relationships</div>
+                    <div style="padding: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+            `;
+
+            const relationships = [
+                { id: 'G', name: 'Governance', color: '#e74c3c' },
+                { id: 'I', name: 'Investment', color: '#f39c12' },
+                { id: 'L', name: 'Asset Lock', color: '#f1c40f' },
+                { id: 'M', name: 'Member', color: '#2ecc71' },
+                { id: 'O', name: 'Owns', color: '#3498db' },
+                { id: 'P', name: 'Partner', color: '#9b59b6' },
+                { id: 'S', name: 'Supplies', color: '#e67e22' }
+            ];
+
+            relationships.forEach(rel => {
+                const count = stats.byRelationship[rel.id] || 0;
+                html += `
+                    <div style="
                         display: flex;
                         align-items: center;
-                        gap: 10px;
+                        padding: 5px 8px;
+                        background: ${colors.bgAlt};
+                        border-radius: 4px;
+                        gap: 6px;
                     ">
-                        Segmentation Markers
-                    </h3>
-                    <p style="
-                        font-size: 13px;
-                        color: ${colors.textMuted};
-                        margin-bottom: 20px;
-                        line-height: 1.5;
-                    ">Used when relationships connect to generic sets to indicate scope</p>
-
-                    <h4 style="
-                        font-size: 14px;
-                        color: ${colors.textSubtle};
-                        margin-bottom: 12px;
-                        font-weight: 600;
-                    ">Start Markers (FROM)</h4>
-                    <div style="margin-bottom: 20px;">
-                        ${this.renderMarkerItem('start-individual', 'Individual', 'No marker', colors)}
-                        ${this.renderMarkerItem('start-entire', 'Entire set', 'Filled circle', colors)}
-                        ${this.renderMarkerItem('start-subset', 'Subset', 'Hollow circle', colors)}
+                        <div style="
+                            width: 20px;
+                            height: 20px;
+                            background: ${rel.color};
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: ${rel.color === '#f1c40f' ? '#2c3e50' : 'white'};
+                            font-weight: bold;
+                            font-size: 10px;
+                            flex-shrink: 0;
+                        ">${rel.id}</div>
+                        <span style="font-size: 10px; color: ${colors.text}; flex: 1;">${rel.name}</span>
+                        ${count > 0 ? `<span style="font-size: 9px; color: ${colors.textMuted};">${count}</span>` : ''}
                     </div>
+                `;
+            });
+            html += '</div></div>';
 
-                    <h4 style="
-                        font-size: 14px;
-                        color: ${colors.textSubtle};
-                        margin-bottom: 12px;
+            // Participation Roles - Compact Bar
+            html += `
+                <div class="key-section" style="
+                    background: ${colors.bg};
+                    border: 1px solid ${colors.border};
+                    border-radius: 6px;
+                    margin-bottom: 10px;
+                    overflow: hidden;
+                ">
+                    <div style="
+                        padding: 8px 12px;
+                        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                        color: white;
+                        font-size: 11px;
                         font-weight: 600;
-                    ">End Markers (TO)</h4>
-                    <div>
-                        ${this.renderMarkerItem('end-individual', 'Individual', 'Normal arrow', colors)}
-                        ${this.renderMarkerItem('end-entire', 'Entire set', 'Filled triangle', colors)}
-                        ${this.renderMarkerItem('end-subset', 'Subset', 'Hollow triangle', colors)}
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    ">Member Roles</div>
+                    <div style="padding: 8px;">
+                        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                            <div style="flex: 1; text-align: center; padding: 6px; background: #e74c3c; color: white; border-radius: 4px; font-size: 10px; font-weight: 600;">
+                                P - Producers
+                            </div>
+                            <div style="flex: 1; text-align: center; padding: 6px; background: #3498db; color: white; border-radius: 4px; font-size: 10px; font-weight: 600;">
+                                U - Users
+                            </div>
+                            <div style="flex: 1; text-align: center; padding: 6px; background: #27ae60; color: white; border-radius: 4px; font-size: 10px; font-weight: 600;">
+                                I - Investors
+                            </div>
+                        </div>
+                        <canvas id="key-participation-demo" width="310" height="50" style="
+                            width: 100%;
+                            background: ${colors.canvasBg};
+                            border: 1px solid ${colors.border};
+                            border-radius: 4px;
+                        "></canvas>
                     </div>
                 </div>
             `;
 
-            // Generic Set section
+            // Structural Tiers - Compact
             html += `
                 <div class="key-section" style="
-                    background: ${colors.bgGradient};
-                    padding: 25px;
-                    border-radius: 12px;
-                    margin-bottom: 25px;
+                    background: ${colors.bg};
                     border: 1px solid ${colors.border};
+                    border-radius: 6px;
+                    margin-bottom: 10px;
+                    overflow: hidden;
                 ">
-                    <h3 style="
-                        font-size: 18px;
-                        font-weight: 600;
-                        margin: 0 0 20px 0;
-                        color: ${colors.text};
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                    ">
-                        Generic Set
-                    </h3>
                     <div style="
-                        display: flex;
-                        align-items: center;
-                        gap: 20px;
-                    ">
-                        <canvas id="key-generic-set" width="120" height="80" style="
+                        padding: 8px 12px;
+                        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                        color: white;
+                        font-size: 11px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    ">Value Chain Tiers</div>
+                    <div style="padding: 8px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div style="display: flex; flex-direction: column; gap: 1px;">
+                                <div style="width: 24px; height: 18px; background: ${colors.bgAlt}; border: 1px solid #546e7a; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #546e7a;">T</div>
+                                <div style="width: 24px; height: 18px; background: ${colors.bgAlt}; border: 1px solid #546e7a; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #546e7a;">S</div>
+                                <div style="width: 24px; height: 18px; background: #546e7a; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: white;">P</div>
+                            </div>
+                            <div style="flex: 1; font-size: 10px; color: ${colors.textMuted}; line-height: 1.5;">
+                                <div><strong style="color: ${colors.text};">T</strong> Tertiary (retail/services)</div>
+                                <div><strong style="color: ${colors.text};">S</strong> Secondary (processing)</div>
+                                <div><strong style="color: ${colors.text};">P</strong> Primary (production)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Generic Set - Compact
+            html += `
+                <div class="key-section" style="
+                    background: ${colors.bg};
+                    border: 1px solid ${colors.border};
+                    border-radius: 6px;
+                    margin-bottom: 10px;
+                    overflow: hidden;
+                ">
+                    <div style="
+                        padding: 8px 12px;
+                        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                        color: white;
+                        font-size: 11px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    ">Generic Set</div>
+                    <div style="padding: 8px; display: flex; align-items: center; gap: 12px;">
+                        <canvas id="key-generic-set" width="70" height="50" style="
                             background: ${colors.canvasBg};
-                            border-radius: 8px;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.1'});
+                            border-radius: 4px;
+                            flex-shrink: 0;
                         "></canvas>
+                        <div style="font-size: 10px; color: ${colors.textMuted}; line-height: 1.4;">
+                            Stack effect represents multiple similar enterprises.
+                            ${stats.genericSets > 0 ? `<br><strong style="color: ${colors.text};">${stats.genericSets}</strong> in diagram.` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Segmentation Markers - Compact
+            html += `
+                <div class="key-section" style="
+                    background: ${colors.bg};
+                    border: 1px solid ${colors.border};
+                    border-radius: 6px;
+                    overflow: hidden;
+                ">
+                    <div style="
+                        padding: 8px 12px;
+                        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                        color: white;
+                        font-size: 11px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    ">Segmentation</div>
+                    <div style="padding: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 10px;">
                         <div>
-                            <strong style="
-                                font-size: 15px;
-                                color: ${colors.text};
-                                display: block;
-                                margin-bottom: 8px;
-                            ">Multiple Enterprises</strong>
-                            <p style="
-                                font-size: 13px;
-                                color: ${colors.textMuted};
-                                margin: 0;
-                                line-height: 1.5;
-                            ">
-                                Shown with a 3D stack effect to represent a collection of similar enterprises.
-                                ${stats.genericSets > 0 ? `<br><strong>${stats.genericSets}</strong> generic set${stats.genericSets !== 1 ? 's' : ''} in current diagram.` : ''}
-                            </p>
+                            <div style="color: ${colors.textMuted}; margin-bottom: 4px; font-weight: 600;">FROM:</div>
+                            <div style="display: flex; align-items: center; gap: 6px; padding: 4px; background: ${colors.bgAlt}; border-radius: 3px; margin-bottom: 3px;">
+                                <canvas id="key-start-individual" width="40" height="16"></canvas>
+                                <span style="color: ${colors.text};">Individual</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; padding: 4px; background: ${colors.bgAlt}; border-radius: 3px; margin-bottom: 3px;">
+                                <canvas id="key-start-entire" width="40" height="16"></canvas>
+                                <span style="color: ${colors.text};">Entire set</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; padding: 4px; background: ${colors.bgAlt}; border-radius: 3px;">
+                                <canvas id="key-start-subset" width="40" height="16"></canvas>
+                                <span style="color: ${colors.text};">Subset</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: ${colors.textMuted}; margin-bottom: 4px; font-weight: 600;">TO:</div>
+                            <div style="display: flex; align-items: center; gap: 6px; padding: 4px; background: ${colors.bgAlt}; border-radius: 3px; margin-bottom: 3px;">
+                                <canvas id="key-end-individual" width="40" height="16"></canvas>
+                                <span style="color: ${colors.text};">Individual</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; padding: 4px; background: ${colors.bgAlt}; border-radius: 3px; margin-bottom: 3px;">
+                                <canvas id="key-end-entire" width="40" height="16"></canvas>
+                                <span style="color: ${colors.text};">Entire set</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; padding: 4px; background: ${colors.bgAlt}; border-radius: 3px;">
+                                <canvas id="key-end-subset" width="40" height="16"></canvas>
+                                <span style="color: ${colors.text};">Subset</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -846,15 +676,16 @@
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
 
-                const width = 70;
-                const height = 42;
-                const x = 15;
-                const y = 9;
+                // Smaller dimensions for compact key
+                const width = 36;
+                const height = 20;
+                const x = 7;
+                const y = 5;
 
                 const options = {
                     fill: type.fill,
                     stroke: '#2c3e50',
-                    lineWidth: 2
+                    lineWidth: 1.5
                 };
 
                 switch (type.id) {
@@ -863,7 +694,7 @@
                         shapes.drawRectangle(ctx, x, y, width, height, options);
                         break;
                     case 'ncm':
-                        shapes.drawRoundedRectangle(ctx, x, y, width, height, 10, options);
+                        shapes.drawRoundedRectangle(ctx, x, y, width, height, 5, options);
                         break;
                     case 'social':
                         shapes.drawPill(ctx, x, y, width, height, options);
@@ -874,12 +705,6 @@
                     case 'state':
                         shapes.drawDiamond(ctx, x, y, width, height, options);
                         break;
-                }
-
-                // Show indicators for cooperative and ncm (but not excluded)
-                if ((type.id === 'cooperative' || type.id === 'ncm') && type.id !== 'excluded') {
-                    shapes.drawParticipationIndicators(ctx, x, y, width, height, ['producers', 'investors']);
-                    shapes.drawTierIndicators(ctx, x, y, width, height, 'primary', type.id);
                 }
             });
         },
@@ -932,56 +757,56 @@
                 if (!canvas) return;
 
                 const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, 60, 30);
+                ctx.clearRect(0, 0, 40, 16);
 
-                // Draw base line
+                // Draw base line (smaller for compact)
                 ctx.beginPath();
-                ctx.moveTo(10, 15);
-                ctx.lineTo(50, 15);
+                ctx.moveTo(5, 8);
+                ctx.lineTo(35, 8);
                 ctx.strokeStyle = '#34495e';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
 
                 // Draw marker based on style
                 switch (marker.style) {
                     case 'filled':
                         ctx.beginPath();
-                        ctx.arc(10, 15, 5, 0, 2 * Math.PI);
+                        ctx.arc(5, 8, 3, 0, 2 * Math.PI);
                         ctx.fillStyle = '#34495e';
                         ctx.fill();
                         break;
                     case 'hollow':
                         ctx.beginPath();
-                        ctx.arc(10, 15, 5, 0, 2 * Math.PI);
+                        ctx.arc(5, 8, 3, 0, 2 * Math.PI);
                         ctx.strokeStyle = '#34495e';
-                        ctx.lineWidth = 2;
+                        ctx.lineWidth = 1.5;
                         ctx.stroke();
                         break;
                     case 'arrow':
                         ctx.beginPath();
-                        ctx.moveTo(50, 15);
-                        ctx.lineTo(45, 10);
-                        ctx.moveTo(50, 15);
-                        ctx.lineTo(45, 20);
+                        ctx.moveTo(35, 8);
+                        ctx.lineTo(31, 4);
+                        ctx.moveTo(35, 8);
+                        ctx.lineTo(31, 12);
                         ctx.stroke();
                         break;
                     case 'filled-triangle':
                         ctx.beginPath();
-                        ctx.moveTo(50, 15);
-                        ctx.lineTo(42, 10);
-                        ctx.lineTo(42, 20);
+                        ctx.moveTo(35, 8);
+                        ctx.lineTo(29, 4);
+                        ctx.lineTo(29, 12);
                         ctx.closePath();
                         ctx.fillStyle = '#34495e';
                         ctx.fill();
                         break;
                     case 'hollow-triangle':
                         ctx.beginPath();
-                        ctx.moveTo(50, 15);
-                        ctx.lineTo(42, 10);
-                        ctx.lineTo(42, 20);
+                        ctx.moveTo(35, 8);
+                        ctx.lineTo(29, 4);
+                        ctx.lineTo(29, 12);
                         ctx.closePath();
                         ctx.strokeStyle = '#34495e';
-                        ctx.lineWidth = 2;
+                        ctx.lineWidth = 1.5;
                         ctx.stroke();
                         break;
                 }
@@ -997,16 +822,17 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const width = 80;
-            const height = 50;
-            const x = 20;
-            const y = 15;
+            // Smaller for compact key
+            const width = 45;
+            const height = 28;
+            const x = 12;
+            const y = 11;
 
             shapes.drawStackEffect(
                 ctx,
                 shapes.drawRectangle,
                 x, y, width, height,
-                { fill: 'white', stroke: '#2c3e50', lineWidth: 2 }
+                { fill: 'white', stroke: '#2c3e50', lineWidth: 1.5 }
             );
         },
 
@@ -1019,55 +845,29 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw example cooperative with all roles
-            const x = 150;
-            const y = 25;
-            const width = 100;
-            const height = 40;
+            // Smaller demo for compact key
+            const x = 105;
+            const y = 12;
+            const width = 80;
+            const height = 26;
 
             shapes.drawRectangle(ctx, x, y, width, height, {
                 fill: 'white',
                 stroke: '#2c3e50',
-                lineWidth: 2
+                lineWidth: 1.5
             });
 
             shapes.drawParticipationIndicators(ctx, x, y, width, height, ['producers', 'users', 'investors']);
 
             // Add label
             ctx.fillStyle = '#2c3e50';
-            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.font = '9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Example Co-op', x + width/2, y + height/2 + 4);
+            ctx.fillText('Example Co-op', x + width/2, y + height/2 + 3);
         },
 
         drawTierDemo() {
-            const canvas = document.getElementById('key-tier-demo');
-            if (!canvas || !CoopMaps.modules.shapes) return;
-
-            const ctx = canvas.getContext('2d');
-            const shapes = CoopMaps.modules.shapes;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw example NCM with hybrid tiers
-            const x = 150;
-            const y = 30;
-            const width = 100;
-            const height = 40;
-
-            shapes.drawRoundedRectangle(ctx, x, y, width, height, 10, {
-                fill: 'white',
-                stroke: '#2c3e50',
-                lineWidth: 2
-            });
-
-            shapes.drawTierIndicators(ctx, x, y, width, height, 'hybrid-primary-secondary', 'ncm');
-
-            // Add label
-            ctx.fillStyle = '#2c3e50';
-            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Example NCM', x + width/2, y + height/2 + 4);
+            // No longer needed in compact design - tiers shown inline
         },
 
         exportKeyAsPDF() {
