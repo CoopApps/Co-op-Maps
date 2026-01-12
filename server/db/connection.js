@@ -23,7 +23,7 @@ if (process.env.DATABASE_URL) {
         ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
+        connectionTimeoutMillis: 10000,
     };
 } else if (process.env.PGHOST) {
     // Use PostgreSQL standard environment variables
@@ -37,7 +37,7 @@ if (process.env.DATABASE_URL) {
         ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
+        connectionTimeoutMillis: 10000,
     };
 } else {
     // Fallback to custom DB_* variables or localhost
@@ -51,7 +51,7 @@ if (process.env.DATABASE_URL) {
         ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
+        connectionTimeoutMillis: 10000,
     };
 }
 
