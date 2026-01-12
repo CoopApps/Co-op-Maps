@@ -1620,6 +1620,10 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         Reset Password
                     </button>
+                    <button class="btn-reject" onclick="AdminPanel.deleteMap()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        Delete Map
+                    </button>
                     <button class="btn-cancel" onclick="AdminPanel.closeReview()">Close</button>
                 `;
 
@@ -2104,6 +2108,35 @@
                 if (dialog) {
                     dialog.classList.remove('active');
                     setTimeout(() => dialog.remove(), 300);
+                }
+            },
+
+            async deleteMap() {
+                if (!this.currentSubmission) return;
+
+                const mapTitle = this.currentSubmission.title || 'this map';
+                if (!confirm(`Are you sure you want to delete "${mapTitle}"?\n\nThis action cannot be undone.`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${window.CONFIG?.API_URL || ''}/api/admin/maps/${this.currentSubmission.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Admin-Password': this.password
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.message || 'Failed to delete map');
+                    }
+
+                    alert('Map deleted successfully!');
+                    this.closeReview();
+                    this.loadSubmissions();
+                } catch (error) {
+                    alert('Error deleting map: ' + error.message);
                 }
             }
         };

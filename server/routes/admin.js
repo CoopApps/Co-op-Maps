@@ -1155,5 +1155,53 @@ router.post('/maps/:id/toggle-hide', [
     }
 });
 
+/**
+ * DELETE /api/admin/maps/:id
+ * Permanently delete a map (soft delete)
+ */
+router.delete('/maps/:id', [
+    validateAdminPassword,
+    param('id').isUUID().withMessage('Invalid map ID')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { id } = req.params;
+
+        // Soft delete the map
+        const result = await pool.query(
+            `UPDATE community_maps
+            SET deleted_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING id, title`,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Map not found or already deleted'
+            });
+        }
+
+        logger.info(`Map deleted by admin: ${id} - ${result.rows[0].title}`);
+
+        res.json({
+            success: true,
+            message: 'Map deleted successfully',
+            deletedMap: result.rows[0]
+        });
+    } catch (error) {
+        logger.error('Error deleting map:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete map'
+        });
+    }
+});
+
 
 module.exports = router;
