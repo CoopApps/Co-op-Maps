@@ -378,9 +378,10 @@ router.post('/submit', validateMapSubmission, async (req, res) => {
         });
     } catch (error) {
         logger.error('Error submitting map:', error);
+        logger.error('Error details:', error.message);
         res.status(500).json({
             success: false,
-            message: 'Failed to submit map'
+            message: 'Failed to submit map: ' + error.message
         });
     }
 });
