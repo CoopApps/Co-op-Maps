@@ -245,13 +245,9 @@ router.get('/submissions/:id', [
 
         // Get moderation history
         const history = await pool.query(
-            `SELECT
-                mh.*,
-                u.full_name as moderator_name
-            FROM map_moderation_history mh
-            LEFT JOIN users u ON mh.moderator_id = u.id
-            WHERE mh.map_id = $1
-            ORDER BY mh.created_at DESC`,
+            `SELECT * FROM map_moderation_history
+            WHERE map_id = $1
+            ORDER BY created_at DESC`,
             [id]
         );
 
@@ -269,9 +265,10 @@ router.get('/submissions/:id', [
         });
     } catch (error) {
         logger.error('Error fetching submission details:', error);
+        logger.error('Error details:', error.message);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch submission'
+            message: 'Failed to fetch submission: ' + error.message
         });
     }
 });
