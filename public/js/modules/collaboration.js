@@ -92,7 +92,6 @@
             `;
 
             const currentAuthor = CoopMaps.state.data.diagramProperties?.author || '';
-            const currentOrg = CoopMaps.state.data.diagramProperties?.organization || '';
 
             dialog.innerHTML = `
                 <h2 style="margin: 0 0 10px 0; color: #2c3e50; font-size: ${isExpress ? '18px' : '22px'};">
@@ -104,23 +103,9 @@
 
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
-                        Your Name *
+                        Name / Organisation *
                     </label>
-                    <input type="text" id="authorName" placeholder="Enter your name" value="${currentAuthor}" style="
-                        width: 100%;
-                        padding: 12px;
-                        border: 2px solid #ecf0f1;
-                        border-radius: ${isExpress ? '0' : '8px'};
-                        font-size: 14px;
-                        box-sizing: border-box;
-                    ">
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
-                        Organisation *
-                    </label>
-                    <input type="text" id="authorOrg" placeholder="Enter your organisation" value="${currentOrg}" style="
+                    <input type="text" id="authorName" placeholder="e.g. John Smith / Acme Co-op" value="${currentAuthor}" style="
                         width: 100%;
                         padding: 12px;
                         border: 2px solid #ecf0f1;
@@ -197,19 +182,12 @@
             // Handle set password
             document.getElementById('setPasswordBtn').onclick = async () => {
                 const authorName = document.getElementById('authorName').value.trim();
-                const authorOrg = document.getElementById('authorOrg').value.trim();
                 const password = document.getElementById('newPassword').value;
                 const confirm = document.getElementById('confirmPassword').value;
                 const errorEl = document.getElementById('passwordError');
 
                 if (!authorName) {
-                    errorEl.textContent = 'Please enter your name';
-                    errorEl.style.display = 'block';
-                    return;
-                }
-
-                if (!authorOrg) {
-                    errorEl.textContent = 'Please enter your organisation';
+                    errorEl.textContent = 'Please enter your name / organisation';
                     errorEl.style.display = 'block';
                     return;
                 }
@@ -234,7 +212,6 @@
 
                 // Store author info in diagram properties
                 CoopMaps.state.data.diagramProperties.author = authorName;
-                CoopMaps.state.data.diagramProperties.organization = authorOrg;
 
                 // Hash and store password
                 const hash = await this.hashPassword(password);
