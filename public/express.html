@@ -67,6 +67,46 @@
         .header-nav-btn:hover {
             background: #3d566e;
         }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .zoom-controls {
+            display: flex;
+            gap: 2px;
+        }
+        .zoom-controls button {
+            padding: 4px 8px;
+            background: #34495e;
+            color: white;
+            border: 1px solid #2c3e50;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .zoom-controls button:hover {
+            background: #3d566e;
+        }
+        .header-search {
+            padding: 4px 8px;
+            border: 1px solid #34495e;
+            background: #34495e;
+            color: white;
+            font-size: 11px;
+            width: 120px;
+        }
+        .header-search::placeholder {
+            color: #95a5a6;
+        }
+        .header-btn-blue {
+            background: #3498db;
+            border-color: #2980b9;
+        }
+        .header-btn-red {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
         /* Notifications */
         .notification {
             position: fixed;
@@ -325,9 +365,26 @@
         <span id="headerWdrBadge" class="header-wdr-badge" title="Official World Directory Reference">
             ✓ <span id="headerWdrNumber"></span>
         </span>
-        <div class="header-nav">
-            <button class="header-nav-btn" onclick="window.location.href='browse.html'">Browse Gallery</button>
-            <button class="header-nav-btn" onclick="window.location.href='deluxe.html'">Deluxe Edition</button>
+        <div class="header-controls">
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <button onclick="CoopMaps.modules.canvas?.zoomOut()">−</button>
+                <button onclick="CoopMaps.modules.canvas?.zoomReset()"><span id="zoomLevel">100%</span></button>
+                <button onclick="CoopMaps.modules.canvas?.zoomIn()">+</button>
+                <button onclick="CoopMaps.modules.canvas?.fitToContent()">Fit</button>
+            </div>
+            <!-- View Controls -->
+            <button class="header-nav-btn" id="headerGridBtn" onclick="CoopMaps.toggleGrid()">Grid</button>
+            <button class="header-nav-btn" onclick="CoopMaps.modules.canvas?.printCanvas()">Print</button>
+            <button class="header-nav-btn" onclick="CoopMaps.modules.canvas?.toggleFullscreen()">Full</button>
+            <button class="header-nav-btn" id="headerDarkBtn" onclick="CoopMaps.toggleDarkMode()">Dark</button>
+            <!-- Search -->
+            <input type="text" class="header-search" id="searchInput" placeholder="Search..."
+                   oninput="CoopMaps.modules.canvas?.searchEnterprises(this.value)">
+            <!-- Navigation -->
+            <button class="header-nav-btn header-btn-blue" onclick="window.location.href='browse.html'">Browse</button>
+            <button class="header-nav-btn header-btn-red" onclick="window.location.href='admin.html'">Admin</button>
+            <button class="header-nav-btn" onclick="window.location.href='deluxe.html'">Deluxe</button>
         </div>
     </div>
 
@@ -385,17 +442,6 @@
                 <button id="orthoBtn" onclick="CoopMaps.toggleOrtho()">Ortho</button>
                 <div class="separator"></div>
                 <button id="relationshipModeBtn" onclick="CoopMaps.modules.relationships.toggleRelationshipMode()">Relationship</button>
-                <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas.zoomIn()">+</button>
-                <button onclick="CoopMaps.modules.canvas.zoomOut()">-</button>
-                <button onclick="CoopMaps.modules.canvas.zoomReset()"><span id="zoomText">100%</span></button>
-                <button onclick="CoopMaps.modules.canvas.fitToContent()">Fit</button>
-                <div class="separator"></div>
-                <button onclick="CoopMaps.modules.canvas.printCanvas()">Print</button>
-                <button id="gridBtn" onclick="CoopMaps.toggleGrid()">Grid</button>
-                <button onclick="CoopMaps.modules.canvas.toggleFullscreen()">Full</button>
-                <button id="darkModeBtn" onclick="CoopMaps.toggleDarkMode()">Dark</button>
-                <input type="text" id="searchInput" placeholder="Search..." style="width:80px;padding:4px;border:1px solid #7f8c8d;font-size:11px;" oninput="CoopMaps.modules.canvas.searchEnterprises(this.value)">
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas.showAddNoteDialog()">Note</button>
                 <button onclick="CoopMaps.modules.canvas.toggleMinimap()">Map</button>
