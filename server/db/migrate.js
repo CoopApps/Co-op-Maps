@@ -11,7 +11,8 @@ const logger = require('../utils/logger');
 // List of migrations in order
 const migrations = [
     'schema-community-maps.sql',
-    'migration-wdr-sequence.sql'
+    'migration-wdr-sequence.sql',
+    'migration-revisions.sql'
 ];
 
 async function runMigrations() {

@@ -854,4 +854,309 @@ router.post('/maps/:id/reset-password', [
     }
 });
 
+/**
+ * GET /api/admin/all-maps
+ * Get ALL maps including drafts with password hashes (admin only)
+ */
+router.get('/all-maps', [
+    validateAdminPassword,
+    query('status').optional(),
+    query('sort').optional().isIn(['submitted_at', 'title', 'author', 'last_edited_at']),
+    query('order').optional().isIn(['asc', 'desc']),
+    query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
+    query('offset').optional().isInt({ min: 0 }).toInt()
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const {
+            status,
+            sort = 'submitted_at',
+            order = 'desc',
+            limit = 50,
+            offset = 0
+        } = req.query;
+
+        let queryText = `
+            SELECT
+                id, title, author, author_email, author_organization,
+                status, submitted_at, last_edited_at, reviewed_at,
+                is_public, is_featured, view_count, official_wdr,
+                password_hash, edit_token,
+                parent_map_id, revision_number, is_current_revision
+            FROM community_maps
+            WHERE deleted_at IS NULL
+        `;
+
+        const queryParams = [];
+        let paramIndex = 1;
+
+        if (status) {
+            queryText += ` AND status = $${paramIndex}`;
+            queryParams.push(status);
+            paramIndex++;
+        }
+
+        queryText += ` ORDER BY ${sort} ${order.toUpperCase()} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+        queryParams.push(limit, offset);
+
+        const result = await pool.query(queryText, queryParams);
+
+        let countQuery = `SELECT COUNT(*) as total FROM community_maps WHERE deleted_at IS NULL`;
+        const countParams = [];
+
+        if (status) {
+            countQuery += ` AND status = $1`;
+            countParams.push(status);
+        }
+
+        const countResult = await pool.query(countQuery, countParams);
+
+        res.json({
+            success: true,
+            maps: result.rows,
+            pagination: {
+                total: parseInt(countResult.rows[0].total),
+                limit,
+                offset,
+                hasMore: offset + result.rows.length < parseInt(countResult.rows[0].total)
+            }
+        });
+    } catch (error) {
+        logger.error('Error fetching all maps:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch maps'
+        });
+    }
+});
+
+/**
+ * GET /api/admin/maps/:id/revisions
+ * Get all revisions of a map
+ */
+router.get('/maps/:id/revisions', [
+    validateAdminPassword,
+    param('id').isUUID().withMessage('Invalid map ID')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { id } = req.params;
+
+        const mapResult = await pool.query(
+            `SELECT official_wdr FROM community_maps WHERE id = $1`,
+            [id]
+        );
+
+        if (mapResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Map not found'
+            });
+        }
+
+        const wdr = mapResult.rows[0].official_wdr;
+
+        if (!wdr) {
+            return res.json({
+                success: true,
+                revisions: [],
+                message: 'Map has no official WDR yet'
+            });
+        }
+
+        const result = await pool.query(
+            `SELECT
+                id, title, author, revision_number, status,
+                is_current_revision, submitted_at, reviewed_at,
+                hide_original
+            FROM community_maps
+            WHERE official_wdr = $1 OR parent_map_id = $2
+            ORDER BY revision_number DESC`,
+            [wdr, id]
+        );
+
+        res.json({
+            success: true,
+            wdr,
+            revisions: result.rows
+        });
+    } catch (error) {
+        logger.error('Error fetching revisions:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch revisions'
+        });
+    }
+});
+
+/**
+ * POST /api/admin/maps/:id/approve-revision
+ * Approve a revision and optionally hide the original
+ */
+router.post('/maps/:id/approve-revision', [
+    validateAdminPassword,
+    param('id').isUUID().withMessage('Invalid revision ID'),
+    body('hideOriginal').optional().isBoolean(),
+    body('adminNotes').optional().trim()
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { id } = req.params;
+        const { hideOriginal = false, adminNotes } = req.body;
+
+        const client = await pool.connect();
+
+        try {
+            await client.query('BEGIN');
+
+            const revisionResult = await client.query(
+                `SELECT cm.*, parent.official_wdr as parent_wdr
+                FROM community_maps cm
+                LEFT JOIN community_maps parent ON cm.parent_map_id = parent.id
+                WHERE cm.id = $1 AND cm.deleted_at IS NULL`,
+                [id]
+            );
+
+            if (revisionResult.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({
+                    success: false,
+                    message: 'Revision not found'
+                });
+            }
+
+            const revision = revisionResult.rows[0];
+
+            if (!revision.parent_map_id) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({
+                    success: false,
+                    message: 'This is not a revision - use regular approve endpoint'
+                });
+            }
+
+            const revNumResult = await client.query(
+                `SELECT COALESCE(MAX(revision_number), 0) + 1 as next_rev
+                FROM community_maps
+                WHERE id = $1 OR parent_map_id = $1`,
+                [revision.parent_map_id]
+            );
+            const nextRev = revNumResult.rows[0].next_rev;
+
+            await client.query(
+                `UPDATE community_maps
+                SET is_current_revision = FALSE
+                WHERE (id = $1 OR parent_map_id = $1) AND is_current_revision = TRUE`,
+                [revision.parent_map_id]
+            );
+
+            if (hideOriginal) {
+                await client.query(
+                    `UPDATE community_maps SET hide_original = TRUE WHERE id = $1`,
+                    [revision.parent_map_id]
+                );
+            }
+
+            await client.query(
+                `UPDATE community_maps
+                SET status = 'approved',
+                    is_public = TRUE,
+                    is_current_revision = TRUE,
+                    revision_number = $1,
+                    official_wdr = $2,
+                    reviewed_at = CURRENT_TIMESTAMP,
+                    published_at = CURRENT_TIMESTAMP,
+                    admin_notes = $3
+                WHERE id = $4`,
+                [nextRev, revision.parent_wdr, adminNotes, id]
+            );
+
+            await client.query(
+                `INSERT INTO map_moderation_history (map_id, action, previous_status, new_status, notes)
+                VALUES ($1, 'approve', $2, 'approved', $3)`,
+                [id, revision.status, `Revision ${nextRev} approved. ${hideOriginal ? 'Original hidden.' : ''} ${adminNotes || ''}`]
+            );
+
+            await client.query('COMMIT');
+
+            logger.info(`Revision approved: ${id} (rev ${nextRev}), hideOriginal: ${hideOriginal}`);
+
+            res.json({
+                success: true,
+                message: `Revision ${nextRev} approved`,
+                revisionNumber: nextRev,
+                hideOriginal
+            });
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    } catch (error) {
+        logger.error('Error approving revision:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to approve revision'
+        });
+    }
+});
+
+/**
+ * POST /api/admin/maps/:id/toggle-hide
+ * Toggle hiding of an original map
+ */
+router.post('/maps/:id/toggle-hide', [
+    validateAdminPassword,
+    param('id').isUUID().withMessage('Invalid map ID')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { id } = req.params;
+
+        const result = await pool.query(
+            `UPDATE community_maps
+            SET hide_original = NOT COALESCE(hide_original, FALSE)
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING id, hide_original`,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Map not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            hideOriginal: result.rows[0].hide_original
+        });
+    } catch (error) {
+        logger.error('Error toggling hide:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to toggle hide status'
+        });
+    }
+});
+
+
 module.exports = router;

@@ -838,6 +838,111 @@
             opacity: 0.8;
         }
 
+        /* Badges for WDR, revision, hidden */
+        .wdr-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            color: var(--primary);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: Monaco, Consolas, monospace;
+            margin-left: 8px;
+        }
+
+        .revision-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(39, 174, 96, 0.15);
+            color: var(--success);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .hidden-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(127, 140, 141, 0.15);
+            color: var(--gray);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .status-draft {
+            background: linear-gradient(135deg, rgba(127, 140, 141, 0.15) 0%, rgba(149, 165, 166, 0.15) 100%);
+            color: #7f8c8d;
+        }
+
+        /* Revisions list */
+        .revisions-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .revisions-section h4 {
+            font-size: 12px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .revision-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .revision-item.current {
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .revision-info {
+            flex: 1;
+        }
+
+        .revision-info .rev-number {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .revision-info .rev-date {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .btn-toggle-hide {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(127, 140, 141, 0.2);
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+
+        .btn-toggle-hide:hover {
+            background: rgba(127, 140, 141, 0.3);
+        }
+
+        .btn-toggle-hide.hidden {
+            background: rgba(231, 76, 60, 0.15);
+            color: var(--danger);
+        }
+
         /* Responsive */
         @media (max-width: 900px) {
             .modal-body {
@@ -881,12 +986,12 @@
             .tabs-container {
                 width: 100%;
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(5, 1fr);
             }
 
             .tab {
-                padding: 10px 12px;
-                font-size: 12px;
+                padding: 10px 8px;
+                font-size: 11px;
             }
 
             .header h1 span {
@@ -1129,6 +1234,7 @@
                 <button class="tab active" onclick="AdminPanel.switchTab('pending', this)">Pending</button>
                 <button class="tab" onclick="AdminPanel.switchTab('approved', this)">Approved</button>
                 <button class="tab" onclick="AdminPanel.switchTab('rejected', this)">Rejected</button>
+                <button class="tab" onclick="AdminPanel.switchTab('saved', this)">Saved Maps</button>
                 <button class="tab" onclick="AdminPanel.switchTab('all', this)">All</button>
             </div>
 
@@ -1325,7 +1431,7 @@
                 this.loadSubmissions();
             },
 
-            validStatuses: ['pending', 'approved', 'rejected', 'changes_requested'],
+            validStatuses: ['pending', 'approved', 'rejected', 'changes_requested', 'draft'],
 
             async loadSubmissions() {
                 const list = document.getElementById('submissionsList');
@@ -1333,6 +1439,13 @@
 
                 try {
                     const search = document.getElementById('searchInput').value;
+
+                    // Handle the "saved" tab differently - load all maps with passwords
+                    if (this.currentTab === 'saved') {
+                        await this.loadSavedMaps(list, search);
+                        return;
+                    }
+
                     const status = this.currentTab === 'all' ? undefined : this.currentTab;
 
                     const response = await CoopMapsAPI.admin.getSubmissions(this.password, {
@@ -1366,9 +1479,16 @@
 
                         const safeStatus = this.validStatuses.includes(sub.status) ? sub.status : 'pending';
 
+                        // Show WDR badge for approved maps
+                        const wdrBadge = sub.official_wdr ? `<span class="wdr-badge">${sub.official_wdr}</span>` : '';
+                        // Show revision indicator
+                        const revisionBadge = sub.revision_number > 1 ? `<span class="revision-badge">Rev ${sub.revision_number}</span>` : '';
+                        // Show hidden indicator
+                        const hiddenBadge = sub.hide_original ? `<span class="hidden-badge">Hidden</span>` : '';
+
                         item.innerHTML = `
                             <div class="submission-header">
-                                <div class="submission-title">${this.escapeHtml(sub.title)}</div>
+                                <div class="submission-title">${this.escapeHtml(sub.title)} ${wdrBadge} ${revisionBadge} ${hiddenBadge}</div>
                                 <span class="submission-status status-${safeStatus}">${sub.status.replace('_', ' ')}</span>
                             </div>
                             <div class="submission-meta">
@@ -1391,6 +1511,119 @@
                         </div>
                     `;
                 }
+            },
+
+            async loadSavedMaps(list, search) {
+                try {
+                    const response = await fetch(`${window.CONFIG?.API_URL || ''}/api/admin/all-maps?search=${encodeURIComponent(search || '')}`, {
+                        headers: {
+                            'X-Admin-Password': this.password
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to load saved maps');
+                    }
+
+                    const data = await response.json();
+                    list.innerHTML = '';
+
+                    if (data.maps.length === 0) {
+                        list.innerHTML = `
+                            <div class="empty-state">
+                                <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                </svg>
+                                <h3>No Saved Maps</h3>
+                                <p>${search ? 'Try a different search term' : 'No maps have been saved yet'}</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    data.maps.forEach(map => {
+                        const item = document.createElement('div');
+                        item.className = 'submission-item';
+                        item.addEventListener('click', () => this.showSavedMapDetails(map));
+
+                        const hasPassword = map.password_hash ? 'Yes' : 'No';
+                        const statusBadge = map.status === 'draft' ? 'Draft (Not Submitted)' : map.status;
+
+                        item.innerHTML = `
+                            <div class="submission-header">
+                                <div class="submission-title">${this.escapeHtml(map.title || 'Untitled Map')}</div>
+                                <span class="submission-status status-${map.status || 'draft'}">${statusBadge}</span>
+                            </div>
+                            <div class="submission-meta">
+                                <span>${this.escapeHtml(map.author || 'Anonymous')}</span>
+                                <span class="dot"></span>
+                                <span>Password: ${hasPassword}</span>
+                                <span class="dot"></span>
+                                <span>Created: ${this.formatDate(map.created_at)}</span>
+                            </div>
+                            <div class="submission-description" style="font-family: monospace; font-size: 12px; color: #888;">
+                                ID: ${map.id}
+                            </div>
+                        `;
+
+                        list.appendChild(item);
+                    });
+                } catch (error) {
+                    console.error('Error loading saved maps:', error);
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <h3>Error Loading Saved Maps</h3>
+                            <p>${error.message || 'Unknown error'}</p>
+                        </div>
+                    `;
+                }
+            },
+
+            showSavedMapDetails(map) {
+                this.currentSubmission = map;
+
+                document.getElementById('reviewTitle').textContent = map.title || 'Untitled Map';
+                document.getElementById('reviewAuthor').textContent = map.author || 'Anonymous';
+                document.getElementById('reviewEmail').textContent = map.email || 'N/A';
+                document.getElementById('reviewOrganization').textContent = map.organization || 'N/A';
+                document.getElementById('reviewDescription').textContent = map.description || 'No description';
+                document.getElementById('reviewDate').textContent = this.formatDate(map.created_at);
+                document.getElementById('reviewStatus').textContent = (map.status || 'DRAFT').toUpperCase();
+
+                const tagsContainer = document.getElementById('reviewTags');
+                tagsContainer.innerHTML = '<span style="color: #95a5a6;">No tags</span>';
+
+                const thumbnail = document.getElementById('reviewThumbnail');
+                if (map.thumbnail) {
+                    thumbnail.src = map.thumbnail;
+                } else {
+                    thumbnail.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f0f0f0"/><text x="50%" y="50%" text-anchor="middle" fill="%237f8c8d" font-family="sans-serif" font-size="18">No Preview</text></svg>';
+                }
+
+                // Show password hash for saved maps
+                const passwordDisplay = document.getElementById('passwordDisplay');
+                if (map.password_hash) {
+                    passwordDisplay.textContent = map.password_hash.substring(0, 20) + '...';
+                    passwordDisplay.title = map.password_hash;
+                } else {
+                    passwordDisplay.textContent = 'No password set';
+                }
+
+                const actionsContainer = document.getElementById('actionButtons');
+                actionsContainer.innerHTML = `
+                    <button class="btn-view" onclick="AdminPanel.viewInEditor()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        View in Editor
+                    </button>
+                    <button class="btn-changes" onclick="AdminPanel.resetPassword()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Reset Password
+                    </button>
+                    <button class="btn-cancel" onclick="AdminPanel.closeReview()">Close</button>
+                `;
+
+                document.getElementById('reviewModal').classList.add('active');
             },
 
             clearFilters() {
@@ -1433,16 +1666,30 @@
                     }
 
                     const actionsContainer = document.getElementById('actionButtons');
+
+                    // Check if this is a revision pending approval
+                    const isRevision = sub.parent_map_id != null;
+
                     if (sub.status === 'pending') {
-                        actionsContainer.innerHTML = `
+                        let buttons = `
                             <button class="btn-view" onclick="AdminPanel.viewInEditor()">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 View in Editor
                             </button>
                             <button class="btn-approve" onclick="AdminPanel.approve()">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                                Approve & Publish
-                            </button>
+                                ${isRevision ? 'Approve Revision' : 'Approve & Publish'}
+                            </button>`;
+
+                        if (isRevision) {
+                            buttons += `
+                            <button class="btn-changes" onclick="AdminPanel.approveAndHide()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/><line x1="4" y1="4" x2="20" y2="20" stroke-opacity="0.5"/></svg>
+                                Approve & Hide Original
+                            </button>`;
+                        }
+
+                        buttons += `
                             <button class="btn-changes" onclick="AdminPanel.requestChanges()">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 Request Changes
@@ -1453,12 +1700,31 @@
                             </button>
                             <button class="btn-cancel" onclick="AdminPanel.closeReview()">Cancel</button>
                         `;
+                        actionsContainer.innerHTML = buttons;
                     } else if (sub.status === 'approved') {
+                        // Show WDR info and revision management for approved maps
+                        let wdrInfo = sub.official_wdr ? `
+                            <div class="detail-group" style="margin-bottom: 15px;">
+                                <label>WDR Code</label>
+                                <div class="value" style="font-family: Monaco, Consolas, monospace; font-size: 18px; color: var(--primary);">${sub.official_wdr}</div>
+                            </div>
+                        ` : '';
+
+                        let hideToggle = sub.hide_original ?
+                            `<button class="btn-toggle-hide hidden" onclick="AdminPanel.toggleHide(false)">Unhide Map</button>` :
+                            `<button class="btn-toggle-hide" onclick="AdminPanel.toggleHide(true)">Hide Map</button>`;
+
                         actionsContainer.innerHTML = `
+                            ${wdrInfo}
                             <button class="btn-view" onclick="AdminPanel.viewInEditor()">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 View in Editor
                             </button>
+                            <button class="btn-view" onclick="AdminPanel.viewRevisions()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                View Revisions
+                            </button>
+                            ${hideToggle}
                             <button class="btn-reject" onclick="AdminPanel.unpublish()">Unpublish</button>
                             <button class="btn-cancel" onclick="AdminPanel.closeReview()">Close</button>
                         `;
@@ -1718,6 +1984,126 @@
                     this.showReview(this.currentSubmission.id);
                 } catch (error) {
                     alert('Error resetting password: ' + error.message);
+                }
+            },
+
+            async approveAndHide() {
+                if (!this.currentSubmission) return;
+                if (!confirm('Approve this revision and hide the original map?')) return;
+
+                try {
+                    const response = await fetch(`${window.CONFIG?.API_URL || ''}/api/admin/maps/${this.currentSubmission.id}/approve-revision`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Admin-Password': this.password
+                        },
+                        body: JSON.stringify({ hideOriginal: true })
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error || 'Failed to approve revision');
+                    }
+
+                    const data = await response.json();
+                    alert(`Revision approved!\nWDR: ${data.officialWdr}\nOriginal map has been hidden.`);
+                    this.closeReview();
+                    this.loadDashboard();
+                } catch (error) {
+                    alert('Error approving revision: ' + error.message);
+                }
+            },
+
+            async toggleHide(hide) {
+                if (!this.currentSubmission) return;
+
+                try {
+                    const response = await fetch(`${window.CONFIG?.API_URL || ''}/api/admin/maps/${this.currentSubmission.id}/toggle-hide`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Admin-Password': this.password
+                        },
+                        body: JSON.stringify({ hide })
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error || 'Failed to toggle visibility');
+                    }
+
+                    alert(hide ? 'Map hidden from public view.' : 'Map is now visible to public.');
+                    this.showReview(this.currentSubmission.id);
+                } catch (error) {
+                    alert('Error toggling visibility: ' + error.message);
+                }
+            },
+
+            async viewRevisions() {
+                if (!this.currentSubmission) return;
+
+                try {
+                    const response = await fetch(`${window.CONFIG?.API_URL || ''}/api/admin/maps/${this.currentSubmission.id}/revisions`, {
+                        headers: {
+                            'X-Admin-Password': this.password
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to load revisions');
+                    }
+
+                    const data = await response.json();
+
+                    // Create revisions dialog
+                    const dialog = document.createElement('div');
+                    dialog.className = 'modal';
+                    dialog.id = 'revisionsDialog';
+
+                    let revisionsHtml = '';
+                    if (data.revisions.length === 0) {
+                        revisionsHtml = '<p style="color: #999; text-align: center; padding: 20px;">No revisions found</p>';
+                    } else {
+                        data.revisions.forEach(rev => {
+                            const isCurrent = rev.is_current_revision;
+                            const isHidden = rev.hide_original;
+                            revisionsHtml += `
+                                <div class="revision-item ${isCurrent ? 'current' : ''}">
+                                    <div class="revision-info">
+                                        <div class="rev-number">Revision ${rev.revision_number} ${isCurrent ? '(Current)' : ''} ${isHidden ? '(Hidden)' : ''}</div>
+                                        <div class="rev-date">${this.formatDate(rev.submitted_at || rev.created_at)} - ${rev.status}</div>
+                                    </div>
+                                    <button class="btn-small show" onclick="AdminPanel.closeRevisionsDialog(); AdminPanel.showReview('${rev.id}')">View</button>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    dialog.innerHTML = `
+                        <div class="modal-content" style="max-width: 500px;">
+                            <div class="modal-header">
+                                <h2>Revisions for ${this.currentSubmission.official_wdr || this.currentSubmission.title}</h2>
+                                <button class="close-btn" onclick="AdminPanel.closeRevisionsDialog()">x</button>
+                            </div>
+                            <div style="padding: 20px;">
+                                ${revisionsHtml}
+                            </div>
+                        </div>
+                    `;
+
+                    document.body.appendChild(dialog);
+                    setTimeout(() => dialog.classList.add('active'), 10);
+                } catch (error) {
+                    alert('Error loading revisions: ' + error.message);
+                }
+            },
+
+            closeRevisionsDialog() {
+                const dialog = document.getElementById('revisionsDialog');
+                if (dialog) {
+                    dialog.classList.remove('active');
+                    setTimeout(() => dialog.remove(), 300);
                 }
             }
         };

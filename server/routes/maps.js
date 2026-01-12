@@ -492,4 +492,185 @@ router.get('/:id/verify-password', [
     }
 });
 
-module.exports = router;
+module.exports = router;/**
+ * GET /api/maps/by-wdr/:wdr
+ * Get a map by its official WDR code (for loading approved maps to edit)
+ */
+router.get('/by-wdr/:wdr', [
+    param('wdr').matches(/^WDR-\d{4}$/).withMessage('Invalid WDR format (must be WDR-0000)')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { wdr } = req.params;
+
+        // Get the current revision of this WDR
+        const result = await pool.query(
+            `SELECT
+                id, title, author, author_organization,
+                official_wdr, wdr_status, revision_number,
+                scope_geographic, scope_economic,
+                scope_user_defined, period, diagram_date,
+                diagram_data, thumbnail,
+                is_current_revision, hide_original,
+                published_at
+            FROM community_maps
+            WHERE official_wdr = $1
+              AND is_current_revision = TRUE
+              AND is_public = TRUE
+              AND deleted_at IS NULL
+              AND (hide_original IS NULL OR hide_original = FALSE)`,
+            [wdr]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No published map found with this WDR code'
+            });
+        }
+
+        const map = result.rows[0];
+
+        // Increment view count
+        await pool.query(
+            `UPDATE community_maps SET view_count = view_count + 1 WHERE id = $1`,
+            [map.id]
+        );
+
+        res.json({
+            success: true,
+            map: {
+                id: map.id,
+                title: map.title,
+                author: map.author,
+                authorOrganization: map.author_organization,
+                officialWdr: map.official_wdr,
+                wdrStatus: map.wdr_status,
+                revisionNumber: map.revision_number,
+                scopeGeographic: map.scope_geographic,
+                scopeEconomic: map.scope_economic,
+                scopeUserDefined: map.scope_user_defined,
+                period: map.period,
+                diagramDate: map.diagram_date,
+                diagramData: map.diagram_data,
+                thumbnail: map.thumbnail,
+                publishedAt: map.published_at
+            }
+        });
+    } catch (error) {
+        logger.error('Error fetching map by WDR:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch map'
+        });
+    }
+});
+
+/**
+ * POST /api/maps/:id/submit-revision
+ * Submit a revision to an existing approved map
+ */
+router.post('/:id/submit-revision', [
+    param('id').isUUID().withMessage('Invalid map ID'),
+    body('author').trim().notEmpty().withMessage('Author name is required'),
+    body('authorEmail').isEmail().normalizeEmail().withMessage('Valid email is required'),
+    body('password').isLength({ min: 4 }).withMessage('Password must be at least 4 characters'),
+    body('diagramData').notEmpty().withMessage('Diagram data is required'),
+    body('changeDescription').optional().trim()
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { id } = req.params;
+        const {
+            author,
+            authorEmail,
+            authorOrganization,
+            password,
+            diagramData,
+            thumbnail,
+            changeDescription
+        } = req.body;
+
+        // Verify the parent map exists and is approved
+        const parentResult = await pool.query(
+            `SELECT id, title, official_wdr, status
+            FROM community_maps
+            WHERE id = $1
+              AND status IN ('approved', 'published')
+              AND deleted_at IS NULL`,
+            [id]
+        );
+
+        if (parentResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Original map not found or not approved'
+            });
+        }
+
+        const parent = parentResult.rows[0];
+
+        // Hash the password
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        // Create the revision
+        const result = await pool.query(
+            `INSERT INTO community_maps (
+                title, author, author_email, author_organization,
+                password_hash, diagram_data, thumbnail,
+                parent_map_id, revision_number, is_current_revision,
+                status, wdr, official_wdr
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, 0, FALSE, 'pending', $9, NULL
+            )
+            RETURNING id, submitted_at`,
+            [
+                parent.title + ' (Revision)',
+                author,
+                authorEmail,
+                authorOrganization,
+                passwordHash,
+                JSON.stringify(diagramData),
+                thumbnail,
+                id,
+                parent.official_wdr
+            ]
+        );
+
+        const revisionId = result.rows[0].id;
+
+        // Record in moderation history
+        await pool.query(
+            `INSERT INTO map_moderation_history (map_id, action, notes)
+            VALUES ($1, 'submit_revision', $2)`,
+            [revisionId, changeDescription || 'Revision submitted for approval']
+        );
+
+        logger.info(`Revision submitted for map ${id}: ${revisionId} by ${author}`);
+
+        res.status(201).json({
+            success: true,
+            message: 'Revision submitted and pending approval',
+            revisionId: revisionId,
+            parentMapId: id,
+            parentWdr: parent.official_wdr,
+            submittedAt: result.rows[0].submitted_at
+        });
+    } catch (error) {
+        logger.error('Error submitting revision:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit revision'
+        });
+    }
+});
+
+
