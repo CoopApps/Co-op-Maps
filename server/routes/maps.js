@@ -633,9 +633,10 @@ router.put('/:id/save', [
 
 /**
  * POST /api/maps/my-maps
- * Get all maps for a given password
+ * Get all maps for a given author and password
  */
 router.post('/my-maps', [
+    body('author').notEmpty().withMessage('Author is required'),
     body('password').notEmpty().withMessage('Password is required')
 ], async (req, res) => {
     try {
@@ -644,17 +645,18 @@ router.post('/my-maps', [
             return res.status(400).json({ success: false, errors: errors.array() });
         }
 
-        const { password } = req.body;
+        const { author, password } = req.body;
 
-        // Get all maps
+        // Get maps matching the author (case-insensitive)
         const result = await pool.query(
             `SELECT id, title, password_hash, status, thumbnail, created_at, last_edited_at
             FROM community_maps
-            WHERE deleted_at IS NULL
-            ORDER BY last_edited_at DESC NULLS LAST, created_at DESC`
+            WHERE deleted_at IS NULL AND LOWER(author) = LOWER($1)
+            ORDER BY last_edited_at DESC NULLS LAST, created_at DESC`,
+            [author]
         );
 
-        // Filter maps where password matches
+        // Filter maps where password also matches
         const myMaps = [];
         for (const map of result.rows) {
             const passwordMatch = await comparePassword(password, map.password_hash);

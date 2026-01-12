@@ -328,14 +328,14 @@
             }
         },
 
-        async getMyCloudMaps(password) {
+        async getMyCloudMaps(author, password) {
             try {
                 const response = await fetch(`${this.getApiUrl()}/api/maps/my-maps`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ password: password })
+                    body: JSON.stringify({ author: author, password: password })
                 });
 
                 const result = await response.json();
@@ -385,8 +385,22 @@
                     Load Saved Map
                 </h2>
                 <p style="color: #7f8c8d; margin: 0 0 20px 0; font-size: 14px;">
-                    Enter your password to load your saved map.
+                    Enter your name/organisation and password to find your saved maps.
                 </p>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
+                        Name / Organisation
+                    </label>
+                    <input type="text" id="loadAuthor" placeholder="e.g. John Smith / Acme Co-op" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #ecf0f1;
+                        border-radius: ${isExpress ? '0' : '8px'};
+                        font-size: 14px;
+                        box-sizing: border-box;
+                    ">
+                </div>
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
@@ -441,7 +455,7 @@
             document.body.appendChild(backdrop);
             document.body.appendChild(dialog);
 
-            document.getElementById('loadPassword').focus();
+            document.getElementById('loadAuthor').focus();
 
             const closeDialog = () => {
                 backdrop.remove();
@@ -452,9 +466,16 @@
             backdrop.onclick = closeDialog;
 
             document.getElementById('searchMapsBtn').onclick = async () => {
+                const author = document.getElementById('loadAuthor').value.trim();
                 const password = document.getElementById('loadPassword').value.trim();
                 const errorEl = document.getElementById('loadError');
                 const mapsListEl = document.getElementById('mapsList');
+
+                if (!author) {
+                    errorEl.textContent = 'Please enter your name / organisation';
+                    errorEl.style.display = 'block';
+                    return;
+                }
 
                 if (!password) {
                     errorEl.textContent = 'Please enter a password';
@@ -469,7 +490,7 @@
                 errorEl.style.display = 'none';
 
                 try {
-                    const maps = await this.getMyCloudMaps(password);
+                    const maps = await this.getMyCloudMaps(author, password);
 
                     if (maps.length === 0) {
                         errorEl.textContent = 'No maps found with this password';
