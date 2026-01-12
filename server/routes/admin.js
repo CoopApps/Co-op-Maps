@@ -880,13 +880,10 @@ router.get('/all-maps', [
             offset = 0
         } = req.query;
 
+        // Use SELECT * to avoid issues with columns that may not exist yet
+        // (revision columns are added by migration that may not have run)
         let queryText = `
-            SELECT
-                id, title, author, author_email, author_organization,
-                status, submitted_at, last_edited_at, reviewed_at,
-                is_public, is_featured, view_count, official_wdr,
-                password_hash, edit_token,
-                parent_map_id, revision_number, is_current_revision
+            SELECT *
             FROM community_maps
             WHERE deleted_at IS NULL
         `;
