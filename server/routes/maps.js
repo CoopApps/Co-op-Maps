@@ -99,7 +99,7 @@ router.get('/approved', [
                 ) as tags
             FROM community_maps
             WHERE is_public = TRUE
-              AND status = 'published'
+              AND status IN ('approved', 'published')
               AND deleted_at IS NULL
         `;
 
@@ -136,7 +136,7 @@ router.get('/approved', [
         let countQuery = `
             SELECT COUNT(*) as total
             FROM community_maps
-            WHERE is_public = TRUE AND status = 'published' AND deleted_at IS NULL
+            WHERE is_public = TRUE AND status IN ('approved', 'published') AND deleted_at IS NULL
         `;
         const countParams = [];
         if (search) {
