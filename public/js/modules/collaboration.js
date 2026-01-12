@@ -1015,6 +1015,12 @@
                         return;
                     }
 
+                    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                        errorEl.textContent = 'A valid email address is required';
+                        errorEl.style.display = 'block';
+                        return;
+                    }
+
                     if (!password || password.length < 4) {
                         errorEl.textContent = 'Password must be at least 4 characters';
                         errorEl.style.display = 'block';
