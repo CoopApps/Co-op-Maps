@@ -1221,6 +1221,54 @@
             password: null,
             currentTab: 'pending',
             currentSubmission: null,
+            SESSION_KEY: 'adminSession',
+            SESSION_TIMEOUT: 5 * 60 * 1000, // 5 minutes in milliseconds
+
+            // Initialize - check for existing session
+            init() {
+                const session = this.getSession();
+                if (session) {
+                    this.password = session.password;
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                    this.loadDashboard();
+                }
+            },
+
+            // Save session to sessionStorage with expiry
+            saveSession(password) {
+                const session = {
+                    password: password,
+                    expiry: Date.now() + this.SESSION_TIMEOUT
+                };
+                sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+            },
+
+            // Get session if not expired
+            getSession() {
+                const sessionStr = sessionStorage.getItem(this.SESSION_KEY);
+                if (!sessionStr) return null;
+
+                try {
+                    const session = JSON.parse(sessionStr);
+                    if (Date.now() > session.expiry) {
+                        sessionStorage.removeItem(this.SESSION_KEY);
+                        return null;
+                    }
+                    // Refresh expiry on access
+                    session.expiry = Date.now() + this.SESSION_TIMEOUT;
+                    sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+                    return session;
+                } catch {
+                    sessionStorage.removeItem(this.SESSION_KEY);
+                    return null;
+                }
+            },
+
+            // Clear session
+            clearSession() {
+                sessionStorage.removeItem(this.SESSION_KEY);
+            },
 
             async login(event) {
                 event.preventDefault();
@@ -1229,6 +1277,7 @@
                 try {
                     const response = await CoopMapsAPI.admin.getStats(password);
                     this.password = password;
+                    this.saveSession(password);
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'block';
                     this.loadDashboard();
@@ -1240,10 +1289,8 @@
 
             logout() {
                 this.password = null;
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('dashboard').style.display = 'none';
-                document.getElementById('adminPassword').value = '';
-                document.getElementById('loginError').style.display = 'none';
+                this.clearSession();
+                window.location.href = '/';
             },
 
             async loadDashboard() {
@@ -1689,6 +1736,9 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') AdminPanel.closeReview();
         });
+
+        // Initialize admin panel (check for existing session)
+        AdminPanel.init();
     </script>
 </body>
 </html>
