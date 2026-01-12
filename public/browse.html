@@ -535,6 +535,42 @@
             z-index: 2;
         }
 
+        .wdr-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(39, 174, 96, 0.3);
+            flex-shrink: 0;
+        }
+
+        .wdr-badge svg {
+            width: 12px;
+            height: 12px;
+            stroke-width: 2.5;
+        }
+
+        .map-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .map-title-row .map-title {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 0;
+        }
+
         /* Skeleton Loading */
         .skeleton-card {
             background: white;
@@ -1238,7 +1274,18 @@
                             }
                         </div>
                         <div class="map-info">
-                            <div class="map-title">${escapeHtml(map.title)}</div>
+                            <div class="map-title-row">
+                                <div class="map-title">${escapeHtml(map.title)}</div>
+                                ${map.official_wdr ? `
+                                    <div class="wdr-badge" title="Official World Directory Reference">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                            <polyline points="22 4 12 14.01 9 11.01"/>
+                                        </svg>
+                                        ${escapeHtml(map.official_wdr)}
+                                    </div>
+                                ` : ''}
+                            </div>
                             <div class="map-author">
                                 <span class="author-avatar">
                                     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

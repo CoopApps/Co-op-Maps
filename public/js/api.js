@@ -138,9 +138,9 @@ const CoopMapsAPI = {
         },
 
         /**
-         * Approve submission
+         * Approve submission and assign official WDR
          */
-        async approveSubmission(adminPassword, submissionId, adminNotes = null, notifyAuthor = true) {
+        async approveSubmission(adminPassword, submissionId, adminNotes = null, notifyAuthor = true, customWdr = null) {
             return CoopMapsAPI.request(`/admin/submissions/${submissionId}/approve`, {
                 method: 'POST',
                 headers: {
@@ -148,7 +148,8 @@ const CoopMapsAPI = {
                 },
                 body: JSON.stringify({
                     adminNotes,
-                    notifyAuthor
+                    notifyAuthor,
+                    customWdr
                 })
             });
         },

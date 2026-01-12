@@ -277,12 +277,13 @@ router.get('/submissions/:id', [
 
 /**
  * POST /api/admin/submissions/:id/approve
- * Approve a submission
+ * Approve a submission and assign official WDR number
  */
 router.post('/submissions/:id/approve', [
     validateAdminPassword,
     param('id').isUUID().withMessage('Invalid submission ID'),
     body('adminNotes').optional().trim(),
+    body('customWdr').optional().trim().matches(/^WDR-\d{4}$/).withMessage('Custom WDR must be in format WDR-0000'),
     body('notifyAuthor').optional().isBoolean()
 ], async (req, res) => {
     try {
@@ -292,21 +293,44 @@ router.post('/submissions/:id/approve', [
         }
 
         const { id } = req.params;
-        const { adminNotes, notifyAuthor = true } = req.body;
+        const { adminNotes, customWdr, notifyAuthor = true } = req.body;
 
         const client = await pool.connect();
 
         try {
             await client.query('BEGIN');
 
-            // Update map status
+            // Get the next WDR number (or use custom if provided)
+            let officialWdr;
+            if (customWdr) {
+                // Check if custom WDR is already in use
+                const existingWdr = await client.query(
+                    `SELECT id FROM community_maps WHERE official_wdr = $1`,
+                    [customWdr]
+                );
+                if (existingWdr.rows.length > 0) {
+                    await client.query('ROLLBACK');
+                    return res.status(400).json({
+                        success: false,
+                        message: `WDR ${customWdr} is already assigned to another map`
+                    });
+                }
+                officialWdr = customWdr;
+            } else {
+                // Auto-generate next WDR
+                const wdrResult = await client.query(`SELECT get_next_wdr_number() as wdr`);
+                officialWdr = wdrResult.rows[0].wdr;
+            }
+
+            // Update map status and assign official WDR
             const result = await client.query(
                 `UPDATE community_maps
                 SET status = 'approved', is_public = TRUE, published_at = CURRENT_TIMESTAMP,
-                    admin_notes = $1, reviewed_at = CURRENT_TIMESTAMP
-                WHERE id = $2 AND deleted_at IS NULL AND status = 'pending'
+                    admin_notes = $1, reviewed_at = CURRENT_TIMESTAMP,
+                    official_wdr = $2, wdr_status = 'official'
+                WHERE id = $3 AND deleted_at IS NULL AND status = 'pending'
                 RETURNING *`,
-                [adminNotes, id]
+                [adminNotes, officialWdr, id]
             );
 
             if (result.rows.length === 0) {
@@ -317,11 +341,11 @@ router.post('/submissions/:id/approve', [
                 });
             }
 
-            // Record moderation action
+            // Record moderation action with WDR
             await client.query(
                 `INSERT INTO map_moderation_history (map_id, action, previous_status, new_status, notes)
                 VALUES ($1, 'approve', 'pending', 'approved', $2)`,
-                [id, adminNotes]
+                [id, `Assigned WDR: ${officialWdr}. ${adminNotes || ''}`]
             );
 
             await client.query('COMMIT');
@@ -336,11 +360,12 @@ router.post('/submissions/:id/approve', [
                 }
             }
 
-            logger.info(`Map approved: ${id}`);
+            logger.info(`Map approved with WDR ${officialWdr}: ${id}`);
 
             res.json({
                 success: true,
-                message: 'Submission approved and published',
+                message: `Submission approved and published with ${officialWdr}`,
+                officialWdr: officialWdr,
                 map: result.rows[0]
             });
         } catch (error) {

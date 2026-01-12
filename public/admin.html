@@ -1448,11 +1448,123 @@
 
             async approve() {
                 if (!this.currentSubmission) return;
-                const notes = prompt('Admin notes (optional):');
+
+                // Show approval dialog with WDR options
+                this.showApprovalDialog();
+            },
+
+            showApprovalDialog() {
+                const dialog = document.createElement('div');
+                dialog.className = 'modal';
+                dialog.id = 'approvalDialog';
+                dialog.innerHTML = `
+                    <div class="modal-content" style="max-width: 500px;">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                            <h2>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                                Approve & Assign WDR
+                            </h2>
+                            <button class="close-btn" onclick="AdminPanel.closeApprovalDialog()">×</button>
+                        </div>
+                        <div style="padding: 25px;">
+                            <p style="color: #666; margin-bottom: 20px;">
+                                This map will be assigned an official World Directory Reference number.
+                            </p>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">WDR Assignment</label>
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                    <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer;">
+                                        <input type="radio" name="wdrType" value="auto" checked onchange="AdminPanel.toggleWdrInput()">
+                                        <span>Auto-assign next WDR</span>
+                                    </label>
+                                    <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer;">
+                                        <input type="radio" name="wdrType" value="custom" onchange="AdminPanel.toggleWdrInput()">
+                                        <span>Custom WDR</span>
+                                    </label>
+                                </div>
+                                <input type="text" id="customWdrInput" placeholder="WDR-0000"
+                                    style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: Monaco, Consolas, monospace; font-size: 16px; display: none;"
+                                    pattern="WDR-[0-9]{4}" maxlength="8">
+                                <small style="color: #999; font-size: 12px;" id="wdrHelp">Next available WDR will be assigned automatically</small>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Admin Notes (optional)</label>
+                                <textarea id="approvalNotes" rows="3"
+                                    style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical;"
+                                    placeholder="Internal notes about this approval..."></textarea>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="notifyAuthorCheck" checked>
+                                    <span>Notify author by email</span>
+                                </label>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                <button onclick="AdminPanel.closeApprovalDialog()"
+                                    style="padding: 12px 24px; border: none; background: #e0e0e0; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                    Cancel
+                                </button>
+                                <button onclick="AdminPanel.confirmApproval()"
+                                    style="padding: 12px 24px; border: none; background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                    Approve & Publish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(dialog);
+                setTimeout(() => dialog.classList.add('active'), 10);
+            },
+
+            toggleWdrInput() {
+                const isCustom = document.querySelector('input[name="wdrType"]:checked').value === 'custom';
+                const input = document.getElementById('customWdrInput');
+                const help = document.getElementById('wdrHelp');
+                input.style.display = isCustom ? 'block' : 'none';
+                help.textContent = isCustom ? 'Format: WDR-0000 (4 digits)' : 'Next available WDR will be assigned automatically';
+                if (isCustom) input.focus();
+            },
+
+            closeApprovalDialog() {
+                const dialog = document.getElementById('approvalDialog');
+                if (dialog) {
+                    dialog.classList.remove('active');
+                    setTimeout(() => dialog.remove(), 300);
+                }
+            },
+
+            async confirmApproval() {
+                if (!this.currentSubmission) return;
+
+                const isCustom = document.querySelector('input[name="wdrType"]:checked').value === 'custom';
+                const customWdr = isCustom ? document.getElementById('customWdrInput').value.trim() : null;
+                const notes = document.getElementById('approvalNotes').value.trim() || null;
+                const notifyAuthor = document.getElementById('notifyAuthorCheck').checked;
+
+                // Validate custom WDR format
+                if (isCustom && (!customWdr || !/^WDR-\d{4}$/.test(customWdr))) {
+                    alert('Please enter a valid WDR in format WDR-0000');
+                    return;
+                }
 
                 try {
-                    await CoopMapsAPI.admin.approveSubmission(this.password, this.currentSubmission.id, notes || null, true);
-                    alert('Map approved and published!');
+                    const response = await CoopMapsAPI.admin.approveSubmission(
+                        this.password,
+                        this.currentSubmission.id,
+                        notes,
+                        notifyAuthor,
+                        customWdr
+                    );
+
+                    this.closeApprovalDialog();
+                    alert(`Map approved and published!\n\nAssigned WDR: ${response.officialWdr}`);
                     this.closeReview();
                     this.loadDashboard();
                 } catch (error) {

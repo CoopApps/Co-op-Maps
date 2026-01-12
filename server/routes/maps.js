@@ -66,7 +66,8 @@ router.get('/approved', [
             SELECT
                 id, title, author, author_organization,
                 description,
-                wdr, scope_geographic, scope_economic,
+                wdr, official_wdr, wdr_status,
+                scope_geographic, scope_economic,
                 scope_user_defined, period, diagram_date,
                 thumbnail, is_featured, view_count, fork_count,
                 published_at,
