@@ -91,19 +91,22 @@
                 z-index: 10001;
             `;
 
+            const currentAuthor = CoopMaps.state.data.diagramProperties?.author || '';
+            const currentOrg = CoopMaps.state.data.diagramProperties?.organization || '';
+
             dialog.innerHTML = `
                 <h2 style="margin: 0 0 10px 0; color: #2c3e50; font-size: ${isExpress ? '18px' : '22px'};">
-                    Set Map Password
+                    Save Map
                 </h2>
                 <p style="color: #7f8c8d; margin: 0 0 20px 0; font-size: 14px;">
-                    A password is required to save your map. Share the password with collaborators to allow them to edit.
+                    Enter your details and set a password to save your map.
                 </p>
 
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
-                        Password
+                        Your Name *
                     </label>
-                    <input type="password" id="newPassword" placeholder="Enter password" style="
+                    <input type="text" id="authorName" placeholder="Enter your name" value="${currentAuthor}" style="
                         width: 100%;
                         padding: 12px;
                         border: 2px solid #ecf0f1;
@@ -113,11 +116,40 @@
                     ">
                 </div>
 
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
+                        Organisation *
+                    </label>
+                    <input type="text" id="authorOrg" placeholder="Enter your organisation" value="${currentOrg}" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #ecf0f1;
+                        border-radius: ${isExpress ? '0' : '8px'};
+                        font-size: 14px;
+                        box-sizing: border-box;
+                    ">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
+                        Password *
+                    </label>
+                    <input type="text" id="newPassword" placeholder="Enter password" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #ecf0f1;
+                        border-radius: ${isExpress ? '0' : '8px'};
+                        font-size: 14px;
+                        box-sizing: border-box;
+                    ">
+                    <small style="color: #7f8c8d; font-size: 12px;">Use this password to access and edit your map later</small>
+                </div>
+
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
-                        Confirm Password
+                        Confirm Password *
                     </label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm password" style="
+                    <input type="text" id="confirmPassword" placeholder="Confirm password" style="
                         width: 100%;
                         padding: 12px;
                         border: 2px solid #ecf0f1;
@@ -133,19 +165,6 @@
                     margin-bottom: 15px;
                     display: none;
                 "></div>
-
-                <div style="
-                    background: #fff3cd;
-                    border: 1px solid #ffc107;
-                    padding: 12px;
-                    border-radius: ${isExpress ? '0' : '8px'};
-                    margin-bottom: 20px;
-                    font-size: 13px;
-                    color: #856404;
-                ">
-                    <strong>Important:</strong> Remember this password! Share it with anyone you want to collaborate with.
-                    If you forget it, only a Principle 5 admin can reset it.
-                </div>
 
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
                     <button id="cancelPasswordBtn" style="
@@ -165,21 +184,35 @@
                         border-radius: ${isExpress ? '0' : '8px'};
                         font-weight: 600;
                         cursor: pointer;
-                    ">Set Password & Save</button>
+                    ">Save Map</button>
                 </div>
             `;
 
             document.body.appendChild(backdrop);
             document.body.appendChild(dialog);
 
-            // Focus password field
-            document.getElementById('newPassword').focus();
+            // Focus name field
+            document.getElementById('authorName').focus();
 
             // Handle set password
             document.getElementById('setPasswordBtn').onclick = async () => {
+                const authorName = document.getElementById('authorName').value.trim();
+                const authorOrg = document.getElementById('authorOrg').value.trim();
                 const password = document.getElementById('newPassword').value;
                 const confirm = document.getElementById('confirmPassword').value;
                 const errorEl = document.getElementById('passwordError');
+
+                if (!authorName) {
+                    errorEl.textContent = 'Please enter your name';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                if (!authorOrg) {
+                    errorEl.textContent = 'Please enter your organisation';
+                    errorEl.style.display = 'block';
+                    return;
+                }
 
                 if (!password) {
                     errorEl.textContent = 'Please enter a password';
@@ -199,6 +232,10 @@
                     return;
                 }
 
+                // Store author info in diagram properties
+                CoopMaps.state.data.diagramProperties.author = authorName;
+                CoopMaps.state.data.diagramProperties.organization = authorOrg;
+
                 // Hash and store password
                 const hash = await this.hashPassword(password);
                 CoopMaps.state.data.security = {
@@ -214,7 +251,7 @@
                 dialog.remove();
 
                 if (CoopMaps.showNotification) {
-                    CoopMaps.showNotification('Password set successfully', 'success');
+                    CoopMaps.showNotification('Map saved successfully', 'success');
                 }
 
                 // Pass the password to the callback

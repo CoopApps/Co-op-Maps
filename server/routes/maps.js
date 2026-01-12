@@ -11,6 +11,17 @@ const { pool } = require('../db/connection');
 const logger = require('../utils/logger');
 const { sendMapSubmissionReceivedEmail } = require('../services/emailService');
 
+// Helper to compare passwords - supports both plain text and legacy bcrypt hashes
+async function comparePassword(inputPassword, storedPassword) {
+    if (!storedPassword) return false;
+    // Check if it's a bcrypt hash (starts with $2a$ or $2b$)
+    if (storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2b$')) {
+        return await bcrypt.compare(inputPassword, storedPassword);
+    }
+    // Plain text comparison
+    return inputPassword === storedPassword;
+}
+
 // ============================================================
 // VALIDATION MIDDLEWARE
 // ============================================================
@@ -226,7 +237,7 @@ router.get('/:id', [
         }
 
         // Verify password
-        const passwordMatch = await bcrypt.compare(password, map.password_hash);
+        const passwordMatch = await comparePassword(password, map.password_hash);
         if (!passwordMatch) {
             return res.status(401).json({
                 success: false,
@@ -408,7 +419,7 @@ router.put('/:id/edit', [
         const map = mapResult.rows[0];
 
         // Verify password
-        const passwordMatch = await bcrypt.compare(password, map.password_hash);
+        const passwordMatch = await comparePassword(password, map.password_hash);
         if (!passwordMatch) {
             return res.status(401).json({
                 success: false,
@@ -470,7 +481,7 @@ router.get('/:id/verify-password', [
             });
         }
 
-        const passwordMatch = await bcrypt.compare(password, result.rows[0].password_hash);
+        const passwordMatch = await comparePassword(password, result.rows[0].password_hash);
 
         if (passwordMatch) {
             res.json({
@@ -514,9 +525,7 @@ router.post('/save', [
             thumbnail
         } = req.body;
 
-        // Hash the password
-        const passwordHash = await bcrypt.hash(password, 10);
-
+        // Store password as plain text (so admins can help users who forget it)
         // Insert map as draft
         const result = await pool.query(
             `INSERT INTO community_maps (
@@ -525,7 +534,7 @@ router.post('/save', [
             RETURNING id, created_at`,
             [
                 title,
-                passwordHash,
+                password,
                 JSON.stringify(diagramData),
                 thumbnail,
                 diagramData?.metadata?.author || 'Anonymous',
@@ -589,7 +598,7 @@ router.put('/:id/save', [
         const map = mapResult.rows[0];
 
         // Verify password
-        const passwordMatch = await bcrypt.compare(password, map.password_hash);
+        const passwordMatch = await comparePassword(password, map.password_hash);
         if (!passwordMatch) {
             return res.status(401).json({
                 success: false,
@@ -648,7 +657,7 @@ router.post('/my-maps', [
         // Filter maps where password matches
         const myMaps = [];
         for (const map of result.rows) {
-            const passwordMatch = await bcrypt.compare(password, map.password_hash);
+            const passwordMatch = await comparePassword(password, map.password_hash);
             if (passwordMatch) {
                 myMaps.push({
                     id: map.id,
