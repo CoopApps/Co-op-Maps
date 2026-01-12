@@ -406,7 +406,7 @@
                             cursor: pointer;
                             font-weight: 600;
                             min-width: 120px;
-                        ">📤 Export Timeline</button>
+                        ">Export Timeline</button>
                     </div>
                 </div>
             `;

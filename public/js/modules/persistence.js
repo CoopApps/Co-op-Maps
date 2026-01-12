@@ -1031,7 +1031,7 @@
                             cursor: pointer;
                             font-weight: 600;
                             transition: all 0.3s ease;
-                        ">📤 Submit to Gallery</button>
+                        ">Submit for Approval</button>
                     </div>
 
                     <div class="saved-diagrams">
