@@ -156,6 +156,66 @@
                                 margin-bottom: 8px;
                                 font-weight: 500;
                             ">WDR (Worldwide Diagram Reference)</label>
+                            ${CoopMaps.state.data.officialWdr ? `
+                            <!-- Official WDR Badge for approved maps -->
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                padding: 16px;
+                                background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+                                border: 2px solid #22c55e;
+                                border-radius: 12px;
+                            ">
+                                <div style="
+                                    width: 48px;
+                                    height: 48px;
+                                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+                                ">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="
+                                        font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+                                        font-size: 20px;
+                                        font-weight: 700;
+                                        color: #166534;
+                                        letter-spacing: 1px;
+                                    ">${CoopMaps.state.data.officialWdr}</div>
+                                    <div style="
+                                        font-size: 12px;
+                                        color: #15803d;
+                                        margin-top: 2px;
+                                    ">Official World Directory Reference</div>
+                                </div>
+                                <span style="
+                                    padding: 6px 12px;
+                                    background: #22c55e;
+                                    color: white;
+                                    border-radius: 20px;
+                                    font-size: 11px;
+                                    font-weight: 700;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                ">Approved</span>
+                            </div>
+                            <p style="
+                                font-size: 11px;
+                                color: #15803d;
+                                margin-top: 10px;
+                                line-height: 1.4;
+                                text-align: center;
+                            ">This diagram has been reviewed and approved for the Co-op Maps gallery.</p>
+                            ` : `
+                            <!-- Provisional WDR for unapproved maps -->
                             <div style="
                                 display: flex;
                                 align-items: center;
@@ -170,26 +230,24 @@
                                     background: #f1f5f9;
                                     color: #475569;
                                     font-family: monospace;
-                                ">${metadata.wdrStatus === 'approved' ? metadata.approvedWdr : metadata.wdr || 'Not assigned'}</div>
+                                ">${metadata.wdr || 'Not assigned'}</div>
                                 <span style="
                                     padding: 4px 10px;
                                     border-radius: 12px;
                                     font-size: 11px;
                                     font-weight: 600;
                                     text-transform: uppercase;
-                                    ${metadata.wdrStatus === 'approved'
-                                        ? 'background: #dcfce7; color: #166534;'
-                                        : 'background: #fef3c7; color: #92400e;'}
-                                ">${metadata.wdrStatus === 'approved' ? 'Approved' : 'Provisional'}</span>
+                                    background: #fef3c7;
+                                    color: #92400e;
+                                ">Provisional</span>
                             </div>
                             <p style="
                                 font-size: 11px;
                                 color: #94a3b8;
                                 margin-top: 8px;
                                 line-height: 1.4;
-                            ">${metadata.wdrStatus === 'approved'
-                                ? 'This diagram has been approved and assigned an official WDR.'
-                                : 'This provisional reference will be replaced with an official WDR once the diagram is approved after submission.'}</p>
+                            ">This provisional reference will be replaced with an official WDR once the diagram is approved after submission.</p>
+                            `}
                         </div>
                     </div>
 

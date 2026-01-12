@@ -199,6 +199,8 @@ router.get('/:id', [
                     author: map.author,
                     authorOrganization: map.author_organization,
                     wdr: map.wdr,
+                    officialWdr: map.official_wdr,
+                    wdrStatus: map.wdr_status,
                     scopeGeographic: map.scope_geographic,
                     scopeEconomic: map.scope_economic,
                     scopeUserDefined: map.scope_user_defined,
@@ -242,6 +244,8 @@ router.get('/:id', [
                 authorEmail: map.author_email,
                 authorOrganization: map.author_organization,
                 wdr: map.wdr,
+                officialWdr: map.official_wdr,
+                wdrStatus: map.wdr_status,
                 scopeGeographic: map.scope_geographic,
                 scopeEconomic: map.scope_economic,
                 scopeUserDefined: map.scope_user_defined,
@@ -250,8 +254,10 @@ router.get('/:id', [
                 diagramData: map.diagram_data,
                 thumbnail: map.thumbnail,
                 status: map.status,
+                isPublic: map.is_public,
                 submittedAt: map.submitted_at,
-                lastEditedAt: map.last_edited_at
+                lastEditedAt: map.last_edited_at,
+                publishedAt: map.published_at
             }
         });
     } catch (error) {

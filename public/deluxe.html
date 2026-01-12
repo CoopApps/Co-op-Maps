@@ -49,6 +49,27 @@
             font-size: 20px;
             font-weight: 600;
         }
+        .header-wdr-badge {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 12px;
+            box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+        }
+        .header-wdr-badge.visible {
+            display: inline-flex;
+        }
+        .header-wdr-badge svg {
+            width: 14px;
+            height: 14px;
+        }
         .header input::placeholder {
             color: rgba(255, 255, 255, 0.5);
         }
@@ -569,6 +590,13 @@
             <span style="font-size: 14px; font-weight: 500;">Home</span>
         </a>
         <h1>Co-op Maps v1.0 - Deluxe Edition</h1>
+        <span id="headerWdrBadge" class="header-wdr-badge" title="Official World Directory Reference">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span id="headerWdrNumber"></span>
+        </span>
         <div style="flex: 1;"></div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <!-- Zoom Controls -->
@@ -1661,6 +1689,19 @@
                             const header = document.querySelector('.header h1');
                             if (header) {
                                 header.textContent = 'Co-op Maps - ' + mapData.title;
+                            }
+
+                            // Display WDR badge if map has official WDR
+                            const wdrBadge = document.getElementById('headerWdrBadge');
+                            const wdrNumber = document.getElementById('headerWdrNumber');
+                            if (wdrBadge && wdrNumber && mapData.officialWdr) {
+                                wdrNumber.textContent = mapData.officialWdr;
+                                wdrBadge.classList.add('visible');
+                                // Store WDR in state for exports
+                                this.state.data.officialWdr = mapData.officialWdr;
+                            } else if (wdrBadge) {
+                                wdrBadge.classList.remove('visible');
+                                this.state.data.officialWdr = null;
                             }
 
                             this.showNotification('Map loaded successfully!', 'success');

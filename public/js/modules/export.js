@@ -295,10 +295,23 @@
         ${this.escapeXml(metadata.title || 'Co-op Diagram')}
     </text>`;
 
+                // Add official WDR badge if approved
+                const officialWdr = CoopMaps.state.data.officialWdr;
+                if (officialWdr) {
+                    svg += `
+    <g transform="translate(${canvas.width/2 - 60}, 60)">
+        <rect x="0" y="0" width="120" height="28" rx="4" fill="#22c55e"/>
+        <text x="60" y="18" font-family="Monaco, Consolas, monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="white">
+            ${this.escapeXml(officialWdr)}
+        </text>
+    </g>`;
+                }
+
                 // Add date if present
+                const dateYOffset = officialWdr ? 100 : 80;
                 if (metadata.date) {
                     svg += `
-    <text x="${canvas.width/2}" y="80"
+    <text x="${canvas.width/2}" y="${dateYOffset}"
           font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
           font-size="14" text-anchor="middle" fill="#7f8c8d">
         ${this.escapeXml(metadata.date)}
@@ -306,9 +319,10 @@
                 }
 
                 // Add author if present
+                const authorYOffset = officialWdr ? 115 : 95;
                 if (metadata.author) {
                     svg += `
-    <text x="${canvas.width/2}" y="95"
+    <text x="${canvas.width/2}" y="${metadata.date ? authorYOffset : dateYOffset}"
           font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
           font-size="12" text-anchor="middle" fill="#95a5a6">
         by ${this.escapeXml(metadata.author)}
@@ -443,9 +457,17 @@
                 // Left footer - page number
                 pdf.text('Page 1 of 1', margin, pageHeight - 5);
 
-                // Center footer - WDR if present
-                if (metadata.wdr) {
-                    pdf.text(`WDR: ${metadata.wdr}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
+                // Center footer - Official WDR (preferred) or provisional WDR
+                const officialWdr = CoopMaps.state.data.officialWdr;
+                if (officialWdr) {
+                    // Official approved WDR - display prominently
+                    pdf.setTextColor(34, 197, 94); // Green color
+                    pdf.setFontSize(11);
+                    pdf.text(`${officialWdr}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
+                    pdf.setTextColor(150, 150, 150);
+                    pdf.setFontSize(9);
+                } else if (metadata.wdr) {
+                    pdf.text(`WDR: ${metadata.wdr} (Provisional)`, pageWidth / 2, pageHeight - 5, { align: 'center' });
                 }
 
                 // Right footer - created with

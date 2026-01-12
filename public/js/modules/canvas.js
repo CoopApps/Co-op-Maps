@@ -58,7 +58,10 @@
             this.initFullscreenListener();
 
             this.bindCanvasEvents();
-            this.setupDragAndDrop();
+            // Only enable drag-and-drop in Deluxe mode (not Express)
+            if (!CoopMaps.isExpressMode) {
+                this.setupDragAndDrop();
+            }
             this.setupKeyboardShortcuts();
 
             // Add resize listener to keep canvas fitting the viewport
@@ -1033,6 +1036,42 @@
                 this.ctx.font = `${authorFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
                 this.ctx.fillStyle = '#95a5a6';
                 this.ctx.fillText('by ' + CoopMaps.state.data.diagramProperties.author, titleX, subtitleY + authorSpacing);
+            }
+
+            // Draw Official WDR badge if approved
+            const officialWdr = CoopMaps.state.data.officialWdr;
+            if (officialWdr) {
+                const wdrFontSize = Math.round(14 * scale);
+                const wdrBadgeWidth = Math.round(120 * scale);
+                const wdrBadgeHeight = Math.round(28 * scale);
+                const wdrBadgeRadius = Math.round(4 * scale);
+
+                // Position below author/date
+                let wdrY = subtitleY;
+                if (CoopMaps.state.data.diagramProperties.date) {
+                    wdrY += authorSpacing;
+                }
+                if (CoopMaps.state.data.diagramProperties.author) {
+                    wdrY += authorSpacing;
+                }
+                wdrY += Math.round(15 * scale);
+
+                // Draw green badge background
+                this.ctx.fillStyle = '#22c55e';
+                this.drawRoundedRect(
+                    titleX - wdrBadgeWidth / 2,
+                    wdrY - wdrBadgeHeight / 2,
+                    wdrBadgeWidth,
+                    wdrBadgeHeight,
+                    wdrBadgeRadius
+                );
+                this.ctx.fill();
+
+                // Draw WDR text
+                this.ctx.font = `bold ${wdrFontSize}px Monaco, Consolas, monospace`;
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.shadowColor = 'transparent';
+                this.ctx.fillText(officialWdr, titleX, wdrY);
             }
 
             this.ctx.restore();

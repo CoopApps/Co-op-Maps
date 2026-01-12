@@ -35,6 +35,64 @@
             font-weight: bold;
             margin-left: 10px;
         }
+        .header-wdr-badge {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            background: #27ae60;
+            color: white;
+            padding: 3px 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+            border: 1px solid #1e8449;
+        }
+        .header-wdr-badge.visible {
+            display: inline-flex;
+        }
+        .header-nav {
+            margin-left: auto;
+            display: flex;
+            gap: 5px;
+        }
+        .header-nav-btn {
+            background: #34495e;
+            color: white;
+            border: 1px solid #2c3e50;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .header-nav-btn:hover {
+            background: #3d566e;
+        }
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            padding: 10px 15px;
+            border: 2px solid;
+            font-size: 12px;
+            z-index: 3000;
+            max-width: 300px;
+        }
+        .notification.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .notification.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .notification.info {
+            background: #cce5ff;
+            border-color: #004085;
+            color: #004085;
+        }
 
         /* Container */
         .container {
@@ -264,6 +322,13 @@
     <div class="header">
         <button class="home-btn" onclick="window.location.href='index.html'">← Home</button>
         <h1>Co-op Maps v1.0 - Express Edition</h1>
+        <span id="headerWdrBadge" class="header-wdr-badge" title="Official World Directory Reference">
+            ✓ <span id="headerWdrNumber"></span>
+        </span>
+        <div class="header-nav">
+            <button class="header-nav-btn" onclick="window.location.href='browse.html'">Browse Gallery</button>
+            <button class="header-nav-btn" onclick="window.location.href='deluxe.html'">Deluxe Edition</button>
+        </div>
     </div>
 
     <!-- Main Container -->
@@ -455,6 +520,24 @@
 
             generateId() {
                 return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            },
+
+            showNotification(message, type = 'info') {
+                // Remove existing notification
+                const existing = document.querySelector('.notification');
+                if (existing) existing.remove();
+
+                const notification = document.createElement('div');
+                notification.className = 'notification ' + type;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 3000);
             },
 
             saveState() {
@@ -804,6 +887,19 @@
                             const header = document.querySelector('.header h1');
                             if (header) {
                                 header.textContent = 'Co-op Maps Express - ' + mapData.title;
+                            }
+
+                            // Display WDR badge if map has official WDR
+                            const wdrBadge = document.getElementById('headerWdrBadge');
+                            const wdrNumber = document.getElementById('headerWdrNumber');
+                            if (wdrBadge && wdrNumber && mapData.officialWdr) {
+                                wdrNumber.textContent = mapData.officialWdr;
+                                wdrBadge.classList.add('visible');
+                                // Store WDR in state for exports
+                                this.state.data.officialWdr = mapData.officialWdr;
+                            } else if (wdrBadge) {
+                                wdrBadge.classList.remove('visible');
+                                this.state.data.officialWdr = null;
                             }
 
                             console.log('Map loaded successfully');
