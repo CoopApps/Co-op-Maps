@@ -694,7 +694,7 @@
             const payload = {
                 title: props.title || 'Untitled Map',
                 author: props.author || 'Anonymous',
-                authorEmail: props.authorEmail || '',
+                authorEmail: props.authorEmail || null,
                 authorOrganization: props.organization || '',
                 password: password,
                 diagramData: diagramData,
@@ -707,6 +707,8 @@
                 diagramDate: props.diagramDate || null,
                 tags: props.tags || []
             };
+
+            console.log('Submitting map with payload:', { ...payload, password: '[HIDDEN]', diagramData: '[DATA]', thumbnail: '[IMAGE]' });
 
             try {
                 let response;
@@ -742,6 +744,11 @@
                 const data = await response.json();
 
                 if (!response.ok) {
+                    console.error('Submit failed:', data);
+                    if (data.errors && Array.isArray(data.errors)) {
+                        const errorMessages = data.errors.map(e => e.msg || e.message).join(', ');
+                        throw new Error(errorMessages || 'Validation failed');
+                    }
                     throw new Error(data.message || 'Failed to save map');
                 }
 
