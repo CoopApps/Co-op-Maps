@@ -7,19 +7,24 @@ const logger = require('../utils/logger');
 
 let poolConfig;
 
+// Prefer DATABASE_PUBLIC_URL if available (fixes Railway internal networking issues)
+const databaseUrl = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
+
 // Log available database environment variables for debugging
 logger.info('Database config check:', {
+    hasDATABASE_PUBLIC_URL: !!process.env.DATABASE_PUBLIC_URL,
     hasDATABASE_URL: !!process.env.DATABASE_URL,
     hasPGHOST: !!process.env.PGHOST,
     hasPGUSER: !!process.env.PGUSER,
-    DATABASE_URL_preview: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 30) + '...' : 'not set'
+    usingPublicUrl: !!process.env.DATABASE_PUBLIC_URL,
+    DATABASE_URL_preview: databaseUrl ? databaseUrl.substring(0, 30) + '...' : 'not set'
 });
 
-if (process.env.DATABASE_URL) {
+if (databaseUrl) {
     // Use connection string (Railway, Heroku, etc.)
-    logger.info('Using DATABASE_URL connection string');
+    logger.info('Using DATABASE_URL connection string', { isPublic: !!process.env.DATABASE_PUBLIC_URL });
     poolConfig = {
-        connectionString: process.env.DATABASE_URL,
+        connectionString: databaseUrl,
         ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
