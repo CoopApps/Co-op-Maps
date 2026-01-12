@@ -1165,7 +1165,7 @@
 
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">
-                            Email Address *
+                            Email Address (optional)
                         </label>
                         <input type="email" id="submitMapEmail" placeholder="your@email.com" style="
                             width: 100%;
@@ -1176,6 +1176,21 @@
                             box-sizing: border-box;
                         ">
                         <small style="color: #95a5a6; font-size: 12px;">We'll notify you when your map is reviewed</small>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">
+                            Password *
+                        </label>
+                        <input type="text" id="submitMapPassword" placeholder="At least 4 characters" style="
+                            width: 100%;
+                            padding: 10px;
+                            border: ${CoopMaps.isExpressMode ? '2px inset #bdc3c7' : '1px solid #ddd'};
+                            ${CoopMaps.isExpressMode ? '' : 'border-radius: 8px;'}
+                            font-size: 14px;
+                            box-sizing: border-box;
+                        ">
+                        <small style="color: #95a5a6; font-size: 12px;">You'll need this to edit your map later</small>
                     </div>
 
                     <div style="margin-bottom: 15px;">
@@ -1290,10 +1305,6 @@
                 alert('Please enter your name or organization');
                 return;
             }
-            if (!email || !email.includes('@')) {
-                alert('Please enter a valid email address');
-                return;
-            }
 
             // Parse tags
             const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
@@ -1301,11 +1312,19 @@
             // Generate thumbnail
             const thumbnail = this.generateThumbnail();
 
+            // Get password from the form
+            const password = document.getElementById('submitMapPassword')?.value?.trim();
+            if (!password || password.length < 4) {
+                alert('Password must be at least 4 characters');
+                return;
+            }
+
             // Prepare submission data
             const mapData = {
                 title: title,
                 author: author,
-                email: email,
+                authorEmail: email || null,
+                password: password,
                 description: description || '',
                 tags: tags,
                 thumbnail: thumbnail,
