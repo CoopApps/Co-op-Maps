@@ -269,22 +269,51 @@
             animation: slideUp 0.5s ease-out both;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        .stat-card.pending::before { background: linear-gradient(90deg, var(--warning), #e67e22); }
-        .stat-card.approved::before { background: linear-gradient(90deg, var(--success), #219a52); }
-        .stat-card.rejected::before { background: linear-gradient(90deg, var(--danger), #c0392b); }
-        .stat-card.views::before { background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+        .stat-card .stat-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .stat-card.pending .stat-icon {
+            background: rgba(243, 156, 18, 0.12);
+        }
+        .stat-card.pending .stat-icon svg { stroke: var(--warning); }
+
+        .stat-card.approved .stat-icon {
+            background: rgba(39, 174, 96, 0.12);
+        }
+        .stat-card.approved .stat-icon svg { stroke: var(--success); }
+
+        .stat-card.rejected .stat-icon {
+            background: rgba(231, 76, 60, 0.12);
+        }
+        .stat-card.rejected .stat-icon svg { stroke: var(--danger); }
+
+        .stat-card.views .stat-icon {
+            background: rgba(102, 126, 234, 0.12);
+        }
+        .stat-card.views .stat-icon svg { stroke: var(--primary); }
+
+        .stat-content {
+            flex: 1;
+        }
 
         .stat-card h3 {
             font-size: 13px;
@@ -878,7 +907,18 @@
             }
 
             .stat-card {
-                padding: 18px;
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .stat-card .stat-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .stat-card .stat-icon svg {
+                width: 20px;
+                height: 20px;
             }
 
             .stat-card h3 {
@@ -886,7 +926,7 @@
             }
 
             .stat-card .value {
-                font-size: 28px;
+                font-size: 24px;
             }
 
             .submission-item {
@@ -1047,20 +1087,40 @@
             <!-- Stats Grid -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card pending">
-                    <h3>Pending Review</h3>
-                    <div class="value" id="statPending">-</div>
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Pending Review</h3>
+                        <div class="value" id="statPending">-</div>
+                    </div>
                 </div>
                 <div class="stat-card approved">
-                    <h3>Approved Maps</h3>
-                    <div class="value" id="statApproved">-</div>
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Approved Maps</h3>
+                        <div class="value" id="statApproved">-</div>
+                    </div>
                 </div>
                 <div class="stat-card rejected">
-                    <h3>Rejected</h3>
-                    <div class="value" id="statRejected">-</div>
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Rejected</h3>
+                        <div class="value" id="statRejected">-</div>
+                    </div>
                 </div>
                 <div class="stat-card views">
-                    <h3>Total Views</h3>
-                    <div class="value" id="statViews">-</div>
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total Views</h3>
+                        <div class="value" id="statViews">-</div>
+                    </div>
                 </div>
             </div>
 
@@ -1231,8 +1291,8 @@
                     const response = await CoopMapsAPI.admin.getSubmissions(this.password, {
                         status,
                         search: search || undefined,
-                        sort: 'created_at',
-                        order: 'DESC',
+                        sort: 'submitted_at',
+                        order: 'desc',
                         limit: 50
                     });
 
