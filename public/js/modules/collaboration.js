@@ -217,7 +217,8 @@
                     CoopMaps.showNotification('Password set successfully', 'success');
                 }
 
-                if (onSuccess) onSuccess();
+                // Pass the password to the callback
+                if (onSuccess) onSuccess(password);
             };
 
             // Handle cancel (does NOT save - password is mandatory)
