@@ -546,9 +546,10 @@ router.post('/save', [
         });
     } catch (error) {
         logger.error('Error saving draft map:', error);
+        logger.error('Error details:', error.message, error.stack);
         res.status(500).json({
             success: false,
-            message: 'Failed to save map'
+            message: 'Failed to save map: ' + error.message
         });
     }
 });
