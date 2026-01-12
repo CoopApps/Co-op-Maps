@@ -23,6 +23,11 @@
 
         // Get API URL
         getApiUrl() {
+            // Use CoopMapsConfig.API_BASE_URL but strip /api since it's included in fetch calls
+            if (window.CoopMapsConfig?.API_BASE_URL) {
+                // API_BASE_URL ends with /api, so return origin only
+                return window.CoopMapsConfig.API_BASE_URL.replace(/\/api$/, '');
+            }
             return window.CONFIG?.API_URL || '';
         },
 
@@ -144,6 +149,8 @@
         // ============================================================
 
         async saveToCloud(title, password) {
+            console.log('saveToCloud called with title:', title, 'password length:', password?.length);
+
             const thumbnail = this.generateThumbnail();
             const diagramData = {
                 enterprises: CoopMaps.state.data.enterprises,
@@ -159,8 +166,12 @@
                 }
             };
 
+            const apiUrl = this.getApiUrl();
+            console.log('API URL:', apiUrl);
+            console.log('Full save URL:', `${apiUrl}/api/maps/save`);
+
             try {
-                const response = await fetch(`${this.getApiUrl()}/api/maps/save`, {
+                const response = await fetch(`${apiUrl}/api/maps/save`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -412,13 +423,20 @@
         },
 
         saveAsNewDiagram() {
+            console.log('saveAsNewDiagram called');
             const name = prompt('Enter a name for this diagram:',
                 CoopMaps.state.data.diagramProperties.title || 'My Diagram');
 
-            if (!name) return;
+            if (!name) {
+                console.log('User cancelled name prompt');
+                return;
+            }
+
+            console.log('Diagram name:', name);
 
             // Always require password for cloud save
             const doCloudSave = (password) => {
+                console.log('doCloudSave callback triggered, password length:', password?.length);
                 this.saveToCloud(name, password)
                     .then(() => {
                         CoopMaps.state.data.diagramProperties.title = name;
