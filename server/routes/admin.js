@@ -5,10 +5,16 @@
 
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { body, param, query, validationResult } = require('express-validator');
 const { pool } = require('../db/connection');
 const logger = require('../utils/logger');
+const {
+    sendMapApprovedEmail,
+    sendMapRejectedEmail,
+    sendMapChangesRequestedEmail,
+    sendMapUnpublishedEmail
+} = require('../services/emailService');
 
 // ============================================================
 // ADMIN AUTHENTICATION MIDDLEWARE
@@ -318,9 +324,17 @@ router.post('/submissions/:id/approve', [
                 [id, adminNotes]
             );
 
-            // TODO: Send notification email if notifyAuthor is true
-
             await client.query('COMMIT');
+
+            // Send notification email if requested
+            if (notifyAuthor && result.rows[0].author_email) {
+                try {
+                    await sendMapApprovedEmail(result.rows[0]);
+                    logger.info(`Approval email queued for map: ${id}`);
+                } catch (emailError) {
+                    logger.error('Failed to queue approval email:', emailError);
+                }
+            }
 
             logger.info(`Map approved: ${id}`);
 
@@ -395,9 +409,17 @@ router.post('/submissions/:id/request-changes', [
                 [id, message]
             );
 
-            // TODO: Send notification email to author
-
             await client.query('COMMIT');
+
+            // Send notification email to author
+            if (result.rows[0].author_email) {
+                try {
+                    await sendMapChangesRequestedEmail(result.rows[0], message, checklist);
+                    logger.info(`Changes requested email queued for map: ${id}`);
+                } catch (emailError) {
+                    logger.error('Failed to queue changes requested email:', emailError);
+                }
+            }
 
             logger.info(`Changes requested for map: ${id}`);
 
@@ -445,6 +467,22 @@ router.post('/submissions/:id/reject', [
         try {
             await client.query('BEGIN');
 
+            // Get map data first (for email notification)
+            const mapResult = await client.query(
+                `SELECT id, title, author, author_email FROM community_maps WHERE id = $1 AND deleted_at IS NULL`,
+                [id]
+            );
+
+            if (mapResult.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({
+                    success: false,
+                    message: 'Submission not found'
+                });
+            }
+
+            const mapData = mapResult.rows[0];
+
             if (deleteMap) {
                 // Soft delete the map
                 await client.query(
@@ -474,9 +512,17 @@ router.post('/submissions/:id/reject', [
                 [id, reason, message]
             );
 
-            // TODO: Send notification email to author
-
             await client.query('COMMIT');
+
+            // Send notification email to author
+            if (mapData.author_email) {
+                try {
+                    await sendMapRejectedEmail(mapData, reason, message);
+                    logger.info(`Rejection email queued for map: ${id}`);
+                } catch (emailError) {
+                    logger.error('Failed to queue rejection email:', emailError);
+                }
+            }
 
             logger.info(`Map rejected: ${id} (deleted: ${deleteMap})`);
 
@@ -546,9 +592,17 @@ router.post('/maps/:id/unpublish', [
                 [id, reason]
             );
 
-            // TODO: Send notification email if notifyAuthor is true
-
             await client.query('COMMIT');
+
+            // Send notification email if requested
+            if (notifyAuthor && result.rows[0].author_email) {
+                try {
+                    await sendMapUnpublishedEmail(result.rows[0], reason);
+                    logger.info(`Unpublish email queued for map: ${id}`);
+                } catch (emailError) {
+                    logger.error('Failed to queue unpublish email:', emailError);
+                }
+            }
 
             logger.info(`Map unpublished: ${id}`);
 

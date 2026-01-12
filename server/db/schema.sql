@@ -159,7 +159,7 @@ CREATE INDEX idx_enterprises_diagram_id ON enterprises(diagram_id);
 CREATE INDEX idx_enterprises_diagram_enterprise ON enterprises(diagram_id, enterprise_id);
 CREATE INDEX idx_relationships_diagram_id ON relationships(diagram_id);
 CREATE INDEX idx_diagram_versions_diagram_id ON diagram_versions(diagram_id, version_number DESC);
-CREATE INDEX idx_collaborators_diagram_id ON collaborators(diagram_id);
+CREATE INDEX idx_collaborators_diagram_id ON diagram_collaborators(diagram_id);
 CREATE INDEX idx_collaborators_user_id ON diagram_collaborators(user_id);
 
 -- Trigger to update updated_at timestamp

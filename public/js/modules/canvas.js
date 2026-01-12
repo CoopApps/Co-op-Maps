@@ -763,7 +763,9 @@
                 const note = annotations[i];
                 if (x >= note.x && x <= note.x + note.width &&
                     y >= note.y && y <= note.y + note.height) {
-                    return { ...note, type: 'annotation' };
+                    // Return actual reference, not a copy, so dragging updates the real object
+                    note.type = 'annotation';
+                    return note;
                 }
             }
 
@@ -1190,6 +1192,7 @@
             };
 
             // Function to draw the base shape
+            // Each enterprise type now has a distinct shape
             const drawBaseShape = (ctx, x, y, width, height, options) => {
                 switch (enterprise.type) {
                     case 'cooperative':
@@ -1197,20 +1200,36 @@
                         shapes.drawRectangle(ctx, x, y, width, height, options);
                         break;
                     case 'ncm':
-                    case 'community':
+                        // NCM: Rounded rectangle with bottom curve
                         shapes.drawRoundedRectangle(ctx, x, y, width, height, 15, options);
                         break;
+                    case 'community':
+                        // Community Org: Octagon (distinct from NCM)
+                        shapes.drawOctagon(ctx, x, y, width, height, options);
+                        break;
                     case 'social':
-                    case 'charity':
+                        // Social Enterprise: Pill/capsule shape (yellow)
                         shapes.drawPill(ctx, x, y, width, height, options);
                         break;
+                    case 'charity':
+                        // Charity: Trapezoid (distinct from social)
+                        shapes.drawTrapezoid(ctx, x, y, width, height, options);
+                        break;
                     case 'private':
-                    case 'partnership':
+                        // Private Enterprise: Ellipse
                         shapes.drawEllipse(ctx, x, y, width, height, options);
                         break;
+                    case 'partnership':
+                        // Partnership: Parallelogram (distinct from private)
+                        shapes.drawParallelogram(ctx, x, y, width, height, options);
+                        break;
                     case 'state':
-                    case 'public':
+                        // State Enterprise: Diamond
                         shapes.drawDiamond(ctx, x, y, width, height, options);
+                        break;
+                    case 'public':
+                        // Public Enterprise: Hexagon (distinct from state)
+                        shapes.drawHexagon(ctx, x, y, width, height, options);
                         break;
                 }
             };

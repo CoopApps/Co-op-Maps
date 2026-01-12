@@ -963,61 +963,64 @@
             this.drawFlowArrows(ctx, path, relationships[0].flowDirection, relationships[0].type);
         },
 
-        calculateOrthogonalPath(startEnt, endEnt, isBidirectional) {
+        calculateOrthogonalPath(startEnt, endEnt, isBidirectional, isBackward = false) {
             // Get connection points
             const start = this.getConnectionPoint(startEnt, endEnt, 'start');
             const end = this.getConnectionPoint(endEnt, startEnt, 'end');
 
-            // Apply offset for bidirectional relationships
-            let offsetStart = start;
-            let offsetEnd = end;
-
-            if (isBidirectional) {
-                const OFFSET = 40;
-                const refStart = startEnt.id < endEnt.id ? startEnt : endEnt;
-                const isForward = (startEnt.id === refStart.id);
-
-                const dx = end.x - start.x;
-                const dy = end.y - start.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                const perpX = -dy / distance;
-                const perpY = dx / distance;
-
-                const offsetMult = isForward ? -1 : 1;
-
-                offsetStart = {
-                    x: start.x + perpX * OFFSET * offsetMult,
-                    y: start.y + perpY * OFFSET * offsetMult
-                };
-
-                offsetEnd = {
-                    x: end.x + perpX * OFFSET * offsetMult,
-                    y: end.y + perpY * OFFSET * offsetMult
-                };
-            }
-
-            // Simple orthogonal routing with 2 segments
+            // For bidirectional, we need to route the paths differently
+            // One goes "up/left" first, the other goes "down/right" first
             const path = [];
-            path.push(offsetStart);
+            path.push(start);
 
-            // Determine routing direction based on relative positions
-            const dx = offsetEnd.x - offsetStart.x;
-            const dy = offsetEnd.y - offsetStart.y;
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
 
-            if (Math.abs(dx) > Math.abs(dy)) {
-                // Horizontal first
-                const midX = offsetStart.x + dx / 2;
-                path.push({ x: midX, y: offsetStart.y });
-                path.push({ x: midX, y: offsetEnd.y });
+            if (!isBidirectional) {
+                // Single direction - simple orthogonal routing
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // Horizontal first
+                    const midX = start.x + dx / 2;
+                    path.push({ x: midX, y: start.y });
+                    path.push({ x: midX, y: end.y });
+                } else {
+                    // Vertical first
+                    const midY = start.y + dy / 2;
+                    path.push({ x: start.x, y: midY });
+                    path.push({ x: end.x, y: midY });
+                }
             } else {
-                // Vertical first
-                const midY = offsetStart.y + dy / 2;
-                path.push({ x: offsetStart.x, y: midY });
-                path.push({ x: offsetEnd.x, y: midY });
+                // Bidirectional - use different routing for each direction
+                // Determine which direction this is based on enterprise IDs
+                const refStart = startEnt.id < endEnt.id ? startEnt : endEnt;
+                const isForwardDirection = (startEnt.id === refStart.id);
+
+                const OFFSET = 30; // Offset for the bend
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // Primarily horizontal relationship
+                    // Forward goes up, backward goes down
+                    const bendOffset = isForwardDirection ? -OFFSET : OFFSET;
+                    const midX = start.x + dx / 2;
+
+                    path.push({ x: start.x, y: start.y + bendOffset });
+                    path.push({ x: midX, y: start.y + bendOffset });
+                    path.push({ x: midX, y: end.y + bendOffset });
+                    path.push({ x: end.x, y: end.y + bendOffset });
+                } else {
+                    // Primarily vertical relationship
+                    // Forward goes left, backward goes right
+                    const bendOffset = isForwardDirection ? -OFFSET : OFFSET;
+                    const midY = start.y + dy / 2;
+
+                    path.push({ x: start.x + bendOffset, y: start.y });
+                    path.push({ x: start.x + bendOffset, y: midY });
+                    path.push({ x: end.x + bendOffset, y: midY });
+                    path.push({ x: end.x + bendOffset, y: end.y });
+                }
             }
 
-            path.push(offsetEnd);
+            path.push(end);
 
             // Optimize path by removing redundant points
             return this.optimizePath(path);
@@ -1061,48 +1064,214 @@
             const dy = toCenterY - fromCenterY;
             const angle = Math.atan2(dy, dx);
 
-            // Account for participation/tier indicators
-            const indicatorOffset = 13; // Space for indicators
+            // Get intersection point based on shape type
+            const point = this.getShapeIntersection(fromEnt, angle);
 
-            // Calculate adjusted bounds
-            let left = fromEnt.x - indicatorOffset;
-            let right = fromEnt.x + fromEnt.width;
-            let top = fromEnt.y - indicatorOffset;
-            let bottom = fromEnt.y + fromEnt.height;
+            return point;
+        },
 
-            // For NCM, extend bottom
-            if (fromEnt.enterpriseType === 'ncm') {
-                bottom += fromEnt.height * 0.2;
-            }
+        // Calculate the intersection point of a ray from center at given angle with the shape border
+        getShapeIntersection(ent, angle) {
+            const centerX = ent.x + ent.width / 2;
+            const centerY = ent.y + ent.height / 2;
+            const halfW = ent.width / 2;
+            const halfH = ent.height / 2;
 
-            // Determine which edge to connect to based on angle
             let x, y;
 
-            if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
-                // Connect to left or right edge
-                if (dx > 0) {
-                    // Right edge
-                    x = right;
-                    y = fromCenterY;
-                } else {
-                    // Left edge
-                    x = left;
-                    y = fromCenterY;
-                }
-            } else {
-                // Connect to top or bottom edge
-                if (dy > 0) {
-                    // Bottom edge
-                    x = fromCenterX;
-                    y = bottom;
-                } else {
-                    // Top edge
-                    x = fromCenterX;
-                    y = top;
-                }
+            switch (ent.type) {
+                case 'private':
+                    // Ellipse - parametric intersection
+                    x = centerX + halfW * Math.cos(angle);
+                    y = centerY + halfH * Math.sin(angle);
+                    break;
+
+                case 'social':
+                    // Pill/capsule - ellipse at ends, rectangle in middle
+                    x = centerX + halfW * Math.cos(angle);
+                    y = centerY + halfH * Math.sin(angle);
+                    break;
+
+                case 'state':
+                    // Diamond - 4 edges at 45 degrees
+                    // Diamond vertices: top, right, bottom, left
+                    x = this.getDiamondIntersection(centerX, centerY, halfW, halfH, angle).x;
+                    y = this.getDiamondIntersection(centerX, centerY, halfW, halfH, angle).y;
+                    break;
+
+                case 'public':
+                    // Hexagon - 6 edges
+                    const hexPoint = this.getHexagonIntersection(centerX, centerY, halfW, halfH, angle);
+                    x = hexPoint.x;
+                    y = hexPoint.y;
+                    break;
+
+                case 'partnership':
+                    // Parallelogram - slanted rectangle
+                    const paraPoint = this.getParallelogramIntersection(centerX, centerY, halfW, halfH, angle);
+                    x = paraPoint.x;
+                    y = paraPoint.y;
+                    break;
+
+                case 'charity':
+                    // Trapezoid
+                    const trapPoint = this.getTrapezoidIntersection(centerX, centerY, halfW, halfH, angle);
+                    x = trapPoint.x;
+                    y = trapPoint.y;
+                    break;
+
+                case 'community':
+                    // Octagon
+                    const octPoint = this.getOctagonIntersection(centerX, centerY, halfW, halfH, angle);
+                    x = octPoint.x;
+                    y = octPoint.y;
+                    break;
+
+                case 'cooperative':
+                case 'excluded':
+                case 'ncm':
+                default:
+                    // Rectangle - find edge intersection
+                    x = this.getRectangleIntersection(centerX, centerY, halfW, halfH, angle).x;
+                    y = this.getRectangleIntersection(centerX, centerY, halfW, halfH, angle).y;
+                    break;
             }
 
             return { x, y };
+        },
+
+        getRectangleIntersection(cx, cy, halfW, halfH, angle) {
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            // Calculate intersection with each edge and pick the closest
+            let t;
+            if (Math.abs(cos) * halfH > Math.abs(sin) * halfW) {
+                // Intersects left or right edge
+                t = halfW / Math.abs(cos);
+            } else {
+                // Intersects top or bottom edge
+                t = halfH / Math.abs(sin);
+            }
+
+            return {
+                x: cx + cos * t,
+                y: cy + sin * t
+            };
+        },
+
+        getDiamondIntersection(cx, cy, halfW, halfH, angle) {
+            // Diamond has vertices at: top (0,-h), right (w,0), bottom (0,h), left (-w,0)
+            // Edges connect these vertices
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            // For a diamond, the edge equation is |x/halfW| + |y/halfH| = 1
+            // Ray from center: x = t*cos, y = t*sin
+            // Substitute: |t*cos/halfW| + |t*sin/halfH| = 1
+            // t = 1 / (|cos/halfW| + |sin/halfH|)
+            const t = 1 / (Math.abs(cos) / halfW + Math.abs(sin) / halfH);
+
+            return {
+                x: cx + cos * t,
+                y: cy + sin * t
+            };
+        },
+
+        getHexagonIntersection(cx, cy, halfW, halfH, angle) {
+            // Hexagon with flat top/bottom
+            // Vertices at angles: 0, 60, 120, 180, 240, 300 degrees from center
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            // Approximate with scaled ellipse for simplicity
+            // A proper hexagon would need edge intersection checks
+            const scale = 0.9; // Hexagon is slightly smaller than bounding ellipse
+            return {
+                x: cx + halfW * scale * cos,
+                y: cy + halfH * scale * sin
+            };
+        },
+
+        getParallelogramIntersection(cx, cy, halfW, halfH, angle) {
+            // Parallelogram skews about 20% to the right
+            const skew = halfW * 0.2;
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            // Use rectangle approximation with adjustment for skew
+            let t;
+            if (Math.abs(cos) * halfH > Math.abs(sin) * halfW) {
+                t = halfW / Math.abs(cos);
+            } else {
+                t = halfH / Math.abs(sin);
+            }
+
+            let x = cx + cos * t;
+            let y = cy + sin * t;
+
+            // Adjust for skew on top/bottom edges
+            if (Math.abs(sin) > Math.abs(cos) * 0.5) {
+                x += (sin > 0 ? -skew : skew) * 0.5;
+            }
+
+            return { x, y };
+        },
+
+        getTrapezoidIntersection(cx, cy, halfW, halfH, angle) {
+            // Trapezoid: wider at bottom, narrower at top
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            // Top is narrower (about 60% of width)
+            const topRatio = 0.6;
+
+            // Determine effective half-width based on y position
+            let t;
+            if (Math.abs(sin) > Math.abs(cos) * 0.5) {
+                // Top or bottom edge
+                t = halfH / Math.abs(sin);
+            } else {
+                // Left or right edge (slanted)
+                // Use average width
+                t = halfW * 0.8 / Math.abs(cos);
+            }
+
+            return {
+                x: cx + cos * t,
+                y: cy + sin * t
+            };
+        },
+
+        getOctagonIntersection(cx, cy, halfW, halfH, angle) {
+            // Octagon: rectangle with corners cut off
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            // Corner cut is about 30% of each dimension
+            const cut = 0.3;
+
+            // Calculate base rectangle intersection
+            let t;
+            if (Math.abs(cos) * halfH > Math.abs(sin) * halfW) {
+                t = halfW / Math.abs(cos);
+            } else {
+                t = halfH / Math.abs(sin);
+            }
+
+            // Reduce t slightly for corner regions
+            const absAngle = Math.abs(angle);
+            const cornerAngles = [Math.PI/4, 3*Math.PI/4, 5*Math.PI/4, 7*Math.PI/4];
+            const isNearCorner = cornerAngles.some(ca => Math.abs(absAngle - ca) < Math.PI/6 || Math.abs(absAngle - ca + 2*Math.PI) < Math.PI/6);
+
+            if (isNearCorner) {
+                t *= 0.85; // Pull in at corners
+            }
+
+            return {
+                x: cx + cos * t,
+                y: cy + sin * t
+            };
         },
 
         drawSegmentationMarkers(ctx, start, end, relationship) {
@@ -1110,23 +1279,26 @@
 
             ctx.save();
 
-            // Start marker
-            if (relationship.startSegmentation !== 'individual') {
+            // Start marker - only draw for generic sets (not individual)
+            if (relationship.startSegmentation && relationship.startSegmentation !== 'individual') {
                 const markerType = this.segmentationTypes.start[relationship.startSegmentation];
-                if (markerType) {
+                if (markerType && markerType.marker !== 'none') {
                     this.drawMarker(ctx, start, markerType.marker, 'start', relationship.type);
                 }
             }
 
-            // End marker (arrow)
-            const endMarkerType = this.segmentationTypes.end[relationship.endSegmentation];
-            if (endMarkerType) {
-                // Calculate arrow angle
-                const dx = end.x - start.x;
-                const dy = end.y - start.y;
-                const angle = Math.atan2(dy, dx);
+            // End marker - only draw for generic sets (not individual)
+            // No arrow tips for regular relationships
+            if (relationship.endSegmentation && relationship.endSegmentation !== 'individual') {
+                const endMarkerType = this.segmentationTypes.end[relationship.endSegmentation];
+                if (endMarkerType && endMarkerType.marker !== 'filledArrow') {
+                    // Calculate angle for marker orientation
+                    const dx = end.x - start.x;
+                    const dy = end.y - start.y;
+                    const angle = Math.atan2(dy, dx);
 
-                this.drawMarker(ctx, end, endMarkerType.marker, 'end', relationship.type, angle);
+                    this.drawMarker(ctx, end, endMarkerType.marker, 'end', relationship.type, angle);
+                }
             }
 
             ctx.restore();
@@ -1314,10 +1486,9 @@
             const dy = segmentEnd.y - segmentStart.y;
             const angle = Math.atan2(dy, dx);
 
-            // Calculate perpendicular direction for spacing multiple badges
-            const perpAngle = angle + Math.PI / 2;
-            const perpX = Math.cos(perpAngle);
-            const perpY = Math.sin(perpAngle);
+            // Calculate direction ALONG the line for spacing multiple badges
+            const alongX = Math.cos(angle);
+            const alongY = Math.sin(angle);
 
             // Draw badges for each relationship
             const badgeSize = 24;
@@ -1333,10 +1504,10 @@
                 const type = this.relationshipTypes[rel.type];
                 if (!type) return;
 
-                // Position badges perpendicular to the line, centered
+                // Position badges ALONG the line, centered on midpoint
                 const offset = (index * badgeSpacing) - totalOffset;
-                const badgeX = midPoint.x + perpX * offset;
-                const badgeY = midPoint.y + perpY * offset;
+                const badgeX = midPoint.x + alongX * offset;
+                const badgeY = midPoint.y + alongY * offset;
 
                 // Badge background
                 ctx.fillStyle = 'white';

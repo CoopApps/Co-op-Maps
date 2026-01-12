@@ -5,10 +5,11 @@
 
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { body, param, query, validationResult } = require('express-validator');
 const { pool } = require('../db/connection');
 const logger = require('../utils/logger');
+const { sendMapSubmissionReceivedEmail } = require('../services/emailService');
 
 // ============================================================
 // VALIDATION MIDDLEWARE
@@ -64,10 +65,23 @@ router.get('/approved', [
         let queryText = `
             SELECT
                 id, title, author, author_organization,
+                description,
                 wdr, scope_geographic, scope_economic,
                 scope_user_defined, period, diagram_date,
                 thumbnail, is_featured, view_count, fork_count,
                 published_at,
+                COALESCE(jsonb_array_length(diagram_data->'timeline'), 0) as snapshot_count,
+                CASE
+                    WHEN jsonb_array_length(diagram_data->'timeline') > 0
+                    THEN (
+                        SELECT jsonb_agg(jsonb_build_object(
+                            'date', elem->>'date',
+                            'label', elem->>'label'
+                        ))
+                        FROM jsonb_array_elements(diagram_data->'timeline') elem
+                    )
+                    ELSE NULL
+                END as timeline_summary,
                 ARRAY(
                     SELECT tag FROM community_map_tags WHERE map_id = community_maps.id
                 ) as tags
@@ -322,6 +336,19 @@ router.post('/submit', validateMapSubmission, async (req, res) => {
         }
 
         logger.info(`New map submitted: ${mapId} by ${author} (${authorEmail})`);
+
+        // Send confirmation email to author
+        try {
+            await sendMapSubmissionReceivedEmail({
+                id: mapId,
+                title,
+                author,
+                author_email: authorEmail
+            });
+            logger.info(`Submission confirmation email queued for map: ${mapId}`);
+        } catch (emailError) {
+            logger.error('Failed to queue submission confirmation email:', emailError);
+        }
 
         res.status(201).json({
             success: true,

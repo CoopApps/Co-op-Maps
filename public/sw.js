@@ -3,9 +3,9 @@
  * Provides offline support and caching
  */
 
-const CACHE_NAME = 'coopmaps-v1';
-const STATIC_CACHE = 'coopmaps-static-v1';
-const DYNAMIC_CACHE = 'coopmaps-dynamic-v1';
+const CACHE_NAME = 'coopmaps-v2';
+const STATIC_CACHE = 'coopmaps-static-v2';
+const DYNAMIC_CACHE = 'coopmaps-dynamic-v2';
 
 // Files to cache for offline use
 const STATIC_FILES = [
@@ -107,6 +107,30 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // For HTML files, use network-first strategy (always get fresh content)
+    if (event.request.headers.get('accept')?.includes('text/html') ||
+        url.pathname.endsWith('.html') ||
+        url.pathname === '/') {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    // Cache the fresh response for offline use
+                    const responseToCache = response.clone();
+                    caches.open(DYNAMIC_CACHE).then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
+                    return response;
+                })
+                .catch(() => {
+                    // Offline fallback
+                    return caches.match(event.request)
+                        .then((cached) => cached || caches.match('/index.html'));
+                })
+        );
+        return;
+    }
+
+    // For other assets, use cache-first with background update
     event.respondWith(
         caches.match(event.request)
             .then((cachedResponse) => {
@@ -121,7 +145,7 @@ self.addEventListener('fetch', (event) => {
             })
             .catch(() => {
                 // Offline fallback for HTML pages
-                if (event.request.headers.get('accept').includes('text/html')) {
+                if (event.request.headers.get('accept')?.includes('text/html')) {
                     return caches.match('/index.html');
                 }
             })

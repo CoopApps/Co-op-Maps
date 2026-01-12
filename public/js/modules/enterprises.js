@@ -472,20 +472,28 @@
                         shapes.drawRectangle(ctx, x, y, width, height, options);
                         break;
                     case 'ncm':
-                    case 'community':
                         shapes.drawRoundedRectangle(ctx, x, y - 3, width, height, 6, options);
                         break;
+                    case 'community':
+                        shapes.drawOctagon(ctx, x, y, width, height, options);
+                        break;
                     case 'social':
-                    case 'charity':
                         shapes.drawPill(ctx, x, y, width, height, options);
                         break;
+                    case 'charity':
+                        shapes.drawTrapezoid(ctx, x, y, width, height, options);
+                        break;
                     case 'private':
-                    case 'partnership':
                         shapes.drawEllipse(ctx, x, y, width, height, options);
                         break;
+                    case 'partnership':
+                        shapes.drawParallelogram(ctx, x, y, width, height, options);
+                        break;
                     case 'state':
-                    case 'public':
                         shapes.drawDiamond(ctx, x, y, width, height, options);
+                        break;
+                    case 'public':
+                        shapes.drawHexagon(ctx, x, y, width, height, options);
                         break;
                 }
 

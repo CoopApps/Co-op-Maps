@@ -676,6 +676,84 @@
                   onfocus="this.style.background='rgba(255,255,255,0.15)'; this.style.borderColor='rgba(255,255,255,0.4)'"
                   onblur="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)'">
             </div>
+            <!-- Gallery & Community Buttons - Link to standalone pages -->
+            <a href="browse.html" target="_blank" style="
+                padding: 6px 12px;
+                background: rgba(52, 152, 219, 0.8);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 11px;
+                font-weight: 500;
+                margin-left: 12px;
+                transition: all 0.2s;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+            " onmouseover="this.style.background='rgba(52, 152, 219, 1)'"
+               onmouseout="this.style.background='rgba(52, 152, 219, 0.8)'">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Browse
+            </a>
+            <!-- Notifications Button with Badge -->
+            <button id="notificationBtn" onclick="CoopMaps.modules.auth?.showNotificationsPanel()" style="
+                padding: 6px 10px;
+                background: rgba(155, 89, 182, 0.8);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 11px;
+                font-weight: 500;
+                margin-left: 6px;
+                transition: all 0.2s;
+                position: relative;
+            " onmouseover="this.style.background='rgba(155, 89, 182, 1)'"
+               onmouseout="this.style.background='rgba(155, 89, 182, 0.8)'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span id="notificationBadge" style="
+                    position: absolute;
+                    top: -4px;
+                    right: -4px;
+                    background: #e74c3c;
+                    color: white;
+                    font-size: 9px;
+                    font-weight: bold;
+                    padding: 2px 5px;
+                    border-radius: 10px;
+                    min-width: 14px;
+                    text-align: center;
+                    display: none;
+                ">0</span>
+            </button>
+            <!-- Admin Button - Link to standalone page -->
+            <a href="admin.html" target="_blank" id="adminPanelBtn" style="
+                padding: 6px 12px;
+                background: rgba(231, 76, 60, 0.8);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 11px;
+                font-weight: 500;
+                margin-left: 6px;
+                transition: all 0.2s;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+            " onmouseover="this.style.background='rgba(231, 76, 60, 1)'"
+               onmouseout="this.style.background='rgba(231, 76, 60, 0.8)'">Admin</a>
+            <!-- Auth Container - populated by auth.js module -->
+            <div class="header-right" style="display: flex; align-items: center; margin-left: 12px;"></div>
         </div>
     </div>
 
@@ -703,6 +781,31 @@
                 <div class="separator"></div>
                 <button onclick="CoopMaps.modules.canvas?.newDiagram()">New</button>
                 <button onclick="CoopMaps.modules.canvas?.clearCanvas()">Clear</button>
+                <div class="align-dropdown">
+                    <button style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; border: none;">Save ▾</button>
+                    <div class="align-dropdown-content" style="min-width: 200px;">
+                        <button onclick="CoopMaps.modules.persistence?.saveCurrentDiagram()">
+                            <span style="margin-right: 8px;">💾</span>Save Locally
+                        </button>
+                        <button onclick="CoopMaps.modules.persistence?.showSaveDialog()">
+                            <span style="margin-right: 8px;">📄</span>Save As...
+                        </button>
+                        <div style="border-top: 1px solid #eee; margin: 4px 0;"></div>
+                        <button onclick="CoopMaps.modules.auth?.saveToServer()">
+                            <span style="margin-right: 8px;">☁️</span>Save to Cloud (Account)
+                        </button>
+                        <button onclick="CoopMaps.modules.auth?.showMyDiagramsDialog()">
+                            <span style="margin-right: 8px;">📁</span>My Cloud Diagrams
+                        </button>
+                        <div style="border-top: 1px solid #eee; margin: 4px 0;"></div>
+                        <button onclick="CoopMaps.modules.collaboration?.showSaveToServerDialog()" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white;">
+                            <span style="margin-right: 8px;">🔐</span>Save with Password
+                        </button>
+                        <button onclick="CoopMaps.modules.collaboration?.showLoadFromServerDialog()">
+                            <span style="margin-right: 8px;">📥</span>Load by Map ID
+                        </button>
+                    </div>
+                </div>
                 <div class="separator"></div>
                 <select id="canvasSizeSelector" onchange="CoopMaps.changeCanvasSize(this.value)" style="
                     padding: 4px 8px;
@@ -773,6 +876,50 @@
                         <button onclick="CoopMaps.modules.comparison?.showComparisonDialog()">Compare</button>
                         <button onclick="CoopMaps.modules.reports?.showReportsDialog()">Reports</button>
                         <button onclick="CoopMaps.modules.dependency?.showDependencyPanel()">Dependencies</button>
+                    </div>
+                </div>
+                <div class="align-dropdown">
+                    <button style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; border: none;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        Collaborate
+                    </button>
+                    <div class="align-dropdown-content" style="min-width: 160px;">
+                        <button onclick="CoopMaps.modules.auth?.showCommentsPanel()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            Comments
+                        </button>
+                        <button onclick="CoopMaps.modules.auth?.showTagsPanel()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                                <line x1="7" y1="7" x2="7.01" y2="7"/>
+                            </svg>
+                            Tags
+                        </button>
+                        <div style="border-top: 1px solid #eee; margin: 4px 0;"></div>
+                        <button onclick="CoopMaps.modules.auth?.showVersionHistory()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            Version History
+                        </button>
+                        <button onclick="CoopMaps.modules.auth?.showCollaborationDialog()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                                <circle cx="18" cy="5" r="3"/>
+                                <circle cx="6" cy="12" r="3"/>
+                                <circle cx="18" cy="19" r="3"/>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                            </svg>
+                            Share &amp; Invite
+                        </button>
                     </div>
                 </div>
                 <div class="separator"></div>
@@ -1623,6 +1770,7 @@
     <script src="./js/modules/dependency.js"></script>
     <script src="./js/modules/collaboration.js"></script>
     <script src="./js/modules/import.js"></script>
+    <script src="./js/modules/auth.js"></script>
 
     <!-- Initialize app AFTER all modules loaded -->
     <script>

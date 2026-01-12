@@ -315,6 +315,223 @@ To change email preferences, visit: ${data.settingsLink}
 
 ---
 Co-opMaps - Cooperative Ecosystem Mapping`
+        },
+
+        // Community Map Templates (password-based, no user accounts)
+        'map-approved': {
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="margin: 0;">Map Approved!</h1>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                        <p>Hello ${data.author},</p>
+                        <p>Great news! Your map <strong>"${data.title}"</strong> has been reviewed and approved.</p>
+                        <p>Your map is now publicly visible in the Community Gallery and can be explored by anyone.</p>
+                        <p style="text-align: center; margin: 30px 0;">
+                            <a href="${data.browseUrl}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                                View in Gallery
+                            </a>
+                        </p>
+                        <p>You can still edit your map at any time using the password you set when submitting.</p>
+                        <p>Thank you for contributing to the Co-op Maps community!</p>
+                    </div>
+                    <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 20px;">
+                        Co-op Maps - Mapping cooperative ecosystems together
+                    </p>
+                </div>
+            `,
+            text: `Map Approved!
+
+Hello ${data.author},
+
+Great news! Your map "${data.title}" has been reviewed and approved.
+
+Your map is now publicly visible in the Community Gallery and can be explored by anyone.
+
+View in Gallery: ${data.browseUrl}
+
+You can still edit your map at any time using the password you set when submitting.
+
+Thank you for contributing to the Co-op Maps community!
+
+---
+Co-op Maps - Mapping cooperative ecosystems together`
+        },
+
+        'map-rejected': {
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="margin: 0;">Map Not Published</h1>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                        <p>Hello ${data.author},</p>
+                        <p>We've reviewed your map <strong>"${data.title}"</strong> and unfortunately we're unable to publish it at this time.</p>
+                        <div style="background: white; border-left: 4px solid #e74c3c; padding: 15px; margin: 20px 0;">
+                            <strong>Reason:</strong> ${data.reason}<br><br>
+                            <strong>Details:</strong> ${data.message}
+                        </div>
+                        <p>If you believe this was in error or have questions, please feel free to submit a new map with the suggested changes.</p>
+                        <p>Thank you for your understanding.</p>
+                    </div>
+                    <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 20px;">
+                        Co-op Maps - Mapping cooperative ecosystems together
+                    </p>
+                </div>
+            `,
+            text: `Map Not Published
+
+Hello ${data.author},
+
+We've reviewed your map "${data.title}" and unfortunately we're unable to publish it at this time.
+
+Reason: ${data.reason}
+
+Details: ${data.message}
+
+If you believe this was in error or have questions, please feel free to submit a new map with the suggested changes.
+
+Thank you for your understanding.
+
+---
+Co-op Maps - Mapping cooperative ecosystems together`
+        },
+
+        'map-changes-requested': {
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="margin: 0;">Changes Requested</h1>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                        <p>Hello ${data.author},</p>
+                        <p>We've reviewed your map <strong>"${data.title}"</strong> and would like to request some changes before publishing.</p>
+                        <div style="background: white; border-left: 4px solid #f39c12; padding: 15px; margin: 20px 0;">
+                            <strong>Reviewer's Message:</strong><br>
+                            ${data.message}
+                        </div>
+                        ${data.checklist && data.checklist.length > 0 ? `
+                        <div style="background: white; padding: 15px; margin: 20px 0; border-radius: 8px;">
+                            <strong>Requested Changes:</strong>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                ${data.checklist.map(item => `<li style="margin: 8px 0;">${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        <p>Please edit your map using the password you set, then the map will be resubmitted for review.</p>
+                        <p style="text-align: center; margin: 30px 0;">
+                            <a href="${data.editUrl}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                                Edit Your Map
+                            </a>
+                        </p>
+                        <p>Thank you for contributing to the Co-op Maps community!</p>
+                    </div>
+                    <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 20px;">
+                        Co-op Maps - Mapping cooperative ecosystems together
+                    </p>
+                </div>
+            `,
+            text: `Changes Requested
+
+Hello ${data.author},
+
+We've reviewed your map "${data.title}" and would like to request some changes before publishing.
+
+Reviewer's Message:
+${data.message}
+
+${data.checklist && data.checklist.length > 0 ? `Requested Changes:\n${data.checklist.map(item => `- ${item}`).join('\n')}\n` : ''}
+Please edit your map using the password you set, then the map will be resubmitted for review.
+
+Edit your map: ${data.editUrl}
+
+Thank you for contributing to the Co-op Maps community!
+
+---
+Co-op Maps - Mapping cooperative ecosystems together`
+        },
+
+        'map-unpublished': {
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="margin: 0;">Map Unpublished</h1>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                        <p>Hello ${data.author},</p>
+                        <p>Your map <strong>"${data.title}"</strong> has been temporarily unpublished from the Community Gallery.</p>
+                        <div style="background: white; border-left: 4px solid #95a5a6; padding: 15px; margin: 20px 0;">
+                            <strong>Reason:</strong> ${data.reason}
+                        </div>
+                        <p>Your map data is still saved and you can still access it using your password. If you'd like to have it republished, please make any necessary updates.</p>
+                    </div>
+                    <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 20px;">
+                        Co-op Maps - Mapping cooperative ecosystems together
+                    </p>
+                </div>
+            `,
+            text: `Map Unpublished
+
+Hello ${data.author},
+
+Your map "${data.title}" has been temporarily unpublished from the Community Gallery.
+
+Reason: ${data.reason}
+
+Your map data is still saved and you can still access it using your password.
+
+---
+Co-op Maps - Mapping cooperative ecosystems together`
+        },
+
+        'map-submission-received': {
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="margin: 0;">Submission Received!</h1>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                        <p>Hello ${data.author},</p>
+                        <p>Thank you for submitting your map <strong>"${data.title}"</strong> to the Co-op Maps Community Gallery!</p>
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="margin-top: 0; color: #667eea;">What happens next?</h3>
+                            <ul>
+                                <li>Our team will review your submission</li>
+                                <li>This usually takes 1-3 business days</li>
+                                <li>You'll receive an email when your map is approved or if we need any changes</li>
+                            </ul>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="margin-top: 0; color: #667eea;">Your Map ID</h3>
+                            <p style="font-family: monospace; font-size: 14px; background: #f1f1f1; padding: 10px; border-radius: 4px;">${data.mapId}</p>
+                            <p style="font-size: 12px; color: #7f8c8d;">Keep this ID along with your password to edit your map.</p>
+                        </div>
+                        <p>Thank you for contributing to the cooperative mapping community!</p>
+                    </div>
+                    <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 20px;">
+                        Co-op Maps - Mapping cooperative ecosystems together
+                    </p>
+                </div>
+            `,
+            text: `Submission Received!
+
+Hello ${data.author},
+
+Thank you for submitting your map "${data.title}" to the Co-op Maps Community Gallery!
+
+What happens next?
+- Our team will review your submission
+- This usually takes 1-3 business days
+- You'll receive an email when your map is approved or if we need any changes
+
+Your Map ID: ${data.mapId}
+Keep this ID along with your password to edit your map.
+
+Thank you for contributing to the cooperative mapping community!
+
+---
+Co-op Maps - Mapping cooperative ecosystems together`
         }
     };
 
@@ -358,10 +575,139 @@ async function sendImmediateEmail({ to, subject, bodyText, bodyHtml }) {
 // Start email queue processor (every minute)
 setInterval(processEmailQueue, 60000);
 
+/**
+ * Helper functions for community map emails (no user accounts required)
+ */
+const APP_URL = process.env.APP_URL || 'https://co-op-maps-production.up.railway.app';
+
+async function sendMapApprovedEmail(map) {
+    if (!map.author_email) {
+        logger.warn(`Cannot send approval email - no email for map ${map.id}`);
+        return false;
+    }
+
+    const templateData = {
+        author: map.author,
+        title: map.title,
+        browseUrl: `${APP_URL}/browse.html`
+    };
+
+    const rendered = renderEmailTemplate('map-approved', templateData);
+
+    return queueEmail({
+        to: map.author_email,
+        subject: `Your map "${map.title}" has been approved!`,
+        bodyText: rendered.text,
+        bodyHtml: rendered.html,
+        priority: 1
+    });
+}
+
+async function sendMapRejectedEmail(map, reason, message) {
+    if (!map.author_email) {
+        logger.warn(`Cannot send rejection email - no email for map ${map.id}`);
+        return false;
+    }
+
+    const templateData = {
+        author: map.author,
+        title: map.title,
+        reason: reason,
+        message: message
+    };
+
+    const rendered = renderEmailTemplate('map-rejected', templateData);
+
+    return queueEmail({
+        to: map.author_email,
+        subject: `Update on your map "${map.title}"`,
+        bodyText: rendered.text,
+        bodyHtml: rendered.html,
+        priority: 1
+    });
+}
+
+async function sendMapChangesRequestedEmail(map, message, checklist) {
+    if (!map.author_email) {
+        logger.warn(`Cannot send changes requested email - no email for map ${map.id}`);
+        return false;
+    }
+
+    const templateData = {
+        author: map.author,
+        title: map.title,
+        message: message,
+        checklist: checklist || [],
+        editUrl: `${APP_URL}/deluxe.html?map=${map.id}`
+    };
+
+    const rendered = renderEmailTemplate('map-changes-requested', templateData);
+
+    return queueEmail({
+        to: map.author_email,
+        subject: `Changes requested for your map "${map.title}"`,
+        bodyText: rendered.text,
+        bodyHtml: rendered.html,
+        priority: 1
+    });
+}
+
+async function sendMapUnpublishedEmail(map, reason) {
+    if (!map.author_email) {
+        logger.warn(`Cannot send unpublished email - no email for map ${map.id}`);
+        return false;
+    }
+
+    const templateData = {
+        author: map.author,
+        title: map.title,
+        reason: reason
+    };
+
+    const rendered = renderEmailTemplate('map-unpublished', templateData);
+
+    return queueEmail({
+        to: map.author_email,
+        subject: `Your map "${map.title}" has been unpublished`,
+        bodyText: rendered.text,
+        bodyHtml: rendered.html,
+        priority: 2
+    });
+}
+
+async function sendMapSubmissionReceivedEmail(map) {
+    if (!map.author_email) {
+        logger.warn(`Cannot send submission received email - no email for map ${map.id}`);
+        return false;
+    }
+
+    const templateData = {
+        author: map.author,
+        title: map.title,
+        mapId: map.id
+    };
+
+    const rendered = renderEmailTemplate('map-submission-received', templateData);
+
+    return queueEmail({
+        to: map.author_email,
+        subject: `Your map "${map.title}" has been submitted for review`,
+        bodyText: rendered.text,
+        bodyHtml: rendered.html,
+        priority: 1
+    });
+}
+
 module.exports = {
     initializeEmailService,
     queueEmail,
     sendImmediateEmail,
     processEmailQueue,
-    renderEmailTemplate
+    renderEmailTemplate,
+    // Community map email helpers
+    sendMapApprovedEmail,
+    sendMapRejectedEmail,
+    sendMapChangesRequestedEmail,
+    sendMapUnpublishedEmail,
+    sendMapSubmissionReceivedEmail
 };

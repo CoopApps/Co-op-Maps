@@ -235,6 +235,200 @@
             ctx.restore();
         },
 
+        // Hexagon for Public Enterprise (distinct from State's diamond)
+        drawHexagon(ctx, x, y, width, height, options = {}) {
+            ctx.save();
+
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 3;
+            }
+
+            const inset = width * 0.25;
+            ctx.beginPath();
+            ctx.moveTo(x + inset, y);
+            ctx.lineTo(x + width - inset, y);
+            ctx.lineTo(x + width, y + height/2);
+            ctx.lineTo(x + width - inset, y + height);
+            ctx.lineTo(x + inset, y + height);
+            ctx.lineTo(x, y + height/2);
+            ctx.closePath();
+
+            if (options.fill) {
+                const gradient = ctx.createLinearGradient(x, y, x, y + height);
+                const baseColor = options.fill === '#f0f0f0' ? '#e8f5e9' : options.fill;
+                gradient.addColorStop(0, this.lightenColor(baseColor, 15));
+                gradient.addColorStop(1, baseColor);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = options.stroke || '#2e7d32';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
+
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.moveTo(x + inset + 3, y + 3);
+                ctx.lineTo(x + width - inset - 3, y + 3);
+                ctx.lineTo(x + width - inset - 3, y + 8);
+                ctx.lineTo(x + inset + 3, y + 8);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+            }
+
+            ctx.restore();
+        },
+
+        // Parallelogram for Partnership (distinct from Private's ellipse)
+        drawParallelogram(ctx, x, y, width, height, options = {}) {
+            ctx.save();
+
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 3;
+            }
+
+            const skew = width * 0.15;
+            ctx.beginPath();
+            ctx.moveTo(x + skew, y);
+            ctx.lineTo(x + width, y);
+            ctx.lineTo(x + width - skew, y + height);
+            ctx.lineTo(x, y + height);
+            ctx.closePath();
+
+            if (options.fill) {
+                const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+                const baseColor = options.fill === '#f0f0f0' ? '#fff3e0' : options.fill;
+                gradient.addColorStop(0, this.lightenColor(baseColor, 15));
+                gradient.addColorStop(1, baseColor);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = options.stroke || '#e65100';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
+
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.moveTo(x + skew + 3, y + 3);
+                ctx.lineTo(x + width - 3, y + 3);
+                ctx.lineTo(x + width - 5, y + 8);
+                ctx.lineTo(x + skew + 1, y + 8);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+            }
+
+            ctx.restore();
+        },
+
+        // Trapezoid for Charity (distinct from Social's pill)
+        drawTrapezoid(ctx, x, y, width, height, options = {}) {
+            ctx.save();
+
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 3;
+            }
+
+            const inset = width * 0.15;
+            ctx.beginPath();
+            ctx.moveTo(x + inset, y);
+            ctx.lineTo(x + width - inset, y);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo(x, y + height);
+            ctx.closePath();
+
+            if (options.fill) {
+                const gradient = ctx.createLinearGradient(x, y, x, y + height);
+                const baseColor = options.fill === '#f0f0f0' ? '#fce4ec' : options.fill;
+                gradient.addColorStop(0, this.lightenColor(baseColor, 15));
+                gradient.addColorStop(1, baseColor);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = options.stroke || '#ad1457';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
+
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.moveTo(x + inset + 3, y + 3);
+                ctx.lineTo(x + width - inset - 3, y + 3);
+                ctx.lineTo(x + width - inset - 1, y + 7);
+                ctx.lineTo(x + inset + 1, y + 7);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+            }
+
+            ctx.restore();
+        },
+
+        // Octagon for Community Organization (distinct from NCM's rounded rectangle)
+        drawOctagon(ctx, x, y, width, height, options = {}) {
+            ctx.save();
+
+            if (!options.noShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 3;
+            }
+
+            const cut = Math.min(width, height) * 0.2;
+            ctx.beginPath();
+            ctx.moveTo(x + cut, y);
+            ctx.lineTo(x + width - cut, y);
+            ctx.lineTo(x + width, y + cut);
+            ctx.lineTo(x + width, y + height - cut);
+            ctx.lineTo(x + width - cut, y + height);
+            ctx.lineTo(x + cut, y + height);
+            ctx.lineTo(x, y + height - cut);
+            ctx.lineTo(x, y + cut);
+            ctx.closePath();
+
+            if (options.fill) {
+                const gradient = ctx.createLinearGradient(x, y, x, y + height);
+                const baseColor = options.fill === '#f0f0f0' ? '#e3f2fd' : options.fill;
+                gradient.addColorStop(0, this.lightenColor(baseColor, 15));
+                gradient.addColorStop(1, baseColor);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = options.stroke || '#1565c0';
+            ctx.lineWidth = options.lineWidth || 2;
+            ctx.stroke();
+
+            if (!options.noHighlight) {
+                ctx.shadowColor = 'transparent';
+                ctx.beginPath();
+                ctx.moveTo(x + cut + 2, y + 3);
+                ctx.lineTo(x + width - cut - 2, y + 3);
+                ctx.lineTo(x + width - cut - 2, y + 7);
+                ctx.lineTo(x + cut + 2, y + 7);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+            }
+
+            ctx.restore();
+        },
+
         // Participation role indicators (top edge)
         drawParticipationIndicators(ctx, x, y, width, height, roles) {
             const indicatorHeight = 10;

@@ -19,6 +19,9 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const diagramRoutes = require('./routes/diagrams');
 const collaboratorRoutes = require('./routes/collaborators');
+const commentsRoutes = require('./routes/comments');
+const notificationsRoutes = require('./routes/notifications');
+const tagsRoutes = require('./routes/tags');
 const publicRoutes = require('./routes/public');
 const mapsRoutes = require('./routes/maps');
 const adminRoutes = require('./routes/admin');
@@ -87,27 +90,40 @@ app.use('/api/auth', authRoutes); // Auth has its own stricter rate limiting
 app.use('/api/users', rateLimiters.api, userRoutes);
 app.use('/api/diagrams', rateLimiters.api, diagramRoutes);
 app.use('/api/diagrams', rateLimiters.api, collaboratorRoutes);
+app.use('/api/diagrams', rateLimiters.api, commentsRoutes);  // /api/diagrams/:id/comments
+app.use('/api/diagrams', rateLimiters.api, tagsRoutes);       // /api/diagrams/:id/tags
 app.use('/api/collaborators', rateLimiters.api, collaboratorRoutes);
+app.use('/api/comments', rateLimiters.api, commentsRoutes);   // /api/comments/:id for direct comment ops
+app.use('/api/notifications', rateLimiters.api, notificationsRoutes);
+app.use('/api/tags', rateLimiters.api, tagsRoutes);           // /api/tags for listing all tags
 app.use('/api/public', rateLimiters.publicApi, publicRoutes);
 app.use('/api/maps', rateLimiters.publicApi, mapsRoutes);
 app.use('/api/admin', rateLimiters.api, adminRoutes);
 
 // Serve static files (for the frontend) with cache control
-// HTML files: no-cache (always check for updates)
-// JS/CSS: cache for 1 hour but must revalidate
+// In development: disable caching entirely for easier testing
+// In production: use appropriate caching
+const isDev = process.env.NODE_ENV === 'development';
 app.use(express.static('public', {
-    etag: true,
-    lastModified: true,
+    etag: !isDev,           // Disable etag in development
+    lastModified: !isDev,   // Disable lastModified in development
+    maxAge: isDev ? 0 : undefined,
     setHeaders: (res, filepath) => {
-        if (filepath.endsWith('.html')) {
-            // HTML files should always be revalidated
-            res.setHeader('Cache-Control', 'no-cache, must-revalidate');
-        } else if (filepath.endsWith('.js') || filepath.endsWith('.css')) {
-            // JS/CSS: cache for 1 hour but check for changes
-            res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
-        } else if (filepath.match(/\.(png|jpg|jpeg|gif|svg|ico)$/)) {
-            // Images: cache longer
-            res.setHeader('Cache-Control', 'public, max-age=86400');
+        if (isDev) {
+            // Development: no caching at all
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            res.setHeader('Surrogate-Control', 'no-store');
+        } else {
+            // Production caching
+            if (filepath.endsWith('.html')) {
+                res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+            } else if (filepath.endsWith('.js') || filepath.endsWith('.css')) {
+                res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+            } else if (filepath.match(/\.(png|jpg|jpeg|gif|svg|ico)$/)) {
+                res.setHeader('Cache-Control', 'public, max-age=86400');
+            }
         }
     }
 }));
