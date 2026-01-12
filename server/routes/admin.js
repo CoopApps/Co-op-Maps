@@ -56,10 +56,11 @@ const validateAdminPassword = async (req, res, next) => {
 
         next();
     } catch (error) {
-        logger.error('Error validating admin password:', error);
+        logger.error('Error validating admin password:', error.message, error.stack);
         res.status(500).json({
             success: false,
-            message: 'Authentication failed'
+            message: 'Authentication failed',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
