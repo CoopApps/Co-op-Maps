@@ -183,8 +183,8 @@ router.get('/:id', [
 
         const map = result.rows[0];
 
-        // Check if map is public
-        if (map.is_public && map.status === 'published') {
+        // Check if map is public (approved or published)
+        if (map.is_public && (map.status === 'published' || map.status === 'approved')) {
             // Increment view count
             await pool.query(
                 `UPDATE community_maps SET view_count = view_count + 1 WHERE id = $1`,

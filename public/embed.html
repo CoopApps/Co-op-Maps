@@ -132,6 +132,7 @@
     </style>
 </head>
 <body>
+    <script src="./config.js"></script>
     <canvas id="canvas"></canvas>
 
     <div class="controls" id="controls" style="display: none;">
@@ -195,8 +196,12 @@
         const params = new URLSearchParams(window.location.search);
         const dataUrl = params.get('url') || params.get('data');
         const dataId = params.get('id');
+        const mapId = params.get('map'); // Community map ID from database
         const showControls = params.get('controls') !== 'false';
         const showBranding = params.get('branding') !== 'false';
+
+        // Get API base URL from config if available
+        const apiBase = (window.CONFIG && window.CONFIG.API_URL) || '';
 
         if (!showBranding) {
             document.querySelector('.branding').style.display = 'none';
@@ -204,12 +209,14 @@
 
         // Initialize
         async function init() {
-            if (dataUrl) {
+            if (mapId) {
+                await loadFromMapId(mapId);
+            } else if (dataUrl) {
                 await loadFromUrl(dataUrl);
             } else if (dataId) {
                 await loadFromId(dataId);
             } else {
-                showError('No diagram specified. Use ?url=... or ?id=...');
+                showError('No diagram specified. Use ?map=... or ?url=...');
                 return;
             }
 
@@ -235,6 +242,24 @@
         async function loadFromId(id) {
             // For future: load from API/database
             showError('Loading by ID not yet implemented');
+        }
+
+        async function loadFromMapId(id) {
+            try {
+                const response = await fetch(`${apiBase}/api/maps/${id}`);
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to load map');
+                }
+                const result = await response.json();
+                if (result.success && result.map && result.map.diagramData) {
+                    loadData(result.map.diagramData);
+                } else {
+                    throw new Error('Invalid map data');
+                }
+            } catch (err) {
+                showError('Error loading map: ' + err.message);
+            }
         }
 
         function loadData(data) {

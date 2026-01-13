@@ -848,6 +848,96 @@
             font-size: 11px;
         }
 
+        /* Fullscreen Viewer Modal */
+        .viewer-modal {
+            max-width: 95vw;
+            width: 95vw;
+            height: 90vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .viewer-title-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            color: white;
+        }
+
+        .viewer-author {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .viewer-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-edit {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-close-viewer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-close-viewer:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .viewer-container {
+            flex: 1;
+            background: #f5f6fa;
+            overflow: hidden;
+        }
+
+        .viewer-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .maps-grid {
@@ -917,6 +1007,37 @@
 
             .modal-content.large {
                 max-width: 100%;
+            }
+
+            /* Viewer modal mobile fixes */
+            .viewer-modal {
+                width: 100vw;
+                max-width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .viewer-header {
+                border-radius: 0;
+                padding: 12px 15px;
+            }
+
+            .viewer-title-section h2 {
+                font-size: 15px;
+            }
+
+            .viewer-author {
+                font-size: 11px;
+            }
+
+            .btn-edit {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .btn-close-viewer {
+                width: 32px;
+                height: 32px;
             }
 
             .modal-map-info {
@@ -1155,32 +1276,32 @@
         </div>
     </div>
 
-    <!-- View Map Modal -->
+    <!-- View Map Modal - Fullscreen Embedded Viewer -->
     <div id="viewModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-icon">
-                <svg viewBox="0 0 24 24">
-                    <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-                    <line x1="9" y1="3" x2="9" y2="18"/>
-                    <line x1="15" y1="6" x2="15" y2="21"/>
-                </svg>
+        <div class="modal-content viewer-modal">
+            <div class="viewer-header">
+                <div class="viewer-title-section">
+                    <h2 id="viewerTitle">Map Title</h2>
+                    <div id="viewerAuthor" class="viewer-author"></div>
+                </div>
+                <div class="viewer-actions">
+                    <button class="btn-edit" onclick="openMapInDeluxe()" title="Edit in Deluxe">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Edit
+                    </button>
+                    <button class="btn-close-viewer" onclick="closeModal()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <h2 id="modalTitle">Open Map</h2>
-            <p id="modalDescription">Choose your preferred viewing mode to explore this map</p>
-            <div class="modal-buttons">
-                <button class="btn-express" onclick="openMapInExpress()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                    </svg>
-                    Express
-                </button>
-                <button class="btn-deluxe" onclick="openMapInDeluxe()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                    </svg>
-                    Deluxe
-                </button>
-                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <div class="viewer-container">
+                <iframe id="mapViewer" src="" frameborder="0"></iframe>
             </div>
         </div>
     </div>
@@ -1387,93 +1508,23 @@
             }
 
             const modal = document.getElementById('viewModal');
-            const content = modal.querySelector('.modal-content');
 
-            // Build modal content dynamically based on map data
-            const hasTimeline = currentMapData.snapshot_count > 0 && currentMapData.timeline_summary;
-            const timelineHtml = hasTimeline ? buildTimelineSection(currentMapData.timeline_summary) : '';
+            // Update header with map info
+            document.getElementById('viewerTitle').textContent = currentMapData.title;
+            document.getElementById('viewerAuthor').textContent =
+                `By ${currentMapData.author}${currentMapData.author_organization ? ' · ' + currentMapData.author_organization : ''}`;
 
-            content.innerHTML = `
-                <div class="modal-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-                        <line x1="9" y1="3" x2="9" y2="18"/>
-                        <line x1="15" y1="6" x2="15" y2="21"/>
-                    </svg>
-                </div>
-                <h2 style="margin-bottom: 20px;">Open Map</h2>
+            // Load the map in the embedded viewer using embed.html
+            const iframe = document.getElementById('mapViewer');
+            iframe.src = `embed.html?map=${mapId}`;
 
-                <div class="modal-map-info">
-                    <div class="modal-map-title">${escapeHtml(currentMapData.title)}</div>
-                    <div class="modal-map-author">
-                        By ${escapeHtml(currentMapData.author)}${currentMapData.author_organization ? ' · ' + escapeHtml(currentMapData.author_organization) : ''}
-                    </div>
-                    ${currentMapData.description ? `<div class="modal-map-description">${escapeHtml(currentMapData.description)}</div>` : ''}
-                </div>
-
-                ${timelineHtml}
-
-                <p style="color: var(--gray); margin-bottom: 20px; font-size: 14px;">
-                    ${hasTimeline
-                        ? 'This map includes a timeline showing evolution over time. Open in Deluxe to explore all snapshots.'
-                        : 'Choose your preferred viewing mode to explore this map'
-                    }
-                </p>
-
-                <div class="modal-buttons">
-                    <button class="btn-express" onclick="openMapInExpress()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                        </svg>
-                        Express
-                    </button>
-                    <button class="btn-deluxe" onclick="openMapInDeluxe()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                        </svg>
-                        Deluxe${hasTimeline ? ' (Timeline)' : ''}
-                    </button>
-                    <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-                </div>
-            `;
-
-            // Add large class if has timeline
-            content.classList.toggle('large', hasTimeline);
             modal.classList.add('active');
-        }
-
-        function buildTimelineSection(timeline) {
-            if (!timeline || timeline.length === 0) return '';
-
-            const items = timeline.map(snap => {
-                const year = snap.date ? new Date(snap.date).getFullYear() : '';
-                return `
-                    <div class="modal-timeline-item">
-                        <span class="year">${year}</span>
-                        <span class="label">${escapeHtml(snap.label)}</span>
-                        <span class="date">${snap.date}</span>
-                    </div>
-                `;
-            }).join('');
-
-            return `
-                <div class="modal-timeline-section">
-                    <div class="modal-timeline-header">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                        Timeline: ${timeline.length} Snapshots
-                    </div>
-                    <div class="modal-timeline-list">
-                        ${items}
-                    </div>
-                </div>
-            `;
         }
 
         function closeModal() {
             document.getElementById('viewModal').classList.remove('active');
+            // Clear the iframe to stop any ongoing loading
+            document.getElementById('mapViewer').src = '';
             currentMapId = null;
             currentMapData = null;
         }
