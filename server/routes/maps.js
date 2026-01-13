@@ -76,24 +76,13 @@ router.get('/approved', [
         let queryText = `
             SELECT
                 id, title, author, author_organization,
-                description,
-                wdr, official_wdr, wdr_status,
+                official_wdr,
                 scope_geographic, scope_economic,
                 scope_user_defined, period, diagram_date,
-                thumbnail, is_featured, view_count, fork_count,
+                thumbnail,
+                COALESCE(is_featured, FALSE) as is_featured,
+                COALESCE(view_count, 0) as view_count,
                 published_at,
-                COALESCE(jsonb_array_length(diagram_data->'timeline'), 0) as snapshot_count,
-                CASE
-                    WHEN jsonb_array_length(diagram_data->'timeline') > 0
-                    THEN (
-                        SELECT jsonb_agg(jsonb_build_object(
-                            'date', elem->>'date',
-                            'label', elem->>'label'
-                        ))
-                        FROM jsonb_array_elements(diagram_data->'timeline') elem
-                    )
-                    ELSE NULL
-                END as timeline_summary,
                 ARRAY(
                     SELECT tag FROM community_map_tags WHERE map_id = community_maps.id
                 ) as tags
@@ -106,10 +95,10 @@ router.get('/approved', [
         const queryParams = [];
         let paramIndex = 1;
 
-        // Add search filter
+        // Add search filter (simple ILIKE search on title and author)
         if (search) {
-            queryText += ` AND search_vector @@ plainto_tsquery('english', $${paramIndex})`;
-            queryParams.push(search);
+            queryText += ` AND (title ILIKE $${paramIndex} OR author ILIKE $${paramIndex})`;
+            queryParams.push(`%${search}%`);
             paramIndex++;
         }
 
@@ -140,8 +129,8 @@ router.get('/approved', [
         `;
         const countParams = [];
         if (search) {
-            countQuery += ` AND search_vector @@ plainto_tsquery('english', $1)`;
-            countParams.push(search);
+            countQuery += ` AND (title ILIKE $1 OR author ILIKE $1)`;
+            countParams.push(`%${search}%`);
         }
         const countResult = await pool.query(countQuery, countParams);
 
