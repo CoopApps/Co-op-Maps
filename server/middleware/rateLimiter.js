@@ -129,6 +129,30 @@ const rateLimiters = {
         windowMs: 60 * 60 * 1000,
         maxRequests: 1000,
         keyPrefix: 'public-api'
+    }),
+
+    // Draft operations - 30 saves per minute (for auto-save)
+    drafts: createRateLimiter({
+        windowMs: 60 * 1000,
+        maxRequests: 30,
+        keyPrefix: 'drafts',
+        message: 'Too many draft operations, please slow down'
+    }),
+
+    // Draft creation - 20 per hour
+    createDraft: createRateLimiter({
+        windowMs: 60 * 60 * 1000,
+        maxRequests: 20,
+        keyPrefix: 'create-draft',
+        message: 'Too many draft creations, please try again later'
+    }),
+
+    // Draft submission - 10 per hour
+    submitDraft: createRateLimiter({
+        windowMs: 60 * 60 * 1000,
+        maxRequests: 10,
+        keyPrefix: 'submit-draft',
+        message: 'Too many submissions, please try again later'
     })
 };
 

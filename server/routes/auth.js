@@ -260,9 +260,23 @@ router.post('/forgot-password', [body('email').isEmail()], async (req, res) => {
 
         const { email } = req.body;
 
+        // Check if user exists
+        const userResult = await query(
+            'SELECT id, email, full_name FROM users WHERE email = $1',
+            [email]
+        );
+
+        // Always return success (security: don't reveal if email exists)
+        if (userResult.rows.length === 0) {
+            logger.info(`Password reset requested for non-existent email: ${email}`);
+            return res.json({ message: 'If that email exists, a password reset link has been sent' });
+        }
+
+        const user = userResult.rows[0];
+
         // Generate reset token
         const resetToken = jwt.sign(
-            { email },
+            { email, userId: user.id },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -276,14 +290,166 @@ router.post('/forgot-password', [body('email').isEmail()], async (req, res) => {
             [resetToken, new Date(Date.now() + 3600000), email]
         );
 
-        // TODO: Send email with reset link
-        logger.info(`Password reset requested for: ${email}`);
+        // Send password reset email
+        const emailService = require('../services/emailService');
+        const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+        const resetLink = `${APP_URL}/reset-password.html?token=${resetToken}`;
 
-        res.json({ message: 'Password reset email sent' });
+        await emailService.queueEmail({
+            to: email,
+            toUserId: user.id,
+            subject: 'Reset your Co-opMaps password',
+            templateName: 'password-reset',
+            templateData: {
+                fullName: user.full_name || 'there',
+                resetLink: resetLink,
+                expiryHours: 1
+            },
+            priority: 1
+        });
+
+        logger.info(`Password reset email sent to: ${email}`);
+
+        res.json({ message: 'If that email exists, a password reset link has been sent' });
 
     } catch (error) {
         logger.error('Forgot password error:', error);
         res.status(500).json({ error: 'Password reset failed' });
+    }
+});
+
+// POST /api/auth/reset-password
+router.post('/reset-password', [
+    body('token').notEmpty().withMessage('Reset token is required'),
+    body('newPassword').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { token, newPassword } = req.body;
+
+        // Verify token
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (error) {
+            return res.status(401).json({ error: 'Invalid or expired reset token' });
+        }
+
+        // Check if token exists in database and hasn't expired
+        const userResult = await query(
+            `SELECT id, email, full_name, password_reset_token, password_reset_expires
+             FROM users
+             WHERE email = $1
+               AND password_reset_token = $2
+               AND password_reset_expires > CURRENT_TIMESTAMP`,
+            [decoded.email, token]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(401).json({ error: 'Invalid or expired reset token' });
+        }
+
+        const user = userResult.rows[0];
+
+        // Hash new password
+        const password_hash = await bcrypt.hash(newPassword, 10);
+
+        // Update password and clear reset token
+        await query(
+            `UPDATE users
+             SET password_hash = $1,
+                 password_reset_token = NULL,
+                 password_reset_expires = NULL,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $2`,
+            [password_hash, user.id]
+        );
+
+        // Revoke all existing refresh tokens for security
+        await query(
+            'UPDATE refresh_tokens SET is_revoked = TRUE WHERE user_id = $1',
+            [user.id]
+        );
+
+        logger.info(`Password reset successful for: ${user.email}`);
+
+        // Send confirmation email
+        const emailService = require('../services/emailService');
+        await emailService.queueEmail({
+            to: user.email,
+            toUserId: user.id,
+            subject: 'Your password has been reset',
+            templateName: 'password-reset-confirmation',
+            templateData: {
+                fullName: user.full_name || 'there'
+            },
+            priority: 1
+        });
+
+        res.json({ message: 'Password reset successful. You can now log in with your new password.' });
+
+    } catch (error) {
+        logger.error('Reset password error:', error);
+        res.status(500).json({ error: 'Password reset failed' });
+    }
+});
+
+// POST /api/auth/contact-admin
+router.post('/contact-admin', rateLimiters.auth, [
+    body('name').trim().notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('subject').trim().notEmpty().withMessage('Subject is required'),
+    body('message').trim().isLength({ min: 10, max: 2000 }).withMessage('Message must be 10-2000 characters')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { name, email, subject, message } = req.body;
+
+        // Send email to admin
+        const emailService = require('../services/emailService');
+        const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@principle5.coop';
+
+        await emailService.queueEmail({
+            to: ADMIN_EMAIL,
+            subject: `[Co-opMaps Contact] ${subject}`,
+            templateName: 'admin-contact',
+            templateData: {
+                name,
+                email,
+                subject,
+                message,
+                timestamp: new Date().toISOString()
+            },
+            priority: 2
+        });
+
+        // Send confirmation to user
+        await emailService.queueEmail({
+            to: email,
+            subject: 'We received your message',
+            templateName: 'contact-confirmation',
+            templateData: {
+                name,
+                subject
+            },
+            priority: 3
+        });
+
+        logger.info(`Admin contact form submitted by: ${email} - Subject: ${subject}`);
+
+        res.json({ message: 'Your message has been sent to the admin team. We\'ll get back to you soon!' });
+
+    } catch (error) {
+        logger.error('Contact admin error:', error);
+        res.status(500).json({ error: 'Failed to send message' });
     }
 });
 

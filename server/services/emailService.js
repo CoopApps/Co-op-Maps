@@ -532,6 +532,116 @@ Thank you for contributing to the cooperative mapping community!
 
 ---
 Co-op Maps - Mapping cooperative ecosystems together`
+        },
+
+        'password-reset-confirmation': {
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="margin: 0;">Password Reset Successful</h1>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                        <p>Hello ${data.fullName},</p>
+                        <p>Your password has been successfully reset.</p>
+                        <p>You can now log in to Co-opMaps using your new password.</p>
+                        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+                            <strong>Security Notice:</strong> If you didn't make this change, please contact us immediately at ${process.env.ADMIN_EMAIL || 'admin@principle5.coop'}.
+                        </div>
+                        <p>All your existing sessions have been logged out for security.</p>
+                    </div>
+                    <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 20px;">
+                        Co-op Maps - Mapping cooperative ecosystems together
+                    </p>
+                </div>
+            `,
+            text: `Password Reset Successful
+
+Hello ${data.fullName},
+
+Your password has been successfully reset.
+
+You can now log in to Co-opMaps using your new password.
+
+SECURITY NOTICE: If you didn't make this change, please contact us immediately at ${process.env.ADMIN_EMAIL || 'admin@principle5.coop'}.
+
+All your existing sessions have been logged out for security.
+
+---
+Co-op Maps - Mapping cooperative ecosystems together`
+        },
+
+        'admin-contact': {
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="margin: 0;">Contact Form Submission</h1>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                        <h3 style="margin-top: 0;">New message from Co-opMaps user</h3>
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <p><strong>From:</strong> ${data.name} (${data.email})</p>
+                            <p><strong>Subject:</strong> ${data.subject}</p>
+                            <p><strong>Time:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <h4 style="margin-top: 0;">Message:</h4>
+                            <p style="white-space: pre-wrap;">${data.message}</p>
+                        </div>
+                        <p style="font-size: 12px; color: #7f8c8d;">
+                            To reply, send an email to: <a href="mailto:${data.email}">${data.email}</a>
+                        </p>
+                    </div>
+                </div>
+            `,
+            text: `Contact Form Submission
+
+New message from Co-opMaps user
+
+From: ${data.name} (${data.email})
+Subject: ${data.subject}
+Time: ${new Date(data.timestamp).toLocaleString()}
+
+Message:
+${data.message}
+
+---
+To reply, send an email to: ${data.email}`
+        },
+
+        'contact-confirmation': {
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="margin: 0;">Message Received</h1>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                        <p>Hello ${data.name},</p>
+                        <p>Thank you for contacting us! We've received your message about:</p>
+                        <div style="background: white; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0;">
+                            <strong>${data.subject}</strong>
+                        </div>
+                        <p>Our admin team will review your message and get back to you as soon as possible, typically within 1-2 business days.</p>
+                        <p>If your issue is urgent, you can also reach us at ${process.env.ADMIN_EMAIL || 'admin@principle5.coop'}.</p>
+                    </div>
+                    <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 20px;">
+                        Co-op Maps - Mapping cooperative ecosystems together
+                    </p>
+                </div>
+            `,
+            text: `Message Received
+
+Hello ${data.name},
+
+Thank you for contacting us! We've received your message about:
+
+"${data.subject}"
+
+Our admin team will review your message and get back to you as soon as possible, typically within 1-2 business days.
+
+If your issue is urgent, you can also reach us at ${process.env.ADMIN_EMAIL || 'admin@principle5.coop'}.
+
+---
+Co-op Maps - Mapping cooperative ecosystems together`
         }
     };
 

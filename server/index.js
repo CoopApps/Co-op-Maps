@@ -13,7 +13,9 @@ const { connectDB } = require('./db/connection');
 const { connectRedis } = require('./db/redis');
 const { runMigrations } = require('./db/migrate');
 const { initializeSocketHandlers } = require('./sockets/index');
+const { initializeDraftSocketHandlers } = require('./sockets/drafts');
 const { rateLimiters } = require('./middleware/rateLimiter');
+const { autoRefreshToken } = require('./middleware/tokenRefresh');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -26,6 +28,8 @@ const tagsRoutes = require('./routes/tags');
 const publicRoutes = require('./routes/public');
 const mapsRoutes = require('./routes/maps');
 const adminRoutes = require('./routes/admin');
+const draftsRoutes = require('./routes/drafts');
+const submissionsRoutes = require('./routes/submissions');
 
 const app = express();
 const server = http.createServer(app);
@@ -71,6 +75,9 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('combined', { stream: logger.stream }));
 }
 
+// Auto-refresh expired tokens (must be before routes)
+app.use(autoRefreshToken);
+
 // Track connection status
 let dbConnected = false;
 let redisConnected = false;
@@ -100,6 +107,8 @@ app.use('/api/tags', rateLimiters.api, tagsRoutes);           // /api/tags for l
 app.use('/api/public', rateLimiters.publicApi, publicRoutes);
 app.use('/api/maps', rateLimiters.publicApi, mapsRoutes);
 app.use('/api/admin', rateLimiters.api, adminRoutes);
+app.use('/api/drafts', rateLimiters.drafts, draftsRoutes);
+app.use('/api/submissions', rateLimiters.api, submissionsRoutes);
 
 // Serve static files (for the frontend) with cache control
 // In development: disable caching entirely for easier testing
@@ -138,6 +147,7 @@ app.get('/', (req, res) => {
 
 // Socket.io handlers
 initializeSocketHandlers(io);
+initializeDraftSocketHandlers(io);
 
 // 404 handler
 app.use(notFoundHandler);

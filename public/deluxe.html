@@ -834,6 +834,13 @@
                         </button>
                     </div>
                 </div>
+                <button onclick="if(CoopMaps.modules.myMaps){CoopMaps.modules.myMaps.show()}else{alert('Please log in to access My Maps')}" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border: none; font-weight: 600;">
+                    <svg style="margin-right: 4px; vertical-align: middle;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    My Maps
+                </button>
                 <div class="separator"></div>
                 <select id="canvasSizeSelector" onchange="CoopMaps.changeCanvasSize(this.value)" style="
                     padding: 4px 8px;
@@ -1812,6 +1819,11 @@
     <script src="./js/modules/collaboration.js"></script>
     <script src="./js/modules/import.js"></script>
     <script src="./js/modules/auth.js"></script>
+
+    <!-- Draft Management Modules -->
+    <script src="./js/modules/autoSave.js"></script>
+    <script src="./js/modules/draftCollaboration.js"></script>
+    <script src="./js/modules/myMaps.js"></script>
 
     <!-- Initialize app AFTER all modules loaded -->
     <script>
