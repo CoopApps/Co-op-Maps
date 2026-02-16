@@ -458,6 +458,138 @@
             text-decoration: underline;
         }
 
+        /* Auth Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .close-btn:hover {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            display: none;
+            padding: 12px;
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .modal-footer a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .modal-footer a:hover {
+            text-decoration: underline;
+        }
+
         /* Responsive - stack on narrow screens */
         @media (max-width: 500px) {
             .mode-cards,
@@ -469,6 +601,10 @@
             .secondary-links {
                 flex-wrap: wrap;
                 justify-content: center;
+            }
+
+            .modal-content {
+                padding: 24px;
             }
         }
     </style>
@@ -603,6 +739,60 @@
         Co-op Maps v1.0 | A <a href="https://www.principle5.coop/" target="_blank" rel="noopener">Principle 5</a> product | ICA Principle 5: Co-operation Among Co-operatives
     </div>
 
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sign In</h2>
+                <button class="close-btn" onclick="closeLoginModal()">&times;</button>
+            </div>
+            <div id="loginError" class="error-message"></div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" name="email" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+            <div class="modal-footer">
+                Don't have an account? <a onclick="switchToRegister()">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sign Up</h2>
+                <button class="close-btn" onclick="closeRegisterModal()">&times;</button>
+            </div>
+            <div id="registerError" class="error-message"></div>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" name="full_name" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" name="email" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" name="password" required minlength="8" autocomplete="new-password">
+                </div>
+                <button type="submit" class="submit-btn">Sign Up</button>
+            </form>
+            <div class="modal-footer">
+                Already have an account? <a onclick="switchToLogin()">Sign In</a>
+            </div>
+        </div>
+    </div>
+
     <script src="./js/api.js"></script>
     <script src="./js/modules/auth.js"></script>
     <script>
@@ -680,20 +870,12 @@
                 `;
 
                 // Bind login/register buttons in header
-                document.getElementById('loginBtn').addEventListener('click', () => {
-                    window.location.href = './deluxe.html'; // Will show login modal
-                });
-                document.getElementById('registerBtn').addEventListener('click', () => {
-                    window.location.href = './deluxe.html'; // Will show register modal
-                });
+                document.getElementById('loginBtn').addEventListener('click', showLoginModal);
+                document.getElementById('registerBtn').addEventListener('click', showRegisterModal);
 
                 // Bind login prompt buttons
-                document.getElementById('loginPromptBtn').addEventListener('click', () => {
-                    window.location.href = './deluxe.html';
-                });
-                document.getElementById('registerPromptBtn').addEventListener('click', () => {
-                    window.location.href = './deluxe.html';
-                });
+                document.getElementById('loginPromptBtn').addEventListener('click', showLoginModal);
+                document.getElementById('registerPromptBtn').addEventListener('click', showRegisterModal);
             }
         }
 
@@ -776,6 +958,112 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeAuth();
         });
+
+        // Modal functions
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('loginEmail').focus();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('loginForm').reset();
+        }
+
+        function showRegisterModal() {
+            document.getElementById('registerModal').style.display = 'flex';
+            document.getElementById('registerError').style.display = 'none';
+            document.getElementById('registerName').focus();
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').style.display = 'none';
+            document.getElementById('registerForm').reset();
+        }
+
+        function switchToRegister() {
+            closeLoginModal();
+            showRegisterModal();
+        }
+
+        function switchToLogin() {
+            closeRegisterModal();
+            showLoginModal();
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target.id === 'loginModal') closeLoginModal();
+            if (e.target.id === 'registerModal') closeRegisterModal();
+        });
+
+        // Handle login
+        async function handleLogin(event) {
+            event.preventDefault();
+            const submitBtn = event.target.querySelector('.submit-btn');
+            const errorDiv = document.getElementById('loginError');
+            const originalText = submitBtn.textContent;
+
+            try {
+                submitBtn.textContent = 'Signing in...';
+                submitBtn.disabled = true;
+                errorDiv.style.display = 'none';
+
+                const formData = new FormData(event.target);
+                const response = await CoopMapsAPI.login(
+                    formData.get('email'),
+                    formData.get('password')
+                );
+
+                // Store auth data
+                localStorage.setItem('coopmaps_user', JSON.stringify(response));
+                localStorage.setItem('coopmaps_refresh_token', response.refresh_token);
+
+                // Reload page to show authenticated state
+                window.location.reload();
+
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Login failed. Please try again.';
+                errorDiv.style.display = 'block';
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Handle register
+        async function handleRegister(event) {
+            event.preventDefault();
+            const submitBtn = event.target.querySelector('.submit-btn');
+            const errorDiv = document.getElementById('registerError');
+            const originalText = submitBtn.textContent;
+
+            try {
+                submitBtn.textContent = 'Creating account...';
+                submitBtn.disabled = true;
+                errorDiv.style.display = 'none';
+
+                const formData = new FormData(event.target);
+                const response = await CoopMapsAPI.register(
+                    formData.get('full_name'),
+                    formData.get('email'),
+                    formData.get('password')
+                );
+
+                // Store auth data
+                localStorage.setItem('coopmaps_user', JSON.stringify(response));
+                localStorage.setItem('coopmaps_refresh_token', response.refresh_token);
+
+                // Reload page to show authenticated state
+                window.location.reload();
+
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Registration failed. Please try again.';
+                errorDiv.style.display = 'block';
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
 
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {
