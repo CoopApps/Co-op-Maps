@@ -485,7 +485,7 @@
         <h1>Co-op Maps</h1>
         <div class="header-right">
             <a href="./browse.html" class="header-link">Browse</a>
-            <a href="./admin.html" class="header-link">Admin</a>
+            <div id="authContainer"></div>
         </div>
     </div>
 
@@ -502,7 +502,21 @@
             <p>Map your co-operative ecosystem</p>
         </div>
 
-        <div class="mode-cards">
+        <div id="loginPrompt" class="login-prompt" style="display: none;">
+            <p style="font-size: clamp(12px, 1.8vh, 16px); color: #64748b; margin-bottom: clamp(12px, 2vh, 20px);">
+                Please sign in to start mapping
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="loginPromptBtn" style="padding: 10px 24px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                    Sign In
+                </button>
+                <button id="registerPromptBtn" style="padding: 10px 24px; background: transparent; color: #3498db; border: 2px solid #3498db; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                    Sign Up
+                </button>
+            </div>
+        </div>
+
+        <div id="modeCards" class="mode-cards" style="display: none;">
             <a href="./express.html" class="mode-card express">
                 <div class="mode-icon express">EX</div>
                 <h3>Express</h3>
@@ -589,7 +603,112 @@
         Co-op Maps v1.0 | A <a href="https://www.principle5.coop/" target="_blank" rel="noopener">Principle 5</a> product | ICA Principle 5: Co-operation Among Co-operatives
     </div>
 
+    <script src="./js/api.js"></script>
+    <script src="./js/modules/auth.js"></script>
     <script>
+        // Initialize auth and check login status
+        function initializeAuth() {
+            const authContainer = document.getElementById('authContainer');
+            const modeCards = document.getElementById('modeCards');
+            const loginPrompt = document.getElementById('loginPrompt');
+            const savedSection = document.getElementById('savedSection');
+
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('coopmaps_user') || 'null');
+            const isLoggedIn = user && user.access_token;
+
+            if (isLoggedIn) {
+                // Show mode cards and saved maps
+                modeCards.style.display = 'flex';
+                loginPrompt.style.display = 'none';
+                savedSection.style.display = 'block';
+                loadSavedMaps();
+
+                // Show user button in header
+                authContainer.innerHTML = `
+                    <button id="userMenuBtn" style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 6px 12px;
+                        background: rgba(30,41,59,0.1);
+                        color: #1e293b;
+                        border: 1px solid rgba(30,41,59,0.2);
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-size: 13px;
+                        font-weight: 500;
+                    ">
+                        <div style="
+                            width: 24px;
+                            height: 24px;
+                            background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 11px;
+                            font-weight: 600;
+                            color: white;
+                        ">${getUserInitials(user)}</div>
+                        <span>${user.full_name || user.email.split('@')[0]}</span>
+                    </button>
+                `;
+
+                // Add logout functionality
+                document.getElementById('userMenuBtn').addEventListener('click', () => {
+                    if (confirm('Sign out?')) {
+                        localStorage.removeItem('coopmaps_user');
+                        localStorage.removeItem('coopmaps_refresh_token');
+                        window.location.reload();
+                    }
+                });
+            } else {
+                // Show login prompt, hide mode cards
+                modeCards.style.display = 'none';
+                loginPrompt.style.display = 'block';
+                savedSection.style.display = 'none';
+
+                // Show login/register buttons in header
+                authContainer.innerHTML = `
+                    <button id="loginBtn" class="header-link" style="cursor: pointer; background: transparent; border: 1px solid rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 4px;">
+                        Sign In
+                    </button>
+                    <button id="registerBtn" class="header-link" style="cursor: pointer; background: rgba(59,130,246,0.8); border: none; padding: 4px 12px; border-radius: 4px;">
+                        Sign Up
+                    </button>
+                `;
+
+                // Bind login/register buttons in header
+                document.getElementById('loginBtn').addEventListener('click', () => {
+                    window.location.href = './deluxe.html'; // Will show login modal
+                });
+                document.getElementById('registerBtn').addEventListener('click', () => {
+                    window.location.href = './deluxe.html'; // Will show register modal
+                });
+
+                // Bind login prompt buttons
+                document.getElementById('loginPromptBtn').addEventListener('click', () => {
+                    window.location.href = './deluxe.html';
+                });
+                document.getElementById('registerPromptBtn').addEventListener('click', () => {
+                    window.location.href = './deluxe.html';
+                });
+            }
+        }
+
+        function getUserInitials(user) {
+            if (!user) return '?';
+            if (user.full_name) {
+                const parts = user.full_name.split(' ');
+                if (parts.length >= 2) {
+                    return (parts[0][0] + parts[1][0]).toUpperCase();
+                }
+                return parts[0][0].toUpperCase();
+            }
+            return user.email[0].toUpperCase();
+        }
+
         function loadSavedMaps() {
             const savedMaps = [];
 
@@ -654,7 +773,9 @@
             window.location.href = './deluxe.html';
         }
 
-        document.addEventListener('DOMContentLoaded', loadSavedMaps);
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeAuth();
+        });
 
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {
