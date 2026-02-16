@@ -838,6 +838,10 @@
                     const menu = document.getElementById('userMenu');
                     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
                 });
+
+                // Show My Maps button
+                const myMapsBtn = document.getElementById('myMapsBtn');
+                if (myMapsBtn) myMapsBtn.style.display = 'inline-flex';
             } else {
                 // Show login/register buttons
                 authContainer.innerHTML = `
@@ -868,6 +872,10 @@
                 // Re-bind events
                 document.getElementById('loginBtn').addEventListener('click', () => this.showLoginModal());
                 document.getElementById('registerBtn').addEventListener('click', () => this.showRegisterModal());
+
+                // Hide My Maps button
+                const myMapsBtn = document.getElementById('myMapsBtn');
+                if (myMapsBtn) myMapsBtn.style.display = 'none';
             }
         },
 

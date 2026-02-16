@@ -834,7 +834,7 @@
                         </button>
                     </div>
                 </div>
-                <button onclick="if(CoopMaps.modules.myMaps){CoopMaps.modules.myMaps.show()}else{alert('Please log in to access My Maps')}" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border: none; font-weight: 600;">
+                <button id="myMapsBtn" onclick="if(CoopMaps.modules.myMaps){CoopMaps.modules.myMaps.show()}" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border: none; font-weight: 600; display: none;">
                     <svg style="margin-right: 4px; vertical-align: middle;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
